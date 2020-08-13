@@ -7,6 +7,7 @@ To build the iwgtk binary and install it to /usr/local/bin/iwgtk, run:
 ```
 make
 sudo make install
+make clean
 ```
 
 ## License

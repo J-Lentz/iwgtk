@@ -1,24 +1,31 @@
 CC=gcc
-CFLAGS=-O3 `pkg-config --cflags gtk+-3.0`
+CFLAGS=`pkg-config --cflags gtk+-3.0` -O3
 LDLIBS=`pkg-config --libs gtk+-3.0`
 
-ICON_LIST=resources/*.svg
-HEADER_LIST=iwgtk.h main.h dialog.h objects.h adapter.h device.h station.h wps.h ap.h adhoc.h utilities.h switch.h known_network.h network.h agent.h icons.h
-OBJECT_LIST=main.o dialog.o objects.o adapter.o device.o station.o wps.o ap.o adhoc.o utilities.o switch.o known_network.o network.o agent.o icons.o
+FILES=main dialog objects adapter device station wps ap adhoc utilities switch known_network network agent icons
+ICONS=icons/*.svg
+
+HEADERS=$(patsubst %,src/%.h,$(FILES) iwgtk)
+OBJ=$(patsubst %,obj/%.o,$(FILES))
 
 .PHONY : clean install
 
-iwgtk : $(HEADER_LIST) $(OBJECT_LIST)
-	$(CC) $(CFLAGS) -o $@ $(OBJECT_LIST) $(LDLIBS)
+iwgtk : $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
 
-icons.c : icons.gresource.xml $(ICON_LIST)
-	glib-compile-resources --generate-source icons.gresource.xml
+obj/%.o : src/%.c $(HEADERS)
+	$(CC) -c $(CFLAGS) -o $@ $<
 
-icons.h : icons.gresource.xml $(ICON_LIST)
-	glib-compile-resources --generate-header icons.gresource.xml
+src/icons.c : icons.gresource.xml $(ICONS)
+	glib-compile-resources --generate-source $<
+	mv icons.c src/
+
+src/icons.h : icons.gresource.xml $(ICONS)
+	glib-compile-resources --generate-header $<
+	mv icons.h src/
 
 install : iwgtk
 	install iwgtk /usr/local/bin
 
 clean :
-	rm -f *.o icons.c icons.h
+	rm -f obj/* src/icons.c src/icons.h
