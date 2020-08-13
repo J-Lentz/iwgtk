@@ -15,7 +15,6 @@ Copyright 2020 Jesse Lentz <jesselnz@gmail.com>
 iwgtk is licensed under the GPL version 3 or later.
 
 The wifi and signal strength icons were created by i cons from the Noun Project.
-
 These icons are licensed under the Creative Commons BY license.
 
 https://thenounproject.com/iconsguru/collection/wifi-states/
