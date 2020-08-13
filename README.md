@@ -1,5 +1,7 @@
 ## About
-iwgtk is a lightweight, graphical wifi management utility for Linux. Its only dependencies are iwd and GTK3.
+iwgtk is a lightweight, graphical wifi management utility for Linux. Its only
+dependencies are iwd and GTK3. Supported functionality is similar to that of
+iwctl.
 
 ## Installation
 To build the iwgtk binary and install it to /usr/local/bin/iwgtk, run:
