@@ -13,8 +13,11 @@ OBJ=$(patsubst %,obj/%.o,$(FILES))
 iwgtk : $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
 
-obj/%.o : src/%.c $(HEADERS)
+obj/%.o : src/%.c $(HEADERS) obj/
 	$(CC) -c $(CFLAGS) -o $@ $<
+
+obj/ :
+	mkdir obj
 
 src/icons.c : icons.gresource.xml $(ICONS)
 	glib-compile-resources --generate-source $<
@@ -28,4 +31,4 @@ install : iwgtk
 	install iwgtk /usr/local/bin
 
 clean :
-	rm -f obj/* src/icons.c src/icons.h
+	rm -rf obj src/icons.c src/icons.h
