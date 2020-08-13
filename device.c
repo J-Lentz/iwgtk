@@ -1,0 +1,281 @@
+/*
+ *  Copyright 2020 Jesse Lentz
+ *
+ *  This file is part of iwgtk.
+ *
+ *  iwgtk is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  iwgtk is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with iwgtk.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+#include "iwgtk.h"
+
+void device_show(GtkToggleButton *button, Device *device) {
+    if (gtk_toggle_button_get_active(button)) {
+	bin_empty(GTK_BIN(global.main));
+	gtk_container_add(GTK_CONTAINER(global.main), device->master);
+    }
+}
+
+void device_set(Device *device) {
+    {
+	GVariant *mac_var;
+	const gchar *mac;
+
+	mac_var = g_dbus_proxy_get_cached_property(device->proxy, "Address");
+	mac = g_variant_get_string(mac_var, NULL);
+	gtk_label_set_text(GTK_LABEL(device->mac_label), mac);
+	g_variant_unref(mac_var);
+    }
+
+    {
+	GVariant *mode_var;
+	const gchar *mode;
+
+	mode_var = g_dbus_proxy_get_cached_property(device->proxy, "Mode");
+	mode = g_variant_get_string(mode_var, NULL);
+	gtk_combo_box_set_active_id(GTK_COMBO_BOX(device->mode_box), mode);
+	g_variant_unref(mode_var);
+    }
+
+    {
+	GVariant *powered_var;
+	gboolean powered;
+	const gchar *status_line;
+
+	powered_var = g_dbus_proxy_get_cached_property(device->proxy, "Powered");
+	powered = g_variant_get_boolean(powered_var);
+
+	if (!powered) {
+	    gtk_label_set_text(GTK_LABEL(device->status), "Power off");
+	}
+
+	g_variant_unref(powered_var);
+    }
+}
+
+void mode_box_changed(GtkComboBox *box, GDBusProxy *proxy) {
+    const gchar *mode;
+
+    mode = gtk_combo_box_get_active_id(box);
+    set_remote_property(proxy, "Mode", g_variant_new_string(mode));
+}
+
+GtkWidget* mode_box_new(GDBusProxy *adapter_proxy) {
+    GtkWidget *box;
+    GtkListStore *list_store;
+    GtkTreeIter list_store_iter;
+    GtkCellRenderer *cell_renderer;
+
+    GVariant *supported_modes_var;
+    GVariantIter supported_modes_iter;
+    gchar *supported_mode;
+
+    list_store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
+
+    supported_modes_var = g_dbus_proxy_get_cached_property(adapter_proxy, "SupportedModes");
+
+    g_variant_iter_init(&supported_modes_iter, supported_modes_var);
+    while (g_variant_iter_next(&supported_modes_iter, "s", &supported_mode)) {
+	const gchar *supported_mode_display;
+
+	if (strcmp(supported_mode, "station") == 0) {
+	    supported_mode_display = "Station";
+	}
+	else if (strcmp(supported_mode, "ap") == 0) {
+	    supported_mode_display = "AP";
+	}
+	else if (strcmp(supported_mode, "ad-hoc") == 0) {
+	    supported_mode_display = "Ad-Hoc";
+	}
+	else {
+	    supported_mode_display = supported_mode;
+	}
+
+	gtk_list_store_append(list_store, &list_store_iter);
+	gtk_list_store_set(list_store, &list_store_iter, 0, supported_mode, 1, supported_mode_display, -1);
+    }
+
+    box = gtk_combo_box_new_with_model(GTK_TREE_MODEL(list_store));
+    g_object_unref(list_store);
+
+    cell_renderer = gtk_cell_renderer_text_new();
+    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(box), cell_renderer, TRUE);
+    gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(box), cell_renderer, "text", 1);
+
+    gtk_combo_box_set_id_column(GTK_COMBO_BOX(box), 0);
+
+    return box;
+}
+
+Device* device_add(GDBusObject *object, GDBusProxy *proxy) {
+    Device *device;
+
+    device = malloc(sizeof(Device));
+    device->proxy = proxy;
+
+    {
+	GVariant *name_var;
+	const gchar *name;
+
+	name_var = g_dbus_proxy_get_cached_property(proxy, "Name");
+	name = g_variant_get_string(name_var, NULL);
+
+	device->button = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(global.known_network_button), name);
+	g_object_ref_sink(device->button);
+	gtk_toggle_button_set_mode(GTK_TOGGLE_BUTTON(device->button), FALSE);
+	gtk_widget_show(device->button);
+	g_signal_connect(device->button, "toggled", G_CALLBACK(device_show), (gpointer) device);
+
+	g_variant_unref(name_var);
+    }
+
+    {
+	GVariant *adapter_path_var;
+	const gchar *adapter_path;
+	GDBusObject *adapter_object;
+	GDBusProxy *adapter_proxy;
+
+	adapter_path_var = g_dbus_proxy_get_cached_property(proxy, "Adapter");
+	adapter_path = g_variant_get_string(adapter_path_var, NULL);
+	adapter_object = g_dbus_object_manager_get_object(global.manager, adapter_path);
+	g_variant_unref(adapter_path_var);
+
+	couple_register(ADAPTER_DEVICE, 1, device, adapter_object);
+
+	adapter_proxy = G_DBUS_PROXY(g_dbus_object_get_interface(adapter_object, IWD_IFACE_ADAPTER));
+	device->mode_box = mode_box_new(adapter_proxy);
+	g_object_unref(adapter_proxy);
+    }
+
+    device->master = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+    g_object_ref_sink(device->master);
+
+
+    device->table = gtk_grid_new();
+    gtk_box_pack_start(GTK_BOX(device->master), device->table, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(device->master), gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), FALSE, FALSE, 0);
+
+    gtk_widget_set_margin_start(device->table, 5);
+    gtk_widget_set_margin_end(device->table, 5);
+
+    device->power_switch = switch_new(proxy, "Powered");
+    device->mac_label = gtk_label_new(NULL);
+    device->status = gtk_label_new(NULL);
+
+    {
+	GtkWidget *address_label, *status_label, *up_label, *mode_label;
+
+	address_label = gtk_label_new("Address: ");
+	status_label = gtk_label_new("Status: ");
+	up_label = gtk_label_new("Power: ");
+	mode_label = gtk_label_new("Mode: ");
+
+	gtk_grid_attach(GTK_GRID(device->table), address_label,         0, 0, 1, 1);
+	gtk_grid_attach(GTK_GRID(device->table), device->mac_label,     1, 0, 1, 1);
+	gtk_grid_attach(GTK_GRID(device->table), status_label,          0, 1, 1, 1);
+	gtk_grid_attach(GTK_GRID(device->table), device->status,        1, 1, 1, 1);
+
+	gtk_grid_attach(GTK_GRID(device->table), up_label,              2, 0, 1, 1);
+	gtk_grid_attach(GTK_GRID(device->table), device->power_switch,  3, 0, 1, 1);
+	gtk_grid_attach(GTK_GRID(device->table), mode_label,            2, 1, 1, 1);
+	gtk_grid_attach(GTK_GRID(device->table), device->mode_box,      3, 1, 1, 1);
+
+	gtk_widget_set_margin_start(up_label, 10);
+	gtk_widget_set_margin_start(mode_label, 10);
+	gtk_widget_set_margin_end(device->power_switch, 10);
+	gtk_widget_set_margin_end(device->mode_box, 10);
+
+	gtk_widget_set_halign(address_label, GTK_ALIGN_END);
+	gtk_widget_set_halign(status_label, GTK_ALIGN_END);
+
+	gtk_widget_set_halign(device->mac_label, GTK_ALIGN_START);
+	gtk_widget_set_halign(device->status, GTK_ALIGN_START);
+
+	gtk_widget_set_halign(up_label, GTK_ALIGN_END);
+	gtk_widget_set_halign(mode_label, GTK_ALIGN_END);
+
+	gtk_widget_set_halign(device->power_switch, GTK_ALIGN_START);
+	gtk_widget_set_halign(device->mode_box, GTK_ALIGN_START);
+
+	gtk_widget_set_valign(address_label, GTK_ALIGN_CENTER);
+	gtk_widget_set_valign(status_label, GTK_ALIGN_CENTER);
+
+	gtk_widget_set_valign(device->mac_label, GTK_ALIGN_CENTER);
+	gtk_widget_set_valign(device->status, GTK_ALIGN_CENTER);
+
+	gtk_widget_set_valign(up_label, GTK_ALIGN_CENTER);
+	gtk_widget_set_valign(mode_label, GTK_ALIGN_CENTER);
+
+	gtk_widget_set_valign(device->power_switch, GTK_ALIGN_CENTER);
+	gtk_widget_set_valign(device->mode_box, GTK_ALIGN_CENTER);
+
+	gtk_grid_set_row_spacing(GTK_GRID(device->table), 5);
+    }
+
+    gtk_widget_show_all(device->master);
+
+    g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(device_set), (gpointer) device);
+    device_set(device);
+
+    g_signal_connect(device->mode_box, "changed", G_CALLBACK(mode_box_changed), (gpointer) proxy);
+
+    couple_register(DEVICE_STATION, 0, device, object);
+    couple_register(DEVICE_AP,      0, device, object);
+    couple_register(DEVICE_ADHOC,   0, device, object);
+    couple_register(DEVICE_WPS,     0, device, object);
+
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(device->button), TRUE);
+    return device;
+}
+
+void device_remove(Device *device) {
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(device->button))) {
+	ObjectList *device_list;
+	GtkWidget *button_alt;
+
+	button_alt = NULL;
+	device_list = object_table[OBJECT_DEVICE].objects;
+
+	/*
+	 * TODO: Select the next-in-line device more intelligently.
+	 * e.g., prefer to switch to a device associated with the same adapter, if
+	 * possible.
+	 */
+	while (device_list != NULL) {
+	    Device *device_alt;
+	    device_alt = (Device *) device_list->data;
+	    if (device_alt != device) {
+		button_alt = device_alt->button;
+		break;
+	    }
+	    device_list = device_list->next;
+	}
+
+	if (!button_alt) {
+	    button_alt = global.known_network_button;
+	}
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button_alt), TRUE);
+    }
+
+    couple_unregister(DEVICE_STATION, 0, device);
+    couple_unregister(DEVICE_AP,      0, device);
+    couple_unregister(DEVICE_ADHOC,   0, device);
+    couple_unregister(DEVICE_WPS,     0, device);
+
+    couple_unregister(ADAPTER_DEVICE, 1, device);
+
+    g_object_unref(device->master);
+    g_object_unref(device->button);
+    free(device);
+}

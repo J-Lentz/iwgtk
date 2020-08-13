@@ -1,0 +1,13 @@
+= TODO =
+
+Add support for hidden networks:
+ * Connect to a hidden network
+ * Display list of hidden networks
+
+Notifications and error messages:
+ * Review all notification/error messages and make them more consistent.
+ * Allow users to select which messages to show.
+ * Display the SSID of the network in the "connected" and "disconnected" messages.
+ * Show a message when a device is added/removed.
+
+Remember the SSID of a newly created AP or ad-hoc node and display it while the AP/node is running.
