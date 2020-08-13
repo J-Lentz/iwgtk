@@ -272,13 +272,13 @@ int main (int argc, char **argv) {
 
 	err = NULL;
 	g_option_context_parse(context, &argc, &argv, &err);
+	g_option_context_free(context);
 
 	if (err) {
-	    fprintf(stderr, "Error parsing command line arguments: %s\n", err->message);
+	    fprintf(stderr, "Incorrect usage: %s\n", err->message);
 	    g_error_free(err);
+	    exit(1);
 	}
-
-	g_option_context_free(context);
     }
 
     global.application = gtk_application_new("application.iwgtk", G_APPLICATION_NON_UNIQUE);
