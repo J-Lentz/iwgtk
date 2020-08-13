@@ -45,8 +45,6 @@ void adapter_set(Adapter *adapter) {
 
 Adapter* adapter_add(GDBusObject *object, GDBusProxy *proxy) {
     Adapter *adapter;
-
-    GtkWidget *card_label;
     GtkWidget *vbox;
     GtkWidget *row1;
 

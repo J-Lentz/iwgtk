@@ -184,7 +184,6 @@ void network_remove(Network *network) {
 }
 
 void bind_station_network(Station *station, Network *network, gint16 signal_strength, int index) {
-    gchar *signal_text;
     GtkWidget *signal_widget;
 
     if (global.signal_icon_disable) {
