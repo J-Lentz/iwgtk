@@ -13,11 +13,9 @@ OBJ=$(patsubst %,obj/%.o,$(FILES))
 iwgtk : $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
 
-obj/%.o : src/%.c $(HEADERS) obj/
+obj/%.o : src/%.c $(HEADERS)
+	mkdir -p obj
 	$(CC) -c $(CFLAGS) -o $@ $<
-
-obj/ :
-	mkdir obj
 
 src/icons.c : icons.gresource.xml $(ICONS)
 	glib-compile-resources --generate-source $<
