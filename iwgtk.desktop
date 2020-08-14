@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=iwgtk
+Comment=Wifi management utility
+Exec=iwgtk
+Terminal=false
+Categories=Network;

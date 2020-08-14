@@ -39,7 +39,6 @@ void psk_toggle_changed(GtkToggleButton *psk_toggle, AdHocDialog *adhoc_dialog) 
 
 void adhoc_dialog_launch(AdHoc *adhoc) {
     AdHocDialog *adhoc_dialog;
-
     GtkWidget *table, *buttons;
 
     adhoc_dialog = malloc(sizeof(AdHocDialog));

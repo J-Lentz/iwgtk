@@ -32,13 +32,13 @@ typedef struct {
     gulong button_handler_id;
 } Network;
 
-void security_type_set(GDBusProxy *proxy, GtkWidget *label);
+const gchar* get_security_type(const gchar *type_raw);
 void connect_button_clicked(GtkButton *button, GDBusProxy *network_proxy);
 void disconnect_button_clicked(GtkButton *button, GDBusProxy *station_proxy);
-void connect_button_set(Network *network);
-void network_update(GDBusProxy *network_proxy, GVariant *properties, gchar **invalidated_properties, Network *network);
+void network_set(Network *network);
 Network* network_add(GDBusObject *object, GDBusProxy *proxy);
 void network_remove(Network *network);
+GtkWidget* signal_widget(gint16 signal_strength);
 void bind_station_network(Station *station, Network *network, gint16 signal_strength, int index);
 Network* network_lookup(const char *path);
 

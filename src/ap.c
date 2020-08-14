@@ -32,49 +32,48 @@ static const CallbackMessages ap_stop_messages = {
 };
 
 void ap_dialog_launch(AP *ap) {
-    APDialog *dialog_data;
-
+    APDialog *dialog;
     GtkWidget *table, *buttons;
 
-    dialog_data = malloc(sizeof(APDialog));
-    dialog_data->ap = ap;
+    dialog = malloc(sizeof(APDialog));
+    dialog->ap = ap;
 
-    dialog_data->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(dialog_data->window), "Create Access Point");
+    dialog->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(dialog->window), "Create Access Point");
 
-    dialog_data->ssid = gtk_entry_new();
-    dialog_data->psk = gtk_entry_new();
+    dialog->ssid = gtk_entry_new();
+    dialog->psk = gtk_entry_new();
 
-    buttons = dialog_buttons(dialog_data, G_CALLBACK(ap_dialog_submit), dialog_data->window);
+    buttons = dialog_buttons(dialog, G_CALLBACK(ap_dialog_submit), dialog->window);
 
     table = gtk_grid_new();
-    gtk_container_add(GTK_CONTAINER(dialog_data->window), table);
+    gtk_container_add(GTK_CONTAINER(dialog->window), table);
 
     gtk_grid_attach(GTK_GRID(table), gtk_label_new("SSID: "),     0, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(table), dialog_data->ssid,           1, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), dialog->ssid,                1, 0, 1, 1);
     gtk_grid_attach(GTK_GRID(table), gtk_label_new("Password: "), 0, 1, 1, 1);
-    gtk_grid_attach(GTK_GRID(table), dialog_data->psk,            1, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), dialog->psk,                 1, 1, 1, 1);
     gtk_grid_attach(GTK_GRID(table), buttons,                     1, 2, 1, 1);
 
     grid_column_set_alignment(table, 0, GTK_ALIGN_END);
     grid_column_set_alignment(table, 1, GTK_ALIGN_START);
 
-    g_signal_connect_swapped(dialog_data->window, "destroy", G_CALLBACK(free), dialog_data);
-    gtk_widget_show_all(dialog_data->window);
+    g_signal_connect_swapped(dialog->window, "destroy", G_CALLBACK(free), dialog);
+    gtk_widget_show_all(dialog->window);
 }
 
-void ap_dialog_submit(APDialog *data) {
+void ap_dialog_submit(APDialog *dialog) {
     const gchar *ssid, *psk;
 
-    ssid = gtk_entry_get_text(GTK_ENTRY(data->ssid));
-    psk = gtk_entry_get_text(GTK_ENTRY(data->psk));
+    ssid = gtk_entry_get_text(GTK_ENTRY(dialog->ssid));
+    psk = gtk_entry_get_text(GTK_ENTRY(dialog->psk));
 
     if (*ssid == '\0' || *psk == '\0') {
 	return;
     }
 
     g_dbus_proxy_call(
-	data->ap->proxy,
+	dialog->ap->proxy,
 	"Start",
 	g_variant_new("(ss)", ssid, psk),
 	G_DBUS_CALL_FLAGS_NONE,
@@ -83,19 +82,19 @@ void ap_dialog_submit(APDialog *data) {
 	(GAsyncReadyCallback) validation_callback,
 	(gpointer) &ap_start_messages);
 
-    gtk_widget_destroy(data->window);
+    gtk_widget_destroy(dialog->window);
 }
 
-void ap_button_clicked(AP *data) {
+void ap_button_clicked(AP *ap) {
     GVariant *started_var;
     gboolean started;
 
-    started_var = g_dbus_proxy_get_cached_property(data->proxy, "Started");
+    started_var = g_dbus_proxy_get_cached_property(ap->proxy, "Started");
     started = g_variant_get_boolean(started_var);
 
     if (started) {
 	g_dbus_proxy_call(
-	    data->proxy,
+	    ap->proxy,
 	    "Stop",
 	    NULL,
 	    G_DBUS_CALL_FLAGS_NONE,
@@ -105,26 +104,26 @@ void ap_button_clicked(AP *data) {
 	    (gpointer) &ap_stop_messages);
     }
     else {
-	ap_dialog_launch(data);
+	ap_dialog_launch(ap);
     }
 
     g_variant_unref(started_var);
 }
 
-void ap_set(AP *data) {
+void ap_set(AP *ap) {
     GVariant *started_var;
     gboolean started;
 
-    started_var = g_dbus_proxy_get_cached_property(data->proxy, "Started");
+    started_var = g_dbus_proxy_get_cached_property(ap->proxy, "Started");
     started = g_variant_get_boolean(started_var);
 
     if (started) {
-	gtk_label_set_text(GTK_LABEL(data->device->status), "AP running");
-	gtk_button_set_label(GTK_BUTTON(data->button), "Stop AP");
+	gtk_label_set_text(GTK_LABEL(ap->device->status), "AP running");
+	gtk_button_set_label(GTK_BUTTON(ap->button), "Stop AP");
     }
     else {
-	gtk_label_set_text(GTK_LABEL(data->device->status), "AP down");
-	gtk_button_set_label(GTK_BUTTON(data->button), "Start AP");
+	gtk_label_set_text(GTK_LABEL(ap->device->status), "AP down");
+	gtk_button_set_label(GTK_BUTTON(ap->button), "Start AP");
     }
 
     g_variant_unref(started_var);

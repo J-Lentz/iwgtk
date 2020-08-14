@@ -24,6 +24,8 @@ typedef struct {
     GDBusProxy *proxy;
     Device *device;
 
+    int i;
+
     GtkWidget *networks;
     GtkWidget *scan_button;
     GtkWidget *scan_widget_idle;
@@ -40,7 +42,9 @@ Station* station_add(GDBusObject *object, GDBusProxy *proxy);
 void station_remove(Station *station);
 void bind_device_station(Device *device, Station *station);
 void unbind_device_station(Device *device, Station *station);
-void get_ordered_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *station);
+void insert_separator(Station *station);
 void populate_network_list(Station *station);
+void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *station);
+void get_hidden_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *station);
 
 #endif

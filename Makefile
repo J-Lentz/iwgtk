@@ -2,31 +2,47 @@ CC=gcc
 CFLAGS=`pkg-config --cflags gtk+-3.0` -O3
 LDLIBS=`pkg-config --libs gtk+-3.0`
 
-FILES=main dialog objects adapter device station wps ap adhoc utilities switch known_network network agent icons
-ICONS=icons/*.svg
+prefix=/usr/local
+exec_prefix=$(prefix)
+bindir=$(exec_prefix)/bin
+datarootdir=$(prefix)/share
+datadir=$(datarootdir)
+mandir=$(datarootdir)/man
+man1dir=$(mandir)/man1
+desktopdir=$(datadir)/applications
 
-HEADERS=$(patsubst %,src/%.h,$(FILES) iwgtk)
-OBJ=$(patsubst %,obj/%.o,$(FILES))
+srcdir=src
+iconsdir=icons
 
-.PHONY : clean install
+files=main dialog objects adapter device station wps ap adhoc utilities switch known_network network hidden agent icons
+icons=$(iconsdir)/*.svg
 
-iwgtk : $(OBJ)
+headers=$(patsubst %,$(srcdir)/%.h,$(files) iwgtk)
+objects=$(patsubst %,%.o,$(files))
+
+.PHONY : clean install uninstall
+
+iwgtk : $(objects)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
 
-obj/%.o : src/%.c $(HEADERS)
-	mkdir -p obj
+%.o : $(srcdir)/%.c $(headers)
 	$(CC) -c $(CFLAGS) -o $@ $<
 
-src/icons.c : icons.gresource.xml $(ICONS)
-	glib-compile-resources --generate-source $<
-	mv icons.c src/
+$(srcdir)/icons.c : icons.gresource.xml $(icons)
+	glib-compile-resources --target=$@ --sourcedir=$(iconsdir) --generate-source $<
 
-src/icons.h : icons.gresource.xml $(ICONS)
-	glib-compile-resources --generate-header $<
-	mv icons.h src/
+$(srcdir)/icons.h : icons.gresource.xml $(icons)
+	glib-compile-resources --target=$@ --sourcedir=$(iconsdir) --generate-header $<
 
 install : iwgtk
-	install iwgtk /usr/local/bin
+	install -d $(DESTDIR)$(bindir)
+	install iwgtk $(DESTDIR)$(bindir)
+	install -d $(DESTDIR)$(desktopdir)
+	install iwgtk.desktop $(DESTDIR)$(desktopdir)
+
+uninstall :
+	rm $(DESTDIR)$(bindir)/iwgtk
+	rm $(DESTDIR)$(desktopdir)/iwgtk.desktop
 
 clean :
-	rm -rf obj src/icons.c src/icons.h
+	rm -f iwgtk *.o $(srcdir)/icons.c $(srcdir)/icons.h

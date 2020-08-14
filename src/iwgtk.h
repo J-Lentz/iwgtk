@@ -23,16 +23,21 @@
 #include <gtk/gtk.h>
 #include <gio/gio.h>
 
-#define IWD_DBUS_NAME           "net.connman.iwd"
+#define VERSION_STRING "iwgtk 0.2"
+
+#define IWD_DBUS_NAME "net.connman.iwd"
+
 #define IWD_PATH_OBJECT_MANAGER "/"
 #define IWD_PATH_AGENT_MANAGER  "/net/connman/iwd"
 
 #define IWGTK_PATH_AGENT        "/iwgtk/agent"
 #define IWGTK_RESOURCE_PATH     "/application/iwgtk/"
 
-#define RESOURCE_CONNECTED IWGTK_RESOURCE_PATH "connected"
-#define RESOURCE_KNOWN     IWGTK_RESOURCE_PATH "known"
-#define RESOURCE_UNKNOWN   IWGTK_RESOURCE_PATH "unknown"
+#define RESOURCE_CONNECTED  IWGTK_RESOURCE_PATH "connected"
+#define RESOURCE_CONNECTING IWGTK_RESOURCE_PATH "connecting"
+#define RESOURCE_KNOWN      IWGTK_RESOURCE_PATH "known"
+#define RESOURCE_UNKNOWN    IWGTK_RESOURCE_PATH "unknown"
+#define RESOURCE_HIDDEN     IWGTK_RESOURCE_PATH "hidden"
 
 #define RESOURCE_SIGNAL_0  IWGTK_RESOURCE_PATH "signal-0"
 #define RESOURCE_SIGNAL_1  IWGTK_RESOURCE_PATH "signal-1"
@@ -112,6 +117,7 @@ typedef struct {
 #include "known_network.h"
 #include "agent.h"
 #include "network.h"
+#include "hidden.h"
 
 #include "switch.h"
 #include "objects.h"

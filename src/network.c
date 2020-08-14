@@ -36,29 +36,23 @@ static const CallbackMessages disconnect_messages = {
     detailed_errors_standard
 };
 
-void security_type_set(GDBusProxy *proxy, GtkWidget *label) {
-    GVariant *security_var;
-    const gchar *security_raw;
-    const gchar *security_display;
-
-    security_var = g_dbus_proxy_get_cached_property(proxy, "Type");
-    security_raw = g_variant_get_string(security_var, NULL);
-
-    if (strcmp(security_raw, "open") == 0) {
-	security_display = "Open";
+const gchar* get_security_type(const gchar *type_raw) {
+    if (strcmp(type_raw, "open") == 0) {
+	return "Open";
     }
-    else if (strcmp(security_raw, "psk") == 0) {
-	security_display = "PSK";
+    else if (strcmp(type_raw, "psk") == 0) {
+	return "PSK";
     }
-    else if (strcmp(security_raw, "8021x") == 0) {
-	security_display = "EAP";
+    else if (strcmp(type_raw, "8021x") == 0) {
+	return "EAP";
+    }
+    else if (strcmp(type_raw, "wep") == 0) {
+	// The "wep" type value is undocumented
+	return "WEP";
     }
     else {
-	security_display = security_raw;
+	return type_raw;
     }
-
-    gtk_label_set_text(GTK_LABEL(label), security_display);
-    g_variant_unref(security_var);
 }
 
 void connect_button_clicked(GtkButton *button, GDBusProxy *network_proxy) {
@@ -97,7 +91,15 @@ void network_set(Network *network) {
 	g_variant_unref(ssid_var);
     }
 
-    security_type_set(network->proxy, network->security_label);
+    {
+	GVariant *type_var;
+	const gchar *type_raw;
+
+	type_var = g_dbus_proxy_get_cached_property(network->proxy, "Type");
+	type_raw = g_variant_get_string(type_var, NULL);
+	gtk_label_set_text(GTK_LABEL(network->security_label), get_security_type(type_raw));
+	g_variant_unref(type_var);
+    }
 
     if (network->button_handler_id != 0) {
 	g_signal_handler_disconnect(network->connect_button, network->button_handler_id);
@@ -117,7 +119,21 @@ void network_set(Network *network) {
 	status_icon = GTK_IMAGE(network->status_icon);
 
 	if (connected) {
-	    gtk_image_set_from_resource(status_icon, RESOURCE_CONNECTED);
+	    GVariant *state_var;
+	    const gchar *state;
+
+	    state_var = g_dbus_proxy_get_cached_property(network->station_proxy, "State");
+	    state = g_variant_get_string(state_var, NULL);
+
+	    if (strcmp(state, "connected") == 0) {
+		gtk_image_set_from_resource(status_icon, RESOURCE_CONNECTED);
+	    }
+	    else {
+		gtk_image_set_from_resource(status_icon, RESOURCE_CONNECTING);
+	    }
+
+	    g_variant_unref(state_var);
+
 	    gtk_button_set_label(button, "Disconnect");
 	    network->button_handler_id = g_signal_connect(button, "clicked", G_CALLBACK(disconnect_button_clicked), (gpointer) network->station_proxy);
 	}
@@ -183,13 +199,11 @@ void network_remove(Network *network) {
     free(network);
 }
 
-void bind_station_network(Station *station, Network *network, gint16 signal_strength, int index) {
-    GtkWidget *signal_widget;
-
+GtkWidget* signal_widget(gint16 signal_strength) {
     if (global.signal_icon_disable) {
 	gchar signal_text[5];
 	sprintf(signal_text, "%d", signal_strength / 100);
-	signal_widget = gtk_label_new(signal_text);
+	return gtk_label_new(signal_text);
     }
     else {
 	const gchar *signal_resource;
@@ -210,18 +224,24 @@ void bind_station_network(Station *station, Network *network, gint16 signal_stre
 	    signal_resource = RESOURCE_SIGNAL_0;
 	}
 
-	signal_widget = gtk_image_new_from_resource(signal_resource);
+	return gtk_image_new_from_resource(signal_resource);
     }
+}
+
+void bind_station_network(Station *station, Network *network, gint16 signal_strength, int index) {
+    GtkWidget *signal;
+
+    signal = signal_widget(signal_strength);
 
     gtk_grid_attach(GTK_GRID(station->networks), network->status_icon,    0, index, 1, 1);
     gtk_grid_attach(GTK_GRID(station->networks), network->ssid_label,     1, index, 1, 1);
     gtk_grid_attach(GTK_GRID(station->networks), network->security_label, 2, index, 1, 1);
-    gtk_grid_attach(GTK_GRID(station->networks), signal_widget,           3, index, 1, 1);
+    gtk_grid_attach(GTK_GRID(station->networks), signal,                  3, index, 1, 1);
     gtk_grid_attach(GTK_GRID(station->networks), network->connect_button, 4, index, 1, 1);
 
     gtk_widget_set_halign(network->status_icon,    GTK_ALIGN_START);
     gtk_widget_set_halign(network->ssid_label,     GTK_ALIGN_START);
-    gtk_widget_set_halign(signal_widget,           GTK_ALIGN_START);
+    gtk_widget_set_halign(signal,                  GTK_ALIGN_START);
     gtk_widget_set_halign(network->security_label, GTK_ALIGN_START);
     gtk_widget_set_halign(network->connect_button, GTK_ALIGN_FILL);
 

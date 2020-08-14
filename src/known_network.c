@@ -44,7 +44,15 @@ void known_network_set(KnownNetwork *kn) {
 	g_variant_unref(name_var);
     }
 
-    security_type_set(kn->proxy, kn->security_label);
+    {
+	GVariant *type_var;
+	const gchar *type_raw;
+
+	type_var = g_dbus_proxy_get_cached_property(kn->proxy, "Type");
+	type_raw = g_variant_get_string(type_var, NULL);
+	gtk_label_set_text(GTK_LABEL(kn->security_label), get_security_type(type_raw));
+	g_variant_unref(type_var);
+    }
 
     {
 	GVariant *hidden_var;

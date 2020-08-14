@@ -4,12 +4,17 @@ dependencies are iwd and GTK3. Supported functionality is similar to that of
 iwctl.
 
 ## Installation
-To build the iwgtk binary and install it to /usr/local/bin/iwgtk, run:
+To build the iwgtk binary and install it to /usr/local/bin run:
 
 ```
 make
 sudo make install
 make clean
+```
+
+To install to /usr/bin instead of /usr/local/bin, use:
+```
+sudo make prefix=/usr install
 ```
 
 ## License

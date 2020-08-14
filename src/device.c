@@ -175,7 +175,7 @@ Device* device_add(GDBusObject *object, GDBusProxy *proxy) {
     {
 	GtkWidget *address_label, *status_label, *up_label, *mode_label;
 
-	address_label = gtk_label_new("Address: ");
+	address_label = gtk_label_new("MAC: ");
 	status_label = gtk_label_new("Status: ");
 	up_label = gtk_label_new("Power: ");
 	mode_label = gtk_label_new("Mode: ");
@@ -219,7 +219,7 @@ Device* device_add(GDBusObject *object, GDBusProxy *proxy) {
 	gtk_widget_set_valign(device->power_switch, GTK_ALIGN_CENTER);
 	gtk_widget_set_valign(device->mode_box, GTK_ALIGN_CENTER);
 
-	gtk_grid_set_row_spacing(GTK_GRID(device->table), 5);
+	gtk_grid_set_row_spacing(GTK_GRID(device->table), 3);
     }
 
     gtk_widget_show_all(device->master);

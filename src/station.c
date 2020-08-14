@@ -109,12 +109,22 @@ GtkWidget* scan_button_new(Station *station) {
 
 void station_set(Station *station) {
     GVariant *state_var;
+    GVariant *connected_network_var;
     const gchar *state;
 
     state_var = g_dbus_proxy_get_cached_property(station->proxy, "State");
     state = g_variant_get_string(state_var, NULL);
     gtk_label_set_text(GTK_LABEL(station->device->status), state);
     g_variant_unref(state_var);
+
+    connected_network_var = g_dbus_proxy_get_cached_property(station->proxy, "ConnectedNetwork");
+    if (connected_network_var) {
+	const gchar *connected_network;
+
+	connected_network = g_variant_get_string(connected_network_var, NULL);
+	network_set(network_lookup(connected_network));
+	g_variant_unref(connected_network_var);
+    }
 }
 
 Station* station_add(GDBusObject *object, GDBusProxy *proxy) {
@@ -169,7 +179,26 @@ void unbind_device_station(Device *device, Station *station) {
     gtk_container_remove(GTK_CONTAINER(device->master), station->networks);
 }
 
-void get_ordered_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *station) {
+void insert_separator(Station *station) {
+    GtkWidget *separator;
+
+    separator = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
+    gtk_grid_attach(GTK_GRID(station->networks), separator, 0, station->i ++, 5, 1);
+}
+
+void populate_network_list(Station *station) {
+    g_dbus_proxy_call(
+	station->proxy,
+	"GetOrderedNetworks",
+	NULL,
+	G_DBUS_CALL_FLAGS_NONE,
+	-1,
+	NULL,
+	(GAsyncReadyCallback) get_networks_callback,
+	(gpointer) station);
+}
+
+void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *station) {
     GVariant *ordered_networks;
     GError *err;
 
@@ -182,12 +211,16 @@ void get_ordered_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station
 	gint16 signal_strength;
 
 	g_variant_get(ordered_networks, "(a(on))", &iter);
-	int i = 0;
+	station->i = 0;
 	while (g_variant_iter_next(iter, "(on)", &network_path, &signal_strength)) {
 	    Network *network;
 	    network = network_lookup(network_path);
-	    bind_station_network(station, network, signal_strength, i ++);
+	    bind_station_network(station, network, signal_strength, station->i ++);
 	    g_free(network_path);
+	}
+
+	if (station->i > 0) {
+	    insert_separator(station);
 	}
 
 	g_variant_iter_free(iter);
@@ -196,19 +229,64 @@ void get_ordered_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station
 	gtk_widget_show_all(station->networks);
     }
     else {
-	fprintf(stderr, "Error retrieving scan results: %s\n", err->message);
+	fprintf(stderr, "Error retrieving network list: %s\n", err->message);
 	g_error_free(err);
     }
-}
 
-void populate_network_list(Station *station) {
     g_dbus_proxy_call(
-	station->proxy,
-	"GetOrderedNetworks",
+	proxy,
+	"GetHiddenAccessPoints",
 	NULL,
 	G_DBUS_CALL_FLAGS_NONE,
 	-1,
 	NULL,
-	(GAsyncReadyCallback) get_ordered_networks_callback,
+	(GAsyncReadyCallback) get_hidden_networks_callback,
 	(gpointer) station);
+}
+
+void get_hidden_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *station) {
+    GVariant *ordered_networks;
+    GError *err;
+
+    err = NULL;
+    ordered_networks = g_dbus_proxy_call_finish(proxy, res, &err);
+
+    if (ordered_networks) {
+	int n;
+	GVariantIter *iter;
+	gchar *address;
+	gint16 signal_strength;
+	gchar *type;
+
+	n = 0;
+	g_variant_get(ordered_networks, "(a(sns))", &iter);
+	while (g_variant_iter_next(iter, "(sns)", &address, &signal_strength, &type)) {
+	    bind_station_network_hidden(station, address, type, signal_strength, station->i ++);
+	    g_free(address);
+	    g_free(type);
+	    n ++;
+	}
+
+	if (n != 0) {
+	    GtkWidget *connect_button;
+
+	    connect_button = gtk_button_new_with_label("Connect");
+	    g_signal_connect_swapped(connect_button, "clicked", G_CALLBACK(hidden_ssid_dialog), (gpointer) station);
+
+	    gtk_grid_attach(GTK_GRID(station->networks), connect_button, 4, station->i - n, 1, n);
+	    gtk_widget_set_halign(connect_button, GTK_ALIGN_FILL);
+	    gtk_widget_set_valign(connect_button, GTK_ALIGN_FILL);
+
+	    insert_separator(station);
+	}
+
+	g_variant_iter_free(iter);
+	g_variant_unref(ordered_networks);
+
+	gtk_widget_show_all(station->networks);
+    }
+    else {
+	fprintf(stderr, "Error retrieving hidden network list: %s\n", err->message);
+	g_error_free(err);
+    }
 }

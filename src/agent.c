@@ -124,24 +124,24 @@ void agent_remove(Agent *agent) {
     free(agent);
 }
 
-void agent_method_call_handler(GDBusConnection *connection, const gchar *sender, const gchar *object_path, const gchar *interface_name, const gchar *method_name, GVariant *parameters, GDBusMethodInvocation *invocation, Agent *data) {
-    request_cancel(data);
-    data->invocation = invocation;
+void agent_method_call_handler(GDBusConnection *connection, const gchar *sender, const gchar *object_path, const gchar *interface_name, const gchar *method_name, GVariant *parameters, GDBusMethodInvocation *invocation, Agent *agent) {
+    request_cancel(agent);
+    agent->invocation = invocation;
 
     if (strcmp(method_name, "Release") == 0) {
-	g_dbus_connection_unregister_object(connection, data->registration_id);
+	g_dbus_connection_unregister_object(connection, agent->registration_id);
     }
     else if (strcmp(method_name, "RequestPassphrase") == 0) {
-	request_dialog(data, USERNAME_NONE);
+	request_dialog(agent, USERNAME_NONE);
     }
     else if (strcmp(method_name, "RequestPrivateKeyPassphrase") == 0) {
-	request_dialog(data, USERNAME_NONE);
+	request_dialog(agent, USERNAME_NONE);
     }
     else if (strcmp(method_name, "RequestUserNameAndPassword") == 0) {
-	request_dialog(data, USERNAME_ASK);
+	request_dialog(agent, USERNAME_ASK);
     }
     else if (strcmp(method_name, "RequestUserPassword") == 0) {
-	request_dialog(data, USERNAME_TELL);
+	request_dialog(agent, USERNAME_TELL);
     }
     else if (strcmp(method_name, "Cancel") == 0) {
 	const gchar *reason;
@@ -158,36 +158,36 @@ void agent_method_call_handler(GDBusConnection *connection, const gchar *sender,
     }
 }
 
-void request_dialog(Agent *data, uint8_t request_type) {
+void request_dialog(Agent *agent, uint8_t request_type) {
     GVariant *parameters;
     GtkWidget *table, *user_widget;
     const gchar *network_path;
     int i;
 
-    parameters = g_dbus_method_invocation_get_parameters(data->invocation);
-    data->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(data->window), "Network Password");
+    parameters = g_dbus_method_invocation_get_parameters(agent->invocation);
+    agent->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(agent->window), "Network Password");
 
     table = gtk_grid_new();
-    gtk_container_add(GTK_CONTAINER(data->window), table);
+    gtk_container_add(GTK_CONTAINER(agent->window), table);
 
     if (request_type == USERNAME_NONE) {
 	g_variant_get(parameters, "(o)", &network_path);
 	user_widget = NULL;
-	data->user_widget = NULL;
+	agent->user_widget = NULL;
     }
     else {
 	if (request_type == USERNAME_ASK) {
 	    g_variant_get(parameters, "(o)", &network_path);
 	    user_widget = gtk_entry_new();
-	    data->user_widget = user_widget;
+	    agent->user_widget = user_widget;
 	}
 	else if (request_type == USERNAME_TELL) {
 	    const gchar *username;
 
 	    g_variant_get(parameters, "(os)", &network_path, &username);
 	    user_widget = gtk_label_new(username);
-	    data->user_widget = NULL;
+	    agent->user_widget = NULL;
 	}
     }
 
@@ -215,48 +215,48 @@ void request_dialog(Agent *data, uint8_t request_type) {
 	i ++;
     }
 
-    data->pass_widget = gtk_entry_new();
+    agent->pass_widget = gtk_entry_new();
     gtk_grid_attach(GTK_GRID(table), gtk_label_new("Password: "), 0, i, 1, 1);
-    gtk_grid_attach(GTK_GRID(table), data->pass_widget,           1, i, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), agent->pass_widget,           1, i, 1, 1);
     i ++;
 
     {
 	GtkWidget *buttons;
-	buttons = dialog_buttons(data, G_CALLBACK(request_submit), data->window);
+	buttons = dialog_buttons(agent, G_CALLBACK(request_submit), agent->window);
 	gtk_grid_attach(GTK_GRID(table), buttons, 1, i, 1, 1);
     }
 
     grid_column_set_alignment(table, 0, GTK_ALIGN_END);
     grid_column_set_alignment(table, 1, GTK_ALIGN_START);
 
-    g_signal_connect_swapped(data->window, "destroy", G_CALLBACK(request_cancel), data);
-    gtk_widget_show_all(data->window);
+    g_signal_connect_swapped(agent->window, "destroy", G_CALLBACK(request_cancel), agent);
+    gtk_widget_show_all(agent->window);
 }
 
-void request_submit(Agent *data) {
+void request_submit(Agent *agent) {
     const gchar *password;
-    password = gtk_entry_get_text(GTK_ENTRY(data->pass_widget));
+    password = gtk_entry_get_text(GTK_ENTRY(agent->pass_widget));
 
     if (*password == '\0') {
 	return;
     }
 
-    if (data->user_widget) {
+    if (agent->user_widget) {
 	const gchar *username;
-	username = gtk_entry_get_text(GTK_ENTRY(data->user_widget));
-	g_dbus_method_invocation_return_value(data->invocation, g_variant_new("(ss)", username, password));
+	username = gtk_entry_get_text(GTK_ENTRY(agent->user_widget));
+	g_dbus_method_invocation_return_value(agent->invocation, g_variant_new("(ss)", username, password));
     }
     else {
-	g_dbus_method_invocation_return_value(data->invocation, g_variant_new("(s)", password));
+	g_dbus_method_invocation_return_value(agent->invocation, g_variant_new("(s)", password));
     }
 
-    data->invocation = NULL;
-    gtk_widget_destroy(data->window);
+    agent->invocation = NULL;
+    gtk_widget_destroy(agent->window);
 }
 
-void request_cancel(Agent *data) {
-    if (data->invocation != NULL) {
-	g_dbus_method_invocation_return_dbus_error(data->invocation, "net.connman.iwd.Agent.Error.Canceled", "Connection attempt canceled");
-	data->invocation = NULL;
+void request_cancel(Agent *agent) {
+    if (agent->invocation != NULL) {
+	g_dbus_method_invocation_return_dbus_error(agent->invocation, "net.connman.iwd.Agent.Error.Canceled", "Connection attempt canceled");
+	agent->invocation = NULL;
     }
 }

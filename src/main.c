@@ -86,8 +86,6 @@ static const GOptionEntry command_options[] = {
     NULL
 };
 
-static const char *version_string = "iwgtk 0.1";
-
 void known_network_table_show(GtkToggleButton *button) {
     if (gtk_toggle_button_get_active(button)) {
 	bin_empty(GTK_BIN(global.main));
@@ -257,7 +255,7 @@ static void activate(GtkApplication *app) {
 }
 
 void print_version() {
-    puts(version_string);
+    puts(VERSION_STRING);
     exit(0);
 }
 

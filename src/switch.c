@@ -44,29 +44,27 @@ void switch_destroy(GtkWidget *widget, SwitchData *switch_data) {
 }
 
 GtkWidget* switch_new(GDBusProxy *proxy, const gchar *property) {
-    GtkWidget *widget;
     SwitchData *switch_data;
     GVariant *state_var;
     gboolean state;
 
-    widget = gtk_switch_new();
     switch_data = malloc(sizeof(SwitchData));
     switch_data->proxy = proxy;
-    switch_data->widget = widget;
+    switch_data->widget = gtk_switch_new();
     switch_data->property = property;
 
     state_var = g_dbus_proxy_get_cached_property(proxy, property);
     state = g_variant_get_boolean(state_var);
     g_variant_unref(state_var);
 
-    gtk_switch_set_active(GTK_SWITCH(widget), state);
+    gtk_switch_set_active(GTK_SWITCH(switch_data->widget), state);
     g_signal_connect(proxy, "g-properties-changed", G_CALLBACK(switch_update), (gpointer) switch_data);
-    g_signal_connect(widget, "state-set", G_CALLBACK(switch_handler), (gpointer) switch_data);
-    g_signal_connect(widget, "destroy", G_CALLBACK(switch_destroy), (gpointer) switch_data);
+    g_signal_connect(switch_data->widget, "state-set", G_CALLBACK(switch_handler), (gpointer) switch_data);
+    g_signal_connect(switch_data->widget, "destroy", G_CALLBACK(switch_destroy), (gpointer) switch_data);
 
-    gtk_widget_set_halign(widget, GTK_ALIGN_CENTER);
-    gtk_widget_set_valign(widget, GTK_ALIGN_CENTER);
+    gtk_widget_set_halign(switch_data->widget, GTK_ALIGN_CENTER);
+    gtk_widget_set_valign(switch_data->widget, GTK_ALIGN_CENTER);
 
-    gtk_widget_show(widget);
-    return widget;
+    gtk_widget_show(switch_data->widget);
+    return switch_data->widget;
 }

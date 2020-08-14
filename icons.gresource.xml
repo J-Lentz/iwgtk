@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
     <gresource prefix="/application/iwgtk">
-	<file alias="connected">icons/connected.svg</file>
-	<file alias="known">icons/known.svg</file>
-	<file alias="unknown">icons/unknown.svg</file>
-	<file alias="signal-0">icons/signal-0.svg</file>
-	<file alias="signal-1">icons/signal-1.svg</file>
-	<file alias="signal-2">icons/signal-2.svg</file>
-	<file alias="signal-3">icons/signal-3.svg</file>
-	<file alias="signal-4">icons/signal-4.svg</file>
+	<file alias="connected">connected.svg</file>
+	<file alias="connecting">connecting.svg</file>
+	<file alias="known">known.svg</file>
+	<file alias="unknown">unknown.svg</file>
+	<file alias="hidden">hidden.svg</file>
+	<file alias="signal-0">signal-0.svg</file>
+	<file alias="signal-1">signal-1.svg</file>
+	<file alias="signal-2">signal-2.svg</file>
+	<file alias="signal-3">signal-3.svg</file>
+	<file alias="signal-4">signal-4.svg</file>
     </gresource>
 </gresources>
