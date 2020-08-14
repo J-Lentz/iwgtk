@@ -7,5 +7,3 @@ Notifications and error messages:
  * Show a message when a device is added/removed.
 
 Remember the SSID of a newly created AP or ad-hoc node and display it while the AP/node is running.
-
-Create man page

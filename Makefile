@@ -39,10 +39,13 @@ install : iwgtk
 	install iwgtk $(DESTDIR)$(bindir)
 	install -d $(DESTDIR)$(desktopdir)
 	install iwgtk.desktop $(DESTDIR)$(desktopdir)
+	install -d $(DESTDIR)$(man1dir)
+	install iwgtk.1.gz $(DESTDIR)$(man1dir)
 
 uninstall :
 	rm $(DESTDIR)$(bindir)/iwgtk
 	rm $(DESTDIR)$(desktopdir)/iwgtk.desktop
+	rm $(DESTDIR)$(man1dir)/iwgtk.1.gz
 
 clean :
 	rm -f iwgtk *.o $(srcdir)/icons.c $(srcdir)/icons.h

@@ -3,6 +3,7 @@
  * Added a yellow icon for the "connecting" state, to distinguish it from the "connected" state
  * Updated Makefile to respect standard variable names (DESTDIR, prefix, etc)
  * Added iwgtk.desktop file
+ * Added man page
 
 ## 0.1
 Initial release
