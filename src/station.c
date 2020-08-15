@@ -119,11 +119,16 @@ void station_set(Station *station) {
 
     connected_network_var = g_dbus_proxy_get_cached_property(station->proxy, "ConnectedNetwork");
     if (connected_network_var) {
-	const gchar *connected_network;
+	const gchar *network_path;
+	Network *network;
 
-	connected_network = g_variant_get_string(connected_network_var, NULL);
-	network_set(network_lookup(connected_network));
+	network_path = g_variant_get_string(connected_network_var, NULL);
+	network = network_lookup(network_path);
 	g_variant_unref(connected_network_var);
+
+	if (network) {
+	    network_set(network);
+	}
     }
 }
 
@@ -214,8 +219,14 @@ void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *statio
 	station->i = 0;
 	while (g_variant_iter_next(iter, "(on)", &network_path, &signal_strength)) {
 	    Network *network;
+
 	    network = network_lookup(network_path);
-	    bind_station_network(station, network, signal_strength, station->i ++);
+	    if (network) {
+		bind_station_network(station, network, signal_strength, station->i ++);
+	    }
+	    else {
+		fprintf(stderr, "Error: Network '%s' not found\n", network_path);
+	    }
 	    g_free(network_path);
 	}
 

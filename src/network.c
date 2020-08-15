@@ -251,13 +251,19 @@ void bind_station_network(Station *station, Network *network, gint16 signal_stre
 Network* network_lookup(const char *path) {
     GDBusObject *object;
     ObjectList *list;
+
     object = g_dbus_object_manager_get_object(global.manager, path);
     list = object_table[OBJECT_NETWORK].objects;
 
-    while (list->object != object) {
+    while (list != NULL) {
+	if (list->object == object) {
+	    g_object_unref(object);
+	    return (Network *) list->data;
+	}
+
 	list = list->next;
     }
 
     g_object_unref(object);
-    return (Network *) list->data;
+    return NULL;
 }

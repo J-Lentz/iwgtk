@@ -1,5 +1,6 @@
 ## 0.3
  * Reset UI widget to its correct state if the D-Bus call fails for a user-initiated property change.
+ * Do not assume in network_lookup() that the network being looked up has already been registered.
 
 ## 0.2
  * Added support for displaying and connecting to hidden networks
