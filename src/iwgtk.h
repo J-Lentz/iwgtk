@@ -23,7 +23,7 @@
 #include <gtk/gtk.h>
 #include <gio/gio.h>
 
-#define VERSION_STRING "iwgtk 0.2"
+#define VERSION_STRING "iwgtk 0.3"
 
 #define IWD_DBUS_NAME "net.connman.iwd"
 
