@@ -81,7 +81,7 @@ void validation_callback_log(GDBusProxy *proxy, GAsyncResult *res, const gchar *
     }
 }
 
-void set_remote_property_callback(GDBusProxy *proxy, GAsyncResult *res, const gchar *property) {
+void set_remote_property_callback(GDBusProxy *proxy, GAsyncResult *res, FailureClosure *failure) {
     GVariant *ret;
     GError *err;
 
@@ -92,9 +92,13 @@ void set_remote_property_callback(GDBusProxy *proxy, GAsyncResult *res, const gc
 	g_variant_unref(ret);
     }
     else {
-	fprintf(stderr, "Error setting remote property (%s): %s\n", property, err->message);
+	fprintf(stderr, "Error setting remote property '%s': %s\n", failure->property, err->message);
 	g_error_free(err);
+
+	failure->callback(failure->data);
     }
+
+    free(failure);
 }
 
 /*
@@ -104,11 +108,18 @@ void set_remote_property_callback(GDBusProxy *proxy, GAsyncResult *res, const gc
  * to iwd. This is kind of a hack; it would be more elegant if set_remote_property() were
  * only called for user-initiated state changes.
  */
-void set_remote_property(GDBusProxy *proxy, const gchar *property, GVariant *value) {
-    GVariant *value_old;
+void set_remote_property(GDBusProxy *proxy, const gchar *property, GVariant *value, SetFunction failure_callback, gpointer failure_data) {
+    GVariant *value_cached;
 
-    value_old = g_dbus_proxy_get_cached_property(proxy, property);
-    if (!g_variant_equal(value, value_old)) {
+    value_cached = g_dbus_proxy_get_cached_property(proxy, property);
+    if (!g_variant_equal(value, value_cached)) {
+	FailureClosure *failure_closure;
+
+	failure_closure = malloc(sizeof(FailureClosure));
+	failure_closure->callback = failure_callback;
+	failure_closure->data = failure_data;
+	failure_closure->property = property;
+
 	g_dbus_proxy_call(
 	    proxy,
 	    "org.freedesktop.DBus.Properties.Set",
@@ -117,12 +128,12 @@ void set_remote_property(GDBusProxy *proxy, const gchar *property, GVariant *val
 	    -1,
 	    NULL,
 	    (GAsyncReadyCallback) set_remote_property_callback,
-	    (gpointer) property);
+	    (gpointer) failure_closure);
     }
     else {
 	g_variant_unref(value);
     }
-    g_variant_unref(value_old);
+    g_variant_unref(value_cached);
 }
 
 GVariant* lookup_property(GVariant *dictionary, const gchar *property) {

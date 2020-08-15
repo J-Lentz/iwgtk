@@ -25,15 +25,15 @@
  * (returning TRUE would cause "state" not to be updated).
  */
 gboolean switch_handler(GtkSwitch *widget, gboolean state, SwitchData *switch_data) {
-    set_remote_property(switch_data->proxy, switch_data->property, g_variant_new_boolean(state));
+    set_remote_property(switch_data->proxy, switch_data->property, g_variant_new_boolean(state), (SetFunction) switch_set, switch_data);
     return FALSE;
 }
 
-void switch_update(GDBusProxy *proxy, GVariant *properties, gchar **invalidated_properties, SwitchData *switch_data) {
+void switch_set(SwitchData *switch_data) {
     GVariant *state_var;
     gboolean state;
 
-    state_var = g_dbus_proxy_get_cached_property(proxy, switch_data->property);
+    state_var = g_dbus_proxy_get_cached_property(switch_data->proxy, switch_data->property);
     state = g_variant_get_boolean(state_var);
     gtk_switch_set_active(GTK_SWITCH(switch_data->widget), state);
     g_variant_unref(state_var);
@@ -58,7 +58,7 @@ GtkWidget* switch_new(GDBusProxy *proxy, const gchar *property) {
     g_variant_unref(state_var);
 
     gtk_switch_set_active(GTK_SWITCH(switch_data->widget), state);
-    g_signal_connect(proxy, "g-properties-changed", G_CALLBACK(switch_update), (gpointer) switch_data);
+    g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(switch_set), (gpointer) switch_data);
     g_signal_connect(switch_data->widget, "state-set", G_CALLBACK(switch_handler), (gpointer) switch_data);
     g_signal_connect(switch_data->widget, "destroy", G_CALLBACK(switch_destroy), (gpointer) switch_data);
 

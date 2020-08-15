@@ -37,7 +37,7 @@ typedef struct Device {
 
 void device_show(GtkToggleButton *button, Device *device);
 void device_set(Device *device);
-void mode_box_changed(GtkComboBox *box, GDBusProxy *proxy);
+void mode_box_changed(GtkComboBox *box, Device *device);
 GtkWidget* mode_box_new(GDBusProxy *adapter_proxy);
 Device* device_add(GDBusObject *object, GDBusProxy *proxy);
 void device_remove(Device *device);

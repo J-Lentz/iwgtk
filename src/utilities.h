@@ -22,10 +22,19 @@
 
 #define RGB_MAX 65535
 
+typedef void (*SetFunction) (gpointer data);
+
+typedef struct {
+    SetFunction callback;
+    gpointer data;
+    const gchar *property;
+} FailureClosure;
+
 void validation_callback(GDBusProxy *proxy, GAsyncResult *res, CallbackMessages *data);
 void validation_callback_log(GDBusProxy *proxy, GAsyncResult *res, const gchar *message);
 
-void set_remote_property(GDBusProxy *proxy, const gchar *property, GVariant *value);
+void set_remote_property_callback(GDBusProxy *proxy, GAsyncResult *res, FailureClosure *failure);
+void set_remote_property(GDBusProxy *proxy, const gchar *property, GVariant *value, SetFunction failure_callback, gpointer failure_data);
 GVariant* lookup_property(GVariant *dictionary, const gchar *property);
 void send_notification(const gchar *text, GNotificationPriority priority);
 void grid_column_set_alignment(GtkWidget *grid, int col, GtkAlign align);

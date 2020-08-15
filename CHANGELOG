@@ -1,3 +1,6 @@
+## 0.3
+ * Reset UI widget to its correct state if the D-Bus call fails for a user-initiated property change.
+
 ## 0.2
  * Added support for displaying and connecting to hidden networks
  * Added a yellow icon for the "connecting" state, to distinguish it from the "connected" state

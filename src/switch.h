@@ -27,7 +27,7 @@ typedef struct {
 } SwitchData;
 
 gboolean switch_handler(GtkSwitch *widget, gboolean state, SwitchData *switch_data);
-void switch_update(GDBusProxy *proxy, GVariant *properties, gchar **invalidated_properties, SwitchData *switch_data);
+void switch_set(SwitchData *switch_data);
 void switch_destroy(GtkWidget *widget, SwitchData *switch_data);
 GtkWidget* switch_new(GDBusProxy *proxy, const gchar *property);
 

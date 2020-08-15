@@ -63,11 +63,11 @@ void device_set(Device *device) {
     }
 }
 
-void mode_box_changed(GtkComboBox *box, GDBusProxy *proxy) {
+void mode_box_changed(GtkComboBox *box, Device *device) {
     const gchar *mode;
 
     mode = gtk_combo_box_get_active_id(box);
-    set_remote_property(proxy, "Mode", g_variant_new_string(mode));
+    set_remote_property(device->proxy, "Mode", g_variant_new_string(mode), (SetFunction) device_set, device);
 }
 
 GtkWidget* mode_box_new(GDBusProxy *adapter_proxy) {
@@ -227,7 +227,7 @@ Device* device_add(GDBusObject *object, GDBusProxy *proxy) {
     g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(device_set), (gpointer) device);
     device_set(device);
 
-    g_signal_connect(device->mode_box, "changed", G_CALLBACK(mode_box_changed), (gpointer) proxy);
+    g_signal_connect(device->mode_box, "changed", G_CALLBACK(mode_box_changed), (gpointer) device);
 
     couple_register(DEVICE_STATION, 0, device, object);
     couple_register(DEVICE_AP,      0, device, object);
