@@ -1,3 +1,6 @@
+## 0.4
+ * Added application icon.
+
 ## 0.3
  * Reset UI widget to its correct state if the D-Bus call fails for a user-initiated
    property change.

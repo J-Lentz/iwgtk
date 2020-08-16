@@ -10,12 +10,12 @@ datadir=$(datarootdir)
 mandir=$(datarootdir)/man
 man1dir=$(mandir)/man1
 desktopdir=$(datadir)/applications
+app_svg_icon_dir=$(datadir)/icons/hicolor/scalable/apps
 
 srcdir=src
-iconsdir=icons
 
 files=main dialog objects adapter device station wps ap adhoc utilities switch known_network network hidden agent icons
-icons=$(iconsdir)/*.svg
+icons=icons/*.svg
 
 headers=$(patsubst %,$(srcdir)/%.h,$(files) iwgtk)
 objects=$(patsubst %,%.o,$(files))
@@ -29,10 +29,10 @@ iwgtk : $(objects)
 	$(CC) -c $(CFLAGS) -o $@ $<
 
 $(srcdir)/icons.c : icons.gresource.xml $(icons)
-	glib-compile-resources --target=$@ --sourcedir=$(iconsdir) --generate-source $<
+	glib-compile-resources --target=$@ --sourcedir=icons --generate-source $<
 
 $(srcdir)/icons.h : icons.gresource.xml $(icons)
-	glib-compile-resources --target=$@ --sourcedir=$(iconsdir) --generate-header $<
+	glib-compile-resources --target=$@ --sourcedir=icons --generate-header $<
 
 install : iwgtk
 	install -d $(DESTDIR)$(bindir)
@@ -41,11 +41,14 @@ install : iwgtk
 	install iwgtk.desktop $(DESTDIR)$(desktopdir)
 	install -d $(DESTDIR)$(man1dir)
 	install iwgtk.1.gz $(DESTDIR)$(man1dir)
+	install -d $(DESTDIR)$(app_svg_icon_dir)
+	install icons/iwgtk.svg $(DESTDIR)$(app_svg_icon_dir)
 
 uninstall :
 	rm $(DESTDIR)$(bindir)/iwgtk
 	rm $(DESTDIR)$(desktopdir)/iwgtk.desktop
 	rm $(DESTDIR)$(man1dir)/iwgtk.1.gz
+	rm $(DESTDIR)$(app_svg_icon_dir)/iwgtk.svg
 
 clean :
 	rm -f iwgtk *.o $(srcdir)/icons.c $(srcdir)/icons.h
