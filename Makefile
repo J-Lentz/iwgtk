@@ -34,7 +34,10 @@ $(srcdir)/icons.c : icons.gresource.xml $(icons)
 $(srcdir)/icons.h : icons.gresource.xml $(icons)
 	glib-compile-resources --target=$@ --sourcedir=icons --generate-header $<
 
-install : iwgtk
+iwgtk.1.gz : iwgtk.1
+	gzip -k $<
+
+install : iwgtk iwgtk.1.gz
 	install -d $(DESTDIR)$(bindir)
 	install iwgtk $(DESTDIR)$(bindir)
 	install -d $(DESTDIR)$(desktopdir)
@@ -51,4 +54,4 @@ uninstall :
 	rm $(DESTDIR)$(app_svg_icon_dir)/iwgtk.svg
 
 clean :
-	rm -f iwgtk *.o $(srcdir)/icons.c $(srcdir)/icons.h
+	rm -f iwgtk *.o $(srcdir)/icons.c $(srcdir)/icons.h iwgtk.1.gz
