@@ -158,7 +158,7 @@ void agent_method_call_handler(GDBusConnection *connection, const gchar *sender,
     }
 }
 
-void request_dialog(Agent *agent, uint8_t request_type) {
+void request_dialog(Agent *agent, guint8 request_type) {
     GVariant *parameters;
     GtkWidget *table, *user_widget;
     const gchar *network_path;
