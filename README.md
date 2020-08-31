@@ -1,3 +1,5 @@
+![Screenshot](screenshot/station.png)
+
 ## About
 iwgtk is a lightweight, graphical wifi management utility for Linux. Its only
 dependencies are iwd and GTK3. Supported functionality is similar to that of
