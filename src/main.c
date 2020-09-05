@@ -57,7 +57,16 @@ const ErrorMessage detailed_errors_standard[] = {
 
 static const GOptionEntry command_options[] = {
     {
-	"disable-notifications",
+	"no-icon",
+	'I',
+	G_OPTION_FLAG_NONE,
+	G_OPTION_ARG_NONE,
+	&global.icon_disable,
+	"Disable indicator icon",
+	NULL
+    },
+    {
+	"no-notifications",
 	'N',
 	G_OPTION_FLAG_NONE,
 	G_OPTION_ARG_NONE,
@@ -86,13 +95,6 @@ static const GOptionEntry command_options[] = {
     NULL
 };
 
-void known_network_table_show(GtkToggleButton *button) {
-    if (gtk_toggle_button_get_active(button)) {
-	bin_empty(GTK_BIN(global.main));
-	gtk_container_add(GTK_CONTAINER(global.main), global.known_network_table);
-    }
-}
-
 void object_manager_callback(GDBusObjectManagerClient *manager, GAsyncResult *res) {
     {
 	GError *err;
@@ -105,99 +107,25 @@ void object_manager_callback(GDBusObjectManagerClient *manager, GAsyncResult *re
 	}
     }
 
-    /*
-     * Create window
-     */
-
-    global.master = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
-    g_object_ref_sink(global.master);
-    gtk_container_add(GTK_CONTAINER(global.window), global.master);
-
-    global.header = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
-    g_object_ref_sink(global.header);
-    gtk_box_pack_start(GTK_BOX(global.master), global.header, FALSE, FALSE, 0);
-
-    gtk_widget_set_margin_start(global.header, 5);
-    gtk_widget_set_margin_end(global.header, 5);
-    gtk_widget_set_margin_top(global.header, 5);
-
-    gtk_box_pack_start(GTK_BOX(global.master), gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), FALSE, FALSE, 0);
-
-    global.main = gtk_scrolled_window_new(NULL, NULL);
-    g_object_ref_sink(global.main);
-    gtk_scrolled_window_set_propagate_natural_height(GTK_SCROLLED_WINDOW(global.main), TRUE);
-    gtk_box_pack_start(GTK_BOX(global.master), global.main, FALSE, FALSE, 0);
-
-    global.known_network_button = gtk_radio_button_new_with_label(NULL, "Known Networks");
-    g_object_ref_sink(global.known_network_button);
-    gtk_toggle_button_set_mode(GTK_TOGGLE_BUTTON(global.known_network_button), FALSE);
-
     {
-	GtkWidget *known_network_button_vbox;
+	Window *window;
 
-	known_network_button_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-	gtk_box_pack_end(GTK_BOX(global.header), known_network_button_vbox, FALSE, FALSE, 0);
-	gtk_box_pack_end(GTK_BOX(known_network_button_vbox), global.known_network_button, FALSE, FALSE, 0);
-    }
-
-    g_signal_connect(global.known_network_button, "toggled", G_CALLBACK(known_network_table_show), NULL);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(global.known_network_button), TRUE);
-
-    global.known_network_table = gtk_grid_new();
-    g_object_ref_sink(global.known_network_table);
-    gtk_container_add(GTK_CONTAINER(global.main), global.known_network_table);
-
-    gtk_widget_set_margin_start(global.known_network_table, 5);
-    gtk_widget_set_margin_end(global.known_network_table, 5);
-    gtk_widget_set_margin_bottom(global.known_network_table, 5);
-
-    gtk_grid_attach(GTK_GRID(global.known_network_table), new_label_bold("SSID"),            0, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(global.known_network_table), new_label_bold("Security"),        1, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(global.known_network_table), new_label_bold("Autoconnect"),     2, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(global.known_network_table), new_label_bold("Forget"),          3, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(global.known_network_table), new_label_bold("Last connection"), 4, 0, 1, 1);
-
-    gtk_grid_set_column_spacing(GTK_GRID(global.known_network_table), 10);
-    gtk_grid_set_row_spacing(GTK_GRID(global.known_network_table), 10);
-
-    gtk_widget_show_all(global.window);
-
-    /*
-     * Process D-Bus objects
-     */
-
-    g_signal_connect(global.manager, "interface-added",   G_CALLBACK(interface_add),    NULL);
-    g_signal_connect(global.manager, "interface-removed", G_CALLBACK(interface_remove), NULL);
-    g_signal_connect(global.manager, "object-added",      G_CALLBACK(object_add),       NULL);
-    g_signal_connect(global.manager, "object-removed",    G_CALLBACK(object_remove),    NULL);
-
-    {
-	GList *object_list, *i;
-
-	object_list = g_dbus_object_manager_get_objects(global.manager);
-	for (i = object_list; i != NULL; i = i->next) {
-	    GDBusObject *object;
-
-	    object = (GDBusObject *) i->data;
-	    object_iterate_interfaces(object, interface_add);
-	    g_object_unref(object);
+	window = global.windows;
+	while (window != NULL) {
+	    window_set(window);
+	    window = window->next;
 	}
-	g_list_free(object_list);
     }
-
-    /*
-     * Register agent to prompt for passwords, etc.
-     */
 
     {
 	GDBusProxy *agent_manager;
+
 	agent_manager = G_DBUS_PROXY(g_dbus_object_manager_get_interface(global.manager, IWD_PATH_AGENT_MANAGER, IWD_IFACE_AGENT_MANAGER));
 	agent_register(agent_manager);
     }
 }
 
 void iwd_up_handler(GDBusConnection *conn, const gchar *name, const gchar *name_owner) {
-    bin_empty(GTK_BIN(global.window));
     g_dbus_object_manager_client_new(
 	conn,
 	G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
@@ -218,30 +146,24 @@ void iwd_down_handler(GDBusConnection *conn, const gchar *name) {
 	global.manager = NULL;
     }
 
-    bin_empty(GTK_BIN(global.window));
-
     {
-	GtkWidget *label;
+	Window *window;
 
-	label = gtk_label_new("iwd is not running");
-	gtk_container_add(GTK_CONTAINER(global.window), label);
+	window = global.windows;
+	while (window != NULL) {
+	    window_set(window);
+	    window = window->next;
+	}
     }
-
-    gtk_widget_show_all(global.window);
 }
 
-static void activate(GtkApplication *app) {
+void startup(GtkApplication *app) {
     {
 	volatile gsize error_domain_volatile;
 
 	g_dbus_error_register_error_domain("iwd-error-quark", &error_domain_volatile, iwd_error_codes, G_N_ELEMENTS(iwd_error_codes));
 	global.iwd_error_domain = (GQuark) error_domain_volatile;
     }
-
-    global.window = gtk_application_window_new(app);
-    gtk_window_set_title(GTK_WINDOW(global.window), "iwgtk");
-    gtk_window_set_default_size(GTK_WINDOW(global.window), 600, 700);
-    gtk_window_set_position(GTK_WINDOW(global.window), GTK_WIN_POS_CENTER);
 
     g_bus_watch_name(
 	G_BUS_TYPE_SYSTEM,
@@ -279,8 +201,9 @@ int main (int argc, char **argv) {
 	}
     }
 
-    global.application = gtk_application_new("application.iwgtk", G_APPLICATION_NON_UNIQUE);
-    g_signal_connect(global.application, "activate", G_CALLBACK(activate), NULL);
+    global.application = gtk_application_new("application.iwgtk", G_APPLICATION_FLAGS_NONE);
+    g_signal_connect(global.application, "startup", G_CALLBACK(startup), NULL);
+    g_signal_connect(global.application, "activate", G_CALLBACK(window_new), NULL);
 
     {
 	int status;

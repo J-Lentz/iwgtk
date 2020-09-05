@@ -107,7 +107,7 @@ void known_network_set(KnownNetwork *kn) {
     }
 }
 
-KnownNetwork* known_network_add(GDBusObject *object, GDBusProxy *proxy) {
+KnownNetwork* known_network_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     KnownNetwork *kn;
 
     kn = malloc(sizeof(KnownNetwork));
@@ -137,11 +137,11 @@ KnownNetwork* known_network_add(GDBusObject *object, GDBusProxy *proxy) {
     kn->index = n_known_networks + 1;
     n_known_networks ++;
 
-    gtk_grid_attach(GTK_GRID(global.known_network_table), kn->name_box,              0, kn->index, 1, 1);
-    gtk_grid_attach(GTK_GRID(global.known_network_table), kn->security_label,        1, kn->index, 1, 1);
-    gtk_grid_attach(GTK_GRID(global.known_network_table), kn->autoconnect_switch,    2, kn->index, 1, 1);
-    gtk_grid_attach(GTK_GRID(global.known_network_table), kn->forget_button,         3, kn->index, 1, 1);
-    gtk_grid_attach(GTK_GRID(global.known_network_table), kn->last_connection_label, 4, kn->index, 1, 1);
+    gtk_grid_attach(GTK_GRID(window->known_network_table), kn->name_box,              0, kn->index, 1, 1);
+    gtk_grid_attach(GTK_GRID(window->known_network_table), kn->security_label,        1, kn->index, 1, 1);
+    gtk_grid_attach(GTK_GRID(window->known_network_table), kn->autoconnect_switch,    2, kn->index, 1, 1);
+    gtk_grid_attach(GTK_GRID(window->known_network_table), kn->forget_button,         3, kn->index, 1, 1);
+    gtk_grid_attach(GTK_GRID(window->known_network_table), kn->last_connection_label, 4, kn->index, 1, 1);
 
     gtk_widget_set_hexpand(kn->name_box, TRUE);
 
@@ -155,17 +155,17 @@ KnownNetwork* known_network_add(GDBusObject *object, GDBusProxy *proxy) {
     gtk_widget_set_halign(kn->last_connection_label, GTK_ALIGN_START);
 
     known_network_set(kn);
-    g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(known_network_set), (gpointer) kn);
+    kn->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(known_network_set), (gpointer) kn);
 
     return kn;
 }
 
-void known_network_remove(KnownNetwork *known_network) {
-    gtk_grid_remove_row(GTK_GRID(global.known_network_table), known_network->index);
+void known_network_remove(Window *window, KnownNetwork *known_network) {
+    gtk_grid_remove_row(GTK_GRID(window->known_network_table), known_network->index);
     n_known_networks --;
 
     {
-	ObjectList *kn_list = object_table[OBJECT_KNOWN_NETWORK].objects;
+	ObjectList *kn_list = window->objects[OBJECT_KNOWN_NETWORK];
 	while (kn_list != NULL) {
 	    KnownNetwork *kn;
 	    kn = (KnownNetwork *) kn_list->data;
@@ -176,5 +176,6 @@ void known_network_remove(KnownNetwork *known_network) {
 	}
     }
 
+    g_signal_handler_disconnect(known_network->proxy, known_network->handler_update);
     free(known_network);
 }

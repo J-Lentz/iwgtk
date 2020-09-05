@@ -28,11 +28,14 @@ typedef struct Adapter {
     GtkWidget *device_buttons;
     GtkWidget *name_label;
     GtkWidget *power_switch;
+
+    // Handlers
+    gulong handler_update;
 } Adapter;
 
 void adapter_set(Adapter *adapter);
-Adapter* adapter_add(GDBusObject *object, GDBusProxy *proxy);
-void adapter_remove(Adapter *adapter);
+Adapter* adapter_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
+void adapter_remove(Window *window, Adapter *adapter);
 void bind_adapter_device(Adapter *adapter, Device *device);
 void unbind_adapter_device(Adapter *adapter, Device *device);
 

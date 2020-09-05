@@ -26,10 +26,15 @@ typedef struct {
 
     int i;
 
+    // Widgets
     GtkWidget *networks;
     GtkWidget *scan_button;
     GtkWidget *scan_widget_idle;
     GtkWidget *scan_widget_scanning;
+
+    // Handlers
+    gulong handler_update;
+    gulong handler_scan;
 } Station;
 
 void scan_button_clicked(GtkButton *button, Station *station);
@@ -38,8 +43,8 @@ void scan_button_update(GDBusProxy *proxy, GVariant *properties, gchar **invalid
 void scan_button_set_child(Station *station, gboolean scanning);
 GtkWidget* scan_button_new(Station *station);
 void station_set(Station *station);
-Station* station_add(GDBusObject *object, GDBusProxy *proxy);
-void station_remove(Station *station);
+Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
+void station_remove(Window *window, Station *station);
 void bind_device_station(Device *device, Station *station);
 void unbind_device_station(Device *device, Station *station);
 void insert_separator(Station *station);

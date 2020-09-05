@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=`pkg-config --cflags gtk+-3.0` -O3
+CFLAGS=`pkg-config --cflags gtk+-3.0` -g
 LDLIBS=`pkg-config --libs gtk+-3.0`
 
 prefix=/usr/local
@@ -14,7 +14,7 @@ app_svg_icon_dir=$(datadir)/icons/hicolor/scalable/apps
 
 srcdir=src
 
-files=main dialog objects adapter device station wps ap adhoc utilities switch known_network network hidden agent icons
+files=main window dialog adapter device station wps ap adhoc utilities switch known_network network hidden agent icons
 icons=icons/*.svg
 
 headers=$(patsubst %,$(srcdir)/%.h,$(files) iwgtk)

@@ -33,10 +33,13 @@ typedef struct KnownNetwork {
     GtkWidget *autoconnect_switch;
     GtkWidget *forget_button;
     GtkWidget *last_connection_label;
+
+    // Handlers
+    gulong handler_update;
 } KnownNetwork;
 
 void forget_button_clicked(GDBusProxy *proxy);
-KnownNetwork* known_network_add(GDBusObject *object, GDBusProxy *proxy);
-void known_network_remove(KnownNetwork *known_network);
+KnownNetwork* known_network_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
+void known_network_remove(Window *window, KnownNetwork *known_network);
 
 #endif

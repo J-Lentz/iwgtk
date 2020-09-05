@@ -24,11 +24,12 @@ typedef struct {
     GDBusProxy *proxy;
     GtkWidget *widget;
     const gchar *property;
+    gulong handler;
 } SwitchData;
 
 gboolean switch_handler(GtkSwitch *widget, gboolean state, SwitchData *switch_data);
 void switch_set(SwitchData *switch_data);
-void switch_destroy(GtkWidget *widget, SwitchData *switch_data);
+void switch_rm(GtkWidget *widget, SwitchData *switch_data);
 GtkWidget* switch_new(GDBusProxy *proxy, const gchar *property);
 
 #endif
