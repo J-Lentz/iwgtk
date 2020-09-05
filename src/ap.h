@@ -26,6 +26,9 @@ typedef struct {
 
     // Widgets
     GtkWidget *button;
+
+    // Handlers
+    gulong handler_update;
 } AP;
 
 typedef struct {
@@ -42,8 +45,8 @@ void ap_dialog_cancel(APDialog *data);
 void ap_button_clicked(AP *data);
 void ap_set(AP *data);
 
-AP* ap_add(GDBusObject *object, GDBusProxy *proxy);
-void ap_remove(AP *ap);
+AP* ap_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
+void ap_remove(Window *window, AP *ap);
 void bind_device_ap(Device *device, AP *ap);
 void unbind_device_ap(Device *device, AP *ap);
 

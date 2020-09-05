@@ -205,7 +205,7 @@ void adhoc_set(AdHoc *adhoc) {
     g_variant_unref(started_var);
 }
 
-AdHoc* adhoc_add(GDBusObject *object, GDBusProxy *proxy) {
+AdHoc* adhoc_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     AdHoc *adhoc;
     GtkWidget *row1;
 
@@ -227,16 +227,18 @@ AdHoc* adhoc_add(GDBusObject *object, GDBusProxy *proxy) {
     gtk_widget_show(adhoc->button);
     gtk_widget_show(adhoc->peer_list);
 
-    couple_register(DEVICE_ADHOC, 1, adhoc, object);
+    couple_register(window, DEVICE_ADHOC, 1, adhoc, object);
 
-    g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(adhoc_set), (gpointer) adhoc);
+    adhoc->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(adhoc_set), (gpointer) adhoc);
 
     return adhoc;
 }
 
-void adhoc_remove(AdHoc *adhoc) {
-    couple_unregister(DEVICE_ADHOC, 1, adhoc);
+void adhoc_remove(Window *window, AdHoc *adhoc) {
+    couple_unregister(window, DEVICE_ADHOC, 1, adhoc);
     g_object_unref(adhoc->button);
+
+    g_signal_handler_disconnect(adhoc->proxy, adhoc->handler_update);
     free(adhoc);
 }
 

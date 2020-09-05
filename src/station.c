@@ -101,7 +101,7 @@ GtkWidget* scan_button_new(Station *station) {
 	g_variant_unref(scanning_var);
     }
 
-    g_signal_connect(station->proxy, "g-properties-changed", G_CALLBACK(scan_button_update), (gpointer) station);
+    station->handler_scan = g_signal_connect(station->proxy, "g-properties-changed", G_CALLBACK(scan_button_update), (gpointer) station);
     g_signal_connect(station->scan_button, "clicked", G_CALLBACK(scan_button_clicked), (gpointer) station);
 
     return station->scan_button;
@@ -123,7 +123,7 @@ void station_set(Station *station) {
 	Network *network;
 
 	network_path = g_variant_get_string(connected_network_var, NULL);
-	network = network_lookup(network_path);
+	network = network_lookup(station, network_path);
 	g_variant_unref(connected_network_var);
 
 	if (network) {
@@ -132,7 +132,7 @@ void station_set(Station *station) {
     }
 }
 
-Station* station_add(GDBusObject *object, GDBusProxy *proxy) {
+Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     Station *station;
 
     station = malloc(sizeof(Station));
@@ -153,17 +153,20 @@ Station* station_add(GDBusObject *object, GDBusProxy *proxy) {
     populate_network_list(station);
     gtk_widget_show_all(station->networks);
 
-    g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(station_set), (gpointer) station);
+    station->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(station_set), (gpointer) station);
 
-    couple_register(DEVICE_STATION, 1, station, object);
+    couple_register(window, DEVICE_STATION, 1, station, object);
     return station;
 }
 
-void station_remove(Station *station) {
+void station_remove(Window *window, Station *station) {
     g_object_unref(station->scan_widget_idle);
     g_object_unref(station->scan_widget_scanning);
     g_object_unref(station->networks);
-    couple_unregister(DEVICE_STATION, 1, station);
+    couple_unregister(window, DEVICE_STATION, 1, station);
+
+    g_signal_handler_disconnect(station->proxy, station->handler_update);
+    g_signal_handler_disconnect(station->proxy, station->handler_scan);
     free(station);
 }
 
@@ -220,7 +223,7 @@ void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *statio
 	while (g_variant_iter_next(iter, "(on)", &network_path, &signal_strength)) {
 	    Network *network;
 
-	    network = network_lookup(network_path);
+	    network = network_lookup(station, network_path);
 	    if (network) {
 		bind_station_network(station, network, signal_strength, station->i ++);
 	    }

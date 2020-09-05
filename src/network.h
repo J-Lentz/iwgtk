@@ -24,11 +24,14 @@ typedef struct {
     GDBusProxy *proxy;
     GDBusProxy *station_proxy;
 
+    // Widgets
     GtkWidget *status_icon;
     GtkWidget *ssid_label;
     GtkWidget *security_label;
     GtkWidget *connect_button;
 
+    // Handlers
+    gulong handler_update;
     gulong button_handler_id;
 } Network;
 
@@ -36,10 +39,10 @@ const gchar* get_security_type(const gchar *type_raw);
 void connect_button_clicked(GtkButton *button, GDBusProxy *network_proxy);
 void disconnect_button_clicked(GtkButton *button, GDBusProxy *station_proxy);
 void network_set(Network *network);
-Network* network_add(GDBusObject *object, GDBusProxy *proxy);
-void network_remove(Network *network);
+Network* network_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
+void network_remove(Window *window, Network *network);
 GtkWidget* signal_widget(gint16 signal_strength);
 void bind_station_network(Station *station, Network *network, gint16 signal_strength, int index);
-Network* network_lookup(const char *path);
+Network* network_lookup(Station *station, const char *path);
 
 #endif

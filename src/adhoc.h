@@ -28,6 +28,9 @@ typedef struct {
     GtkWidget *button;
     GtkWidget *n_peers;
     GtkWidget *peer_list;
+
+    // Handlers
+    gulong handler_update;
 } AdHoc;
 
 typedef struct {
@@ -45,8 +48,8 @@ void adhoc_dialog_submit(AdHocDialog *adhoc_dialog);
 void adhoc_dialog_cancel(AdHocDialog *adhoc_dialog);
 void adhoc_button_clicked(AdHoc *adhoc);
 void adhoc_set(AdHoc *adhoc);
-AdHoc* adhoc_add(GDBusObject *object, GDBusProxy *proxy);
-void adhoc_remove(AdHoc *adhoc);
+AdHoc* adhoc_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
+void adhoc_remove(Window *window, AdHoc *adhoc);
 void bind_device_adhoc(Device *device, AdHoc *adhoc);
 void unbind_device_adhoc(Device *device, AdHoc *adhoc);
 

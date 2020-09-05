@@ -21,8 +21,8 @@
 
 void device_show(GtkToggleButton *button, Device *device) {
     if (gtk_toggle_button_get_active(button)) {
-	bin_empty(GTK_BIN(global.main));
-	gtk_container_add(GTK_CONTAINER(global.main), device->master);
+	bin_empty(GTK_BIN(device->window->main));
+	gtk_container_add(GTK_CONTAINER(device->window->main), device->master);
     }
 }
 
@@ -117,11 +117,12 @@ GtkWidget* mode_box_new(GDBusProxy *adapter_proxy) {
     return box;
 }
 
-Device* device_add(GDBusObject *object, GDBusProxy *proxy) {
+Device* device_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     Device *device;
 
     device = malloc(sizeof(Device));
     device->proxy = proxy;
+    device->window = window;
 
     {
 	GVariant *name_var;
@@ -130,7 +131,7 @@ Device* device_add(GDBusObject *object, GDBusProxy *proxy) {
 	name_var = g_dbus_proxy_get_cached_property(proxy, "Name");
 	name = g_variant_get_string(name_var, NULL);
 
-	device->button = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(global.known_network_button), name);
+	device->button = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(window->known_network_button), name);
 	g_object_ref_sink(device->button);
 	gtk_toggle_button_set_mode(GTK_TOGGLE_BUTTON(device->button), FALSE);
 	gtk_widget_show(device->button);
@@ -150,7 +151,7 @@ Device* device_add(GDBusObject *object, GDBusProxy *proxy) {
 	adapter_object = g_dbus_object_manager_get_object(global.manager, adapter_path);
 	g_variant_unref(adapter_path_var);
 
-	couple_register(ADAPTER_DEVICE, 1, device, adapter_object);
+	couple_register(window, ADAPTER_DEVICE, 1, device, adapter_object);
 
 	adapter_proxy = G_DBUS_PROXY(g_dbus_object_get_interface(adapter_object, IWD_IFACE_ADAPTER));
 	device->mode_box = mode_box_new(adapter_proxy);
@@ -224,27 +225,27 @@ Device* device_add(GDBusObject *object, GDBusProxy *proxy) {
 
     gtk_widget_show_all(device->master);
 
-    g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(device_set), (gpointer) device);
+    device->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(device_set), (gpointer) device);
     device_set(device);
 
     g_signal_connect(device->mode_box, "changed", G_CALLBACK(mode_box_changed), (gpointer) device);
 
-    couple_register(DEVICE_STATION, 0, device, object);
-    couple_register(DEVICE_AP,      0, device, object);
-    couple_register(DEVICE_ADHOC,   0, device, object);
-    couple_register(DEVICE_WPS,     0, device, object);
+    couple_register(window, DEVICE_STATION, 0, device, object);
+    couple_register(window, DEVICE_AP,      0, device, object);
+    couple_register(window, DEVICE_ADHOC,   0, device, object);
+    couple_register(window, DEVICE_WPS,     0, device, object);
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(device->button), TRUE);
     return device;
 }
 
-void device_remove(Device *device) {
+void device_remove(Window *window, Device *device) {
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(device->button))) {
 	ObjectList *device_list;
 	GtkWidget *button_alt;
 
 	button_alt = NULL;
-	device_list = object_table[OBJECT_DEVICE].objects;
+	device_list = window->objects[OBJECT_DEVICE];
 
 	/*
 	 * TODO: Select the next-in-line device more intelligently.
@@ -262,20 +263,22 @@ void device_remove(Device *device) {
 	}
 
 	if (!button_alt) {
-	    button_alt = global.known_network_button;
+	    button_alt = window->known_network_button;
 	}
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button_alt), TRUE);
     }
 
-    couple_unregister(DEVICE_STATION, 0, device);
-    couple_unregister(DEVICE_AP,      0, device);
-    couple_unregister(DEVICE_ADHOC,   0, device);
-    couple_unregister(DEVICE_WPS,     0, device);
+    couple_unregister(window, DEVICE_STATION, 0, device);
+    couple_unregister(window, DEVICE_AP,      0, device);
+    couple_unregister(window, DEVICE_ADHOC,   0, device);
+    couple_unregister(window, DEVICE_WPS,     0, device);
 
-    couple_unregister(ADAPTER_DEVICE, 1, device);
+    couple_unregister(window, ADAPTER_DEVICE, 1, device);
 
     g_object_unref(device->master);
     g_object_unref(device->button);
+
+    g_signal_handler_disconnect(device->proxy, device->handler_update);
     free(device);
 }

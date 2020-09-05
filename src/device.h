@@ -22,6 +22,7 @@
 
 typedef struct Device {
     GDBusProxy *proxy;
+    Window *window;
 
     // Button for the tab switcher
     GtkWidget *button;
@@ -33,13 +34,16 @@ typedef struct Device {
     GtkWidget *mac_label;
     GtkWidget *mode_box;
     GtkWidget *status;
+
+    // Handlers
+    gulong handler_update;
 } Device;
 
 void device_show(GtkToggleButton *button, Device *device);
 void device_set(Device *device);
 void mode_box_changed(GtkComboBox *box, Device *device);
 GtkWidget* mode_box_new(GDBusProxy *adapter_proxy);
-Device* device_add(GDBusObject *object, GDBusProxy *proxy);
-void device_remove(Device *device);
+Device* device_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
+void device_remove(Window *window, Device *device);
 
 #endif

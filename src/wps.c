@@ -128,7 +128,7 @@ void wps_connect_pushbutton(WPS *wps) {
     gtk_widget_hide(wps->menu);
 }
 
-WPS* wps_add(GDBusObject *object, GDBusProxy *proxy) {
+WPS* wps_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     GtkWidget *widget_pushbutton, *widget_pin;
     GtkWidget *menu;
     GtkWidget *cancel_button;
@@ -168,12 +168,12 @@ WPS* wps_add(GDBusObject *object, GDBusProxy *proxy) {
 	gtk_widget_show(wps->hbox);
     }
 
-    couple_register(DEVICE_WPS, 1, wps, object);
+    couple_register(window, DEVICE_WPS, 1, wps, object);
     return wps;
 }
 
-void wps_remove(WPS *wps) {
-    couple_unregister(DEVICE_WPS, 1, wps);
+void wps_remove(Window *window, WPS *wps) {
+    couple_unregister(window, DEVICE_WPS, 1, wps);
     g_object_unref(wps->hbox);
     free(wps);
 }

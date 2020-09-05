@@ -25,28 +25,21 @@ typedef struct {
     GDBusObjectManager *manager;
     GQuark iwd_error_domain;
 
+    Window *windows;
+
     // Command line flags
+    gboolean icon_disable;
     gboolean notifications_disable;
     gboolean signal_icon_disable;
-
-    // Widgets
-    GtkWidget *window;
-    GtkWidget *master;
-    GtkWidget *header;
-    GtkWidget *main;
-
-    GtkWidget *known_network_button;
-    GtkWidget *known_network_table;
 } GlobalData;
 
 extern GlobalData global;
 extern const ErrorMessage detailed_errors_standard[];
 
-void known_network_table_show(GtkToggleButton *button);
 void object_manager_callback(GDBusObjectManagerClient *manager, GAsyncResult *res);
 void iwd_up_handler(GDBusConnection *conn, const gchar *name, const gchar *name_owner);
 void iwd_down_handler(GDBusConnection *conn, const gchar *name);
-static void activate(GtkApplication *app);
+void startup(GtkApplication *app);
 void print_version();
 
 #endif

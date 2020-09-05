@@ -129,7 +129,7 @@ void ap_set(AP *ap) {
     g_variant_unref(started_var);
 }
 
-AP* ap_add(GDBusObject *object, GDBusProxy *proxy) {
+AP* ap_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     AP *ap;
 
     ap = malloc(sizeof(AP));
@@ -141,16 +141,18 @@ AP* ap_add(GDBusObject *object, GDBusProxy *proxy) {
 
     gtk_widget_show_all(ap->button);
 
-    couple_register(DEVICE_AP, 1, ap, object);
+    couple_register(window, DEVICE_AP, 1, ap, object);
 
-    g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(ap_set), (gpointer) ap);
+    ap->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(ap_set), (gpointer) ap);
 
     return ap;
 }
 
-void ap_remove(AP *ap) {
-    couple_unregister(DEVICE_AP, 1, ap);
+void ap_remove(Window *window, AP *ap) {
+    couple_unregister(window, DEVICE_AP, 1, ap);
     g_object_unref(ap->button);
+
+    g_signal_handler_disconnect(ap->proxy, ap->handler_update);
     free(ap);
 }
 

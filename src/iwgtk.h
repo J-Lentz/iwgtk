@@ -104,6 +104,7 @@ typedef struct {
     const ErrorMessage *error_table;
 } CallbackMessages;
 
+#include "window.h"
 #include "main.h"
 #include "utilities.h"
 
@@ -120,7 +121,6 @@ typedef struct {
 #include "hidden.h"
 
 #include "switch.h"
-#include "objects.h"
 
 #include "icons.h"
 

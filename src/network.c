@@ -155,7 +155,7 @@ void network_set(Network *network) {
     }
 }
 
-Network* network_add(GDBusObject *object, GDBusProxy *proxy) {
+Network* network_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     GtkWidget *master;
     GtkWidget *ssid_label, *security_label, *connect_button;
     Network *network;
@@ -184,18 +184,19 @@ Network* network_add(GDBusObject *object, GDBusProxy *proxy) {
     g_object_ref_sink(network->security_label);
     g_object_ref_sink(network->connect_button);
 
-    g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(network_set), (gpointer) network);
+    network->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(network_set), (gpointer) network);
     network_set(network);
 
     return network;
 }
 
-void network_remove(Network *network) {
+void network_remove(Window *window, Network *network) {
     g_object_unref(network->status_icon);
     g_object_unref(network->ssid_label);
     g_object_unref(network->security_label);
     g_object_unref(network->connect_button);
 
+    g_signal_handler_disconnect(network->proxy, network->handler_update);
     free(network);
 }
 
@@ -248,12 +249,12 @@ void bind_station_network(Station *station, Network *network, gint16 signal_stre
     gtk_widget_set_hexpand(network->ssid_label, TRUE);
 }
 
-Network* network_lookup(const char *path) {
+Network* network_lookup(Station *station, const char *path) {
     GDBusObject *object;
     ObjectList *list;
 
     object = g_dbus_object_manager_get_object(global.manager, path);
-    list = object_table[OBJECT_NETWORK].objects;
+    list = station->device->window->objects[OBJECT_NETWORK];
 
     while (list != NULL) {
 	if (list->object == object) {

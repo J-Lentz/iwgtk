@@ -22,6 +22,8 @@
 
 typedef struct {
     GDBusProxy *proxy;
+
+    // Widgets
     GtkWidget *menu;
     GtkWidget *cancel;
     GtkWidget *hbox;
@@ -39,8 +41,8 @@ void wps_pin_dialog_submit(WPSDialog *wps_dialog);
 void wps_pin_dialog_cancel(WPSDialog *wps_dialog);
 void wps_cancel(WPS *wps);
 void wps_connect_pushbutton(WPS *wps);
-WPS* wps_add(GDBusObject *object, GDBusProxy *proxy);
-void wps_remove(WPS *wps);
+WPS* wps_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
+void wps_remove(Window *window, WPS *wps);
 void bind_device_wps(Device *device, WPS *wps);
 void unbind_device_wps(Device *device, WPS *wps);
 

@@ -43,7 +43,7 @@ void adapter_set(Adapter *adapter) {
     g_variant_unref(name_var);
 }
 
-Adapter* adapter_add(GDBusObject *object, GDBusProxy *proxy) {
+Adapter* adapter_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     Adapter *adapter;
     GtkWidget *vbox;
     GtkWidget *row1;
@@ -52,36 +52,47 @@ Adapter* adapter_add(GDBusObject *object, GDBusProxy *proxy) {
     adapter->proxy = proxy;
 
     adapter->frame = gtk_frame_new(NULL);
-    gtk_box_pack_start(GTK_BOX(global.header), adapter->frame, FALSE, FALSE, 0);
+    g_object_ref_sink(adapter->frame);
+    gtk_box_pack_start(GTK_BOX(window->header), adapter->frame, FALSE, FALSE, 0);
 
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
     gtk_container_add(GTK_CONTAINER(adapter->frame), vbox);
 
     row1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
     adapter->device_buttons = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
+    g_object_ref_sink(adapter->device_buttons);
     gtk_button_box_set_layout(GTK_BUTTON_BOX(adapter->device_buttons), GTK_BUTTONBOX_SPREAD);
 
     gtk_box_pack_start(GTK_BOX(vbox), row1, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), adapter->device_buttons, FALSE, FALSE, 0);
 
     adapter->name_label = gtk_label_new(NULL);
+    g_object_ref_sink(adapter->name_label);
     gtk_box_pack_start(GTK_BOX(row1), adapter->name_label, FALSE, FALSE, 0);
 
     adapter->power_switch = switch_new(proxy, "Powered");
+    g_object_ref_sink(adapter->power_switch);
     gtk_box_pack_start(GTK_BOX(row1), adapter->power_switch, FALSE, FALSE, 0);
 
     gtk_widget_show_all(adapter->frame);
 
-    g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(adapter_set), (gpointer) adapter);
+    adapter->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(adapter_set), (gpointer) adapter);
     adapter_set(adapter);
 
-    couple_register(ADAPTER_DEVICE, 0, adapter, object);
+    couple_register(window, ADAPTER_DEVICE, 0, adapter, object);
     return adapter;
 }
 
-void adapter_remove(Adapter *adapter) {
-    gtk_container_remove(GTK_CONTAINER(global.header), adapter->frame);
-    couple_unregister(ADAPTER_DEVICE, 0, adapter);
+void adapter_remove(Window *window, Adapter *adapter) {
+    gtk_container_remove(GTK_CONTAINER(window->header), adapter->frame);
+    couple_unregister(window, ADAPTER_DEVICE, 0, adapter);
+
+    g_object_unref(adapter->frame);
+    g_object_unref(adapter->device_buttons);
+    g_object_unref(adapter->name_label);
+    g_object_unref(adapter->power_switch);
+
+    g_signal_handler_disconnect(adapter->proxy, adapter->handler_update);
     free(adapter);
 }
 
