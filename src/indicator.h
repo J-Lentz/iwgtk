@@ -17,27 +17,26 @@
  *  along with iwgtk.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef _IWGTK_ADAPTER_H
-#define _IWGTK_ADAPTER_H
+#ifndef _IWGTK_INDICATOR_H
+#define _IWGTK_INDICATOR_H
 
-typedef struct Adapter {
+typedef struct Indicator_s {
     GDBusProxy *proxy;
+    StatusNotifierItem *sni;
+    gulong update_handler;
 
-    // Widgets
-    GtkWidget *frame;
-    GtkWidget *device_buttons;
-    GtkWidget *name_label;
-    GtkWidget *power_switch;
+    struct Indicator_s *next;
+} Indicator;
 
-    // Handlers
-    gulong handler_update;
-} Adapter;
+typedef void (*IndicatorSetter) (Indicator *indicator);
 
-void adapter_set(Adapter *adapter);
-Adapter* adapter_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
-void adapter_remove(Window *window, Adapter *adapter);
-void bind_adapter_device(Adapter *adapter, Device *device);
-void unbind_adapter_device(Adapter *adapter, Device *device);
-guint adapter_list_position(GDBusProxy *proxy1, ObjectList *list);
+Indicator* indicator_new(GDBusProxy *proxy, IndicatorSetter indicator_set);
+void indicator_rm(Indicator *indicator);
+
+void indicator_set_station(Indicator *indicator);
+void indicator_set_ap(Indicator *indicator);
+void indicator_set_adhoc(Indicator *indicator);
+
+void indicator_activate(GDBusObject *device_object);
 
 #endif

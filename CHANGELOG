@@ -1,5 +1,8 @@
 ## 0.4
- * Added application icon.
+ * Added application icon
+ * Added support for multiple windows per process
+ * Added indicator (tray) icons
+ * New command line options
 
 ## 0.3
  * Reset UI widget to its correct state if the D-Bus call fails for a user-initiated

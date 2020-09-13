@@ -19,18 +19,18 @@
 
 #include "iwgtk.h"
 
-ObjectType object_table[] = {
-    {IWD_IFACE_KNOWN_NETWORK, (ConstructorFunction) known_network_add, (DestructorFunction) known_network_remove},
-    {IWD_IFACE_ADAPTER,       (ConstructorFunction) adapter_add,       (DestructorFunction) adapter_remove},
-    {IWD_IFACE_DEVICE,        (ConstructorFunction) device_add,        (DestructorFunction) device_remove},
-    {IWD_IFACE_STATION,       (ConstructorFunction) station_add,       (DestructorFunction) station_remove},
-    {IWD_IFACE_AP,            (ConstructorFunction) ap_add,            (DestructorFunction) ap_remove},
-    {IWD_IFACE_AD_HOC,        (ConstructorFunction) adhoc_add,         (DestructorFunction) adhoc_remove},
-    {IWD_IFACE_WPS,           (ConstructorFunction) wps_add,           (DestructorFunction) wps_remove},
-    {IWD_IFACE_NETWORK,       (ConstructorFunction) network_add,       (DestructorFunction) network_remove}
+ObjectMethods object_methods[] = {
+    {IWD_IFACE_KNOWN_NETWORK, (ConstructorFunction) known_network_add, (DestructorFunction) known_network_remove, NULL},
+    {IWD_IFACE_ADAPTER,       (ConstructorFunction) adapter_add,       (DestructorFunction) adapter_remove,       NULL},
+    {IWD_IFACE_DEVICE,        (ConstructorFunction) device_add,        (DestructorFunction) device_remove,        NULL},
+    {IWD_IFACE_STATION,       (ConstructorFunction) station_add,       (DestructorFunction) station_remove,       indicator_set_station},
+    {IWD_IFACE_AP,            (ConstructorFunction) ap_add,            (DestructorFunction) ap_remove,            indicator_set_ap},
+    {IWD_IFACE_AD_HOC,        (ConstructorFunction) adhoc_add,         (DestructorFunction) adhoc_remove,         indicator_set_adhoc},
+    {IWD_IFACE_WPS,           (ConstructorFunction) wps_add,           (DestructorFunction) wps_remove,           NULL},
+    {IWD_IFACE_NETWORK,       (ConstructorFunction) network_add,       (DestructorFunction) network_remove,       NULL}
 };
 
-CoupleType couple_table[] = {
+CoupleMethods couple_methods[] = {
     {(BindFunction) bind_adapter_device, (UnbindFunction) unbind_adapter_device},
     {(BindFunction) bind_device_station, (UnbindFunction) unbind_device_station},
     {(BindFunction) bind_device_ap,      (UnbindFunction) unbind_device_ap},
@@ -38,7 +38,7 @@ CoupleType couple_table[] = {
     {(BindFunction) bind_device_wps,     (UnbindFunction) unbind_device_wps}
 };
 
-void window_new(GtkApplication *app) {
+void window_new() {
     Window *window;
 
     window = malloc(sizeof(Window));
@@ -49,10 +49,10 @@ void window_new(GtkApplication *app) {
     memset(window->objects, 0, sizeof(void *) * n_object_types);
     memset(window->couples, 0, sizeof(void *) * n_couple_types);
 
-    window->window = gtk_application_window_new(app);
+    window->window = gtk_application_window_new(global.application);
     gtk_window_set_title(GTK_WINDOW(window->window), "iwgtk");
     gtk_window_set_default_size(GTK_WINDOW(window->window), 600, 700);
-    gtk_window_set_position(GTK_WINDOW(window->window), GTK_WIN_POS_CENTER);
+    gtk_window_set_icon_name(GTK_WINDOW(window->window), "iwgtk");
 
     window_set(window);
 }
@@ -102,6 +102,13 @@ void window_set(Window *window) {
 
 	known_network_button_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 	gtk_box_pack_end(GTK_BOX(window->header), known_network_button_vbox, FALSE, FALSE, 0);
+	{
+	    GtkWidget *quit_button;
+
+	    quit_button = gtk_button_new_with_label("Quit");
+	    g_signal_connect(quit_button, "clicked", G_CALLBACK(iwgtk_quit), NULL);
+	    gtk_box_pack_start(GTK_BOX(known_network_button_vbox), quit_button, FALSE, FALSE, 0);
+	}
 	gtk_box_pack_end(GTK_BOX(known_network_button_vbox), window->known_network_button, FALSE, FALSE, 0);
     }
 
@@ -126,26 +133,7 @@ void window_set(Window *window) {
     gtk_grid_set_row_spacing(GTK_GRID(window->known_network_table), 10);
 
     gtk_widget_show_all(window->window);
-
-    window->handler_interface_add = g_signal_connect_swapped(global.manager, "interface-added",   G_CALLBACK(interface_add), window);
-    window->handler_interface_rm  = g_signal_connect_swapped(global.manager, "interface-removed", G_CALLBACK(interface_rm),  window);
-    window->handler_object_add    = g_signal_connect_swapped(global.manager, "object-added",      G_CALLBACK(object_add),    window);
-    window->handler_object_rm     = g_signal_connect_swapped(global.manager, "object-removed",    G_CALLBACK(object_rm),     window);
-
-    {
-	GList *object_list, *i;
-
-	object_list = g_dbus_object_manager_get_objects(global.manager);
-	for (i = object_list; i != NULL; i = i->next) {
-	    GDBusObject *object;
-
-	    object = (GDBusObject *) i->data;
-	    object_iterate_interfaces(window, object, interface_add);
-	    g_object_unref(object);
-	}
-	g_list_free(object_list);
-    }
-
+    add_all_dbus_objects(window);
     g_signal_connect_swapped(window->window, "destroy", G_CALLBACK(window_rm), window);
 }
 
@@ -154,7 +142,7 @@ void window_rm(Window *window) {
 
     for (i = 0; i < n_object_types; i ++) {
 	while (window->objects[i] != NULL) {
-	    object_table[i].destructor(window, window->objects[i]->data);
+	    object_methods[i].rm(window, window->objects[i]->data);
 
 	    {
 		ObjectList *rm;
@@ -166,21 +154,20 @@ void window_rm(Window *window) {
 	}
     }
 
-    /*
-     * All couples should be unregistered at this point.
-     * Let's check just to be sure.
-     * TODO: Delete this eventually
-     */
-    for (i = 0; i < n_couple_types; i ++) {
-	if (window->couples[i] != NULL) {
-	    fprintf(stderr, "Error: A window is being destroyed with an unregistered couple\n");
+    {
+	Window **w;
+
+	w = &global.windows;
+	while (*w != NULL) {
+	    if (*w == window) {
+		*w = (*w)->next;
+		break;
+	    }
+	    w = &(*w)->next;
 	}
     }
 
-    g_signal_handler_disconnect(global.manager, window->handler_interface_add);
-    g_signal_handler_disconnect(global.manager, window->handler_interface_rm);
-    g_signal_handler_disconnect(global.manager, window->handler_object_add);
-    g_signal_handler_disconnect(global.manager, window->handler_object_rm);
+    free(window);
 }
 
 void known_network_table_show(GtkToggleButton *button, Window *window) {
@@ -190,15 +177,33 @@ void known_network_table_show(GtkToggleButton *button, Window *window) {
     }
 }
 
-void object_add(Window *window, GDBusObject *object) {
-    object_iterate_interfaces(window, object, interface_add);
+/*
+ * window=NULL implies that all interfaces are to be added to the indicator list, rather
+ * than to a window.
+ */
+void add_all_dbus_objects(Window *window) {
+    GList *object_list, *i;
+
+    object_list = g_dbus_object_manager_get_objects(global.manager);
+    for (i = object_list; i != NULL; i = i->next) {
+	GDBusObject *object;
+
+	object = (GDBusObject *) i->data;
+	object_iterate_interfaces(NULL, object, window, interface_add);
+	g_object_unref(object);
+    }
+    g_list_free(object_list);
 }
 
-void object_rm(Window *window, GDBusObject *object) {
-    object_iterate_interfaces(window, object, interface_rm);
+void object_add(GDBusObjectManager *manager, GDBusObject *object, Window *window) {
+    object_iterate_interfaces(manager, object, window, interface_add);
 }
 
-void object_iterate_interfaces(Window *window, GDBusObject *object, ObjectIterFunction method) {
+void object_rm(GDBusObjectManager *manager, GDBusObject *object, Window *window) {
+    object_iterate_interfaces(manager, object, window, interface_rm);
+}
+
+void object_iterate_interfaces(GDBusObjectManager *manager, GDBusObject *object, Window *window, ObjectIterFunction method) {
 	GList *interface_list, *j;
 
 	interface_list = g_dbus_object_get_interfaces(object);
@@ -206,54 +211,50 @@ void object_iterate_interfaces(Window *window, GDBusObject *object, ObjectIterFu
 	    GDBusProxy *proxy;
 
 	    proxy = (GDBusProxy *) j->data;
-	    method(window, object, proxy);
+	    method(manager, object, proxy, window);
 	    g_object_unref(proxy);
 	}
 	g_list_free(interface_list);
 }
 
-void interface_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
+void interface_add(GDBusObjectManager *manager, GDBusObject *object, GDBusProxy *proxy, Window *window) {
     const gchar *name;
 
     name = g_dbus_proxy_get_interface_name(proxy);
 
     for (int i = 0; i < n_object_types; i ++) {
-	if (strcmp(name, object_table[i].interface) == 0) {
-	    ObjectList *object_list_entry;
-
-	    object_list_entry = malloc(sizeof(ObjectList));
-	    object_list_entry->object = object;
-	    object_list_entry->data = object_table[i].constructor(window, object, proxy);
-	    object_list_entry->next = window->objects[i];
-	    window->objects[i] = object_list_entry;
-
-	    break;
-	}
-    }
-}
-
-void interface_rm(Window *window, GDBusObject *object, GDBusProxy *proxy) {
-    const gchar *name;
-
-    name = g_dbus_proxy_get_interface_name(proxy);
-
-    for (int i = 0; i < n_object_types; i ++) {
-	if (!strcmp(name, object_table[i].interface)) {
-	    ObjectList **list;
-
-	    list = &window->objects[i];
-	    while ((*list)->object != object) {
-		list = &(*list)->next;
+	if (strcmp(name, object_methods[i].interface) == 0) {
+	    if (window != NULL) {
+		// This function has been invoked for a particular window.
+		window_add_object(object, proxy, window, i);
 	    }
+	    else {
+		/*
+		 * If window=NULL and manager=NULL, then we are only interested in
+		 * initializing the indicators.
+		 */
+		if (manager != NULL) {
+		    window = global.windows;
+		    while (window != NULL) {
+			window_add_object(object, proxy, window, i);
+			window = window->next;
+		    }
+		}
 
-	    object_table[i].destructor(window, (*list)->data);
+		/*
+		 * There are two scenarios when we want to run this:
+		 * (1) due to a new object/interface being added (window=NULL, manager!=NULL)
+		 * (2) right after the manager is initialized (window=NULL, manager=NULL
+		 */
+		if (global.indicators_enable && object_methods[i].indicator_set != NULL) {
+		    Indicator **indicator;
 
-	    {
-		ObjectList *rm;
-
-		rm = *list;
-		*list = (*list)->next;
-		free(rm);
+		    indicator = &global.indicators;
+		    while (*indicator != NULL) {
+			indicator = &(*indicator)->next;
+		    }
+		    *indicator = indicator_new(proxy, object_methods[i].indicator_set);
+		}
 	    }
 
 	    break;
@@ -261,7 +262,77 @@ void interface_rm(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     }
 }
 
-void couple_register(Window *window, CoupleIndex couple_type, int this, gpointer data, GDBusObject *object) {
+void object_list_append(ObjectList **list, GDBusObject *object, gpointer data) {
+    while (*list != NULL) {
+	list = &(*list)->next;
+    }
+
+    *list = malloc(sizeof(ObjectList));
+    (*list)->object = object;
+    (*list)->data = data;
+    (*list)->next = NULL;
+}
+
+void window_add_object(GDBusObject *object, GDBusProxy *proxy, Window *window, int type) {
+    gpointer data;
+
+    data = object_methods[type].new(window, object, proxy);
+    object_list_append(&window->objects[type], object, data);
+}
+
+void interface_rm(GDBusObjectManager *manager, GDBusObject *object, GDBusProxy *proxy, Window *window) {
+    const gchar *name;
+
+    name = g_dbus_proxy_get_interface_name(proxy);
+
+    for (int i = 0; i < n_object_types; i ++) {
+	if (!strcmp(name, object_methods[i].interface)) {
+	    Window *window;
+
+	    window = global.windows;
+	    while (window != NULL) {
+		ObjectList **list;
+
+		list = &window->objects[i];
+		while ((*list)->object != object) {
+		    list = &(*list)->next;
+		}
+
+		object_methods[i].rm(window, (*list)->data);
+
+		{
+		    ObjectList *rm;
+
+		    rm = *list;
+		    *list = (*list)->next;
+		    free(rm);
+		}
+
+		window = window->next;
+	    }
+	    break;
+	}
+    }
+
+    {
+	Indicator **indicator;
+
+	indicator = &global.indicators;
+	while (*indicator != NULL) {
+	    if ((*indicator)->proxy == proxy) {
+		Indicator *rm;
+
+		rm = *indicator;
+		*indicator = (*indicator)->next;
+		indicator_rm(rm);
+		break;
+	    }
+	    indicator = &(*indicator)->next;
+	}
+    }
+}
+
+void couple_register(Window *window, CoupleType couple_type, int this, gpointer data, GDBusObject *object) {
     CoupleList **list;
 
     list = &window->couples[couple_type];
@@ -280,7 +351,7 @@ void couple_register(Window *window, CoupleIndex couple_type, int this, gpointer
 		new_entry->next = (*list)->next;
 		*list = new_entry;
 	    }
-	    couple_table[couple_type].bind( (*list)->data[0], (*list)->data[1] );
+	    couple_methods[couple_type].bind( (*list)->data[0], (*list)->data[1] );
 	    return;
 	}
 	else {
@@ -300,7 +371,7 @@ void couple_register(Window *window, CoupleIndex couple_type, int this, gpointer
     }
 }
 
-void couple_unregister(Window *window, CoupleIndex couple_type, int this, gpointer data) {
+void couple_unregister(Window *window, CoupleType couple_type, int this, gpointer data) {
     CoupleList **list;
 
     list = &window->couples[couple_type];
@@ -316,7 +387,7 @@ void couple_unregister(Window *window, CoupleIndex couple_type, int this, gpoint
 	    }
 	    else {
 		// Unbind the couple
-		couple_table[couple_type].unbind( (*list)->data[0], (*list)->data[1] );
+		couple_methods[couple_type].unbind( (*list)->data[0], (*list)->data[1] );
 		(*list)->data[this] = NULL;
 		list = &(*list)->next;
 	    }

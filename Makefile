@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=`pkg-config --cflags gtk+-3.0` -g
+CFLAGS=`pkg-config --cflags gtk+-3.0`
 LDLIBS=`pkg-config --libs gtk+-3.0`
 
 prefix=/usr/local
@@ -10,11 +10,11 @@ datadir=$(datarootdir)
 mandir=$(datarootdir)/man
 man1dir=$(mandir)/man1
 desktopdir=$(datadir)/applications
-app_svg_icon_dir=$(datadir)/icons/hicolor/scalable/apps
+svg_icon_dir=$(datadir)/icons/hicolor/scalable
 
 srcdir=src
 
-files=main window dialog adapter device station wps ap adhoc utilities switch known_network network hidden agent icons
+files=sni main window indicator dialog adapter device station wps ap adhoc utilities switch known_network network hidden agent icons
 icons=icons/*.svg
 
 headers=$(patsubst %,$(srcdir)/%.h,$(files) iwgtk)
@@ -44,14 +44,25 @@ install : iwgtk iwgtk.1.gz
 	install iwgtk.desktop $(DESTDIR)$(desktopdir)
 	install -d $(DESTDIR)$(man1dir)
 	install iwgtk.1.gz $(DESTDIR)$(man1dir)
-	install -d $(DESTDIR)$(app_svg_icon_dir)
-	install icons/iwgtk.svg $(DESTDIR)$(app_svg_icon_dir)
+	install -d $(DESTDIR)$(svg_icon_dir)/apps
+	install icons/iwgtk.svg $(DESTDIR)$(svg_icon_dir)/apps
+	install -d $(DESTDIR)$(svg_icon_dir)/actions
+	install icons/unknown.svg $(DESTDIR)$(svg_icon_dir)/actions/iwgtk-station-down.svg
+	install icons/connecting.svg $(DESTDIR)$(svg_icon_dir)/actions/iwgtk-station-connecting.svg
+	install icons/connected.svg $(DESTDIR)$(svg_icon_dir)/actions/iwgtk-station-up.svg
+	install icons/ap-down.svg $(DESTDIR)$(svg_icon_dir)/actions/iwgtk-ap-down.svg
+	install icons/ap-up.svg $(DESTDIR)$(svg_icon_dir)/actions/iwgtk-ap-up.svg
 
 uninstall :
 	rm $(DESTDIR)$(bindir)/iwgtk
 	rm $(DESTDIR)$(desktopdir)/iwgtk.desktop
 	rm $(DESTDIR)$(man1dir)/iwgtk.1.gz
-	rm $(DESTDIR)$(app_svg_icon_dir)/iwgtk.svg
+	rm $(DESTDIR)$(svg_icon_dir)/apps/iwgtk.svg
+	rm $(DESTDIR)$(svg_icon_dir)/actions/iwgtk-station-down.svg
+	rm $(DESTDIR)$(svg_icon_dir)/actions/iwgtk-station-connecting.svg
+	rm $(DESTDIR)$(svg_icon_dir)/actions/iwgtk-station-up.svg
+	rm $(DESTDIR)$(svg_icon_dir)/actions/iwgtk-ap-down.svg
+	rm $(DESTDIR)$(svg_icon_dir)/actions/iwgtk-ap-up.svg
 
 clean :
 	rm -f iwgtk *.o $(srcdir)/icons.c $(srcdir)/icons.h iwgtk.1.gz

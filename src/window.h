@@ -30,7 +30,7 @@ typedef enum {
     OBJECT_ADHOC,
     OBJECT_WPS,
     OBJECT_NETWORK
-} ObjectIndex;
+} ObjectType;
 
 #define n_couple_types 5
 typedef enum {
@@ -39,7 +39,7 @@ typedef enum {
     DEVICE_AP,
     DEVICE_ADHOC,
     DEVICE_WPS
-} CoupleIndex;
+} CoupleType;
 
 typedef struct ObjectList {
     GDBusObject *object;
@@ -56,11 +56,6 @@ typedef struct CoupleList {
 typedef struct Window_s {
     GtkWidget *window;
 
-    gulong handler_interface_add;
-    gulong handler_interface_rm;
-    gulong handler_object_add;
-    gulong handler_object_rm;
-
     GtkWidget *master;
     GtkWidget *header;
     GtkWidget *main;
@@ -74,13 +69,14 @@ typedef struct Window_s {
 } Window;
 
 typedef gpointer (*ConstructorFunction) (Window *window, GDBusObject *object, GDBusProxy *proxy);
-typedef gpointer (*DestructorFunction) (Window *window, gpointer data);
+typedef void (*DestructorFunction) (Window *window, gpointer data);
 
 typedef struct {
     const gchar *interface;
-    ConstructorFunction constructor;
-    DestructorFunction destructor;
-} ObjectType;
+    ConstructorFunction new;
+    DestructorFunction rm;
+    IndicatorSetter indicator_set;
+} ObjectMethods;
 
 typedef void (*BindFunction) (gpointer A, gpointer B);
 typedef void (*UnbindFunction) (gpointer A, gpointer B);
@@ -88,26 +84,28 @@ typedef void (*UnbindFunction) (gpointer A, gpointer B);
 typedef struct {
     BindFunction bind;
     UnbindFunction unbind;
-} CoupleType;
+} CoupleMethods;
 
-extern ObjectType object_table[];
-extern CoupleType couple_table[];
+extern ObjectMethods object_methods[];
+extern CoupleMethods couple_methods[];
 
-typedef void (*ObjectIterFunction) (Window *window, GDBusObject *object, GDBusProxy *proxy);
+typedef void (*ObjectIterFunction) (GDBusObjectManager *manager, GDBusObject *object, GDBusProxy *proxy, Window *window);
 
-void window_new(GtkApplication *app);
+void window_new();
+void window_set(Window *window);
 void window_rm(Window *window);
-void window_set(Window *win);
-void known_network_table_show(GtkToggleButton *button, Window *win);
+void known_network_table_show(GtkToggleButton *button, Window *window);
 
-void object_add(Window *window, GDBusObject *object);
-void object_rm(Window *window, GDBusObject *object);
-void object_iterate_interfaces(Window *window, GDBusObject *object, ObjectIterFunction method);
+void add_all_dbus_objects(Window *window);
+void object_add(GDBusObjectManager *manager, GDBusObject *object, Window *window);
+void object_rm(GDBusObjectManager *manager, GDBusObject *object, Window *window);
+void object_iterate_interfaces(GDBusObjectManager *manager, GDBusObject *object, Window *window, ObjectIterFunction method);
+void interface_add(GDBusObjectManager *manager, GDBusObject *object, GDBusProxy *proxy, Window *window);
+void object_list_append(ObjectList **list, GDBusObject *object, gpointer data);
+void window_add_object(GDBusObject *object, GDBusProxy *proxy, Window *window, int type);
+void interface_rm(GDBusObjectManager *manager, GDBusObject *object, GDBusProxy *proxy, Window *window);
 
-void interface_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
-void interface_rm(Window *window, GDBusObject *object, GDBusProxy *proxy);
-
-void couple_register(Window *window, CoupleIndex couple_type, int this, gpointer data, GDBusObject *object);
-void couple_unregister(Window *window, CoupleIndex couple_type, int this, gpointer data);
+void couple_register(Window *window, CoupleType couple_type, int this, gpointer data, GDBusObject *object);
+void couple_unregister(Window *window, CoupleType couple_type, int this, gpointer data);
 
 #endif

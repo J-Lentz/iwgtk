@@ -81,6 +81,75 @@ void validation_callback_log(GDBusProxy *proxy, GAsyncResult *res, const gchar *
     }
 }
 
+/*
+ * Return true if adapter 0 < adapter 1 and false if adapter 1 < adapter 0.
+ */
+gboolean adapter_sort(GDBusProxy *proxy0, GDBusProxy *proxy1) {
+    const gchar *path0, *path1;
+    guint adapter0, adapter1;
+
+    static const gchar *adapter_path_fmt = "%u";
+
+    if (proxy0 == NULL || proxy1 == NULL) {
+	return FALSE;
+    }
+
+    path0 = g_dbus_proxy_get_object_path(proxy0) + IWD_PATH_PREFIX_LENGTH;
+    path1 = g_dbus_proxy_get_object_path(proxy1) + IWD_PATH_PREFIX_LENGTH;
+
+    sscanf(path0, adapter_path_fmt, &adapter0);
+    sscanf(path1, adapter_path_fmt, &adapter1);
+
+    if (adapter0 < adapter1) {
+	return TRUE;
+    }
+
+    return FALSE;
+}
+
+/*
+ * Return true if device 0 < device 1 and false if device 1 < device 0.
+ */
+/*
+ * TODO:
+ * Use this to sort wlan* buttons within a device.
+ */
+gboolean device_sort(GDBusProxy *proxy0, GDBusProxy *proxy1) {
+    const gchar *path0, *path1;
+    guint adapter0, adapter1;
+    guint dev0, dev1;
+
+    static const gchar *device_path_fmt = "%u/%u";
+
+    if (proxy0 == NULL || proxy1 == NULL) {
+	return FALSE;
+    }
+
+    path0 = g_dbus_proxy_get_object_path(proxy0) + IWD_PATH_PREFIX_LENGTH;
+    path1 = g_dbus_proxy_get_object_path(proxy1) + IWD_PATH_PREFIX_LENGTH;
+
+    sscanf(path0, device_path_fmt, &adapter0, &dev0);
+    sscanf(path1, device_path_fmt, &adapter1, &dev1);
+
+    if (adapter0 < adapter1) {
+	return TRUE;
+    }
+
+    if (adapter1 < adapter0) {
+	return FALSE;
+    }
+
+    /*
+     * We know now that adapter0 == adapter1.
+     */
+
+    if (dev0 < dev1) {
+	return TRUE;
+    }
+
+    return FALSE;
+}
+
 void set_remote_property_callback(GDBusProxy *proxy, GAsyncResult *res, FailureClosure *failure) {
     GVariant *ret;
     GError *err;

@@ -33,6 +33,8 @@ typedef struct {
 void validation_callback(GDBusProxy *proxy, GAsyncResult *res, CallbackMessages *data);
 void validation_callback_log(GDBusProxy *proxy, GAsyncResult *res, const gchar *message);
 
+gboolean adapter_sort(GDBusProxy *proxy0, GDBusProxy *proxy1);
+gboolean device_sort(GDBusProxy *proxy0, GDBusProxy *proxy1);
 void set_remote_property_callback(GDBusProxy *proxy, GAsyncResult *res, FailureClosure *failure);
 void set_remote_property(GDBusProxy *proxy, const gchar *property, GVariant *value, SetFunction failure_callback, gpointer failure_data);
 GVariant* lookup_property(GVariant *dictionary, const gchar *property);

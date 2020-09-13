@@ -28,7 +28,7 @@ void dialog_cancel_callback(GtkWidget *cancel_button) {
 
 /*
  * TODO:
- * This garbage GValue is an ugly hack.
+ * This placeholder GValue is an ugly hack.
  * Why does g_closure_invoke() fail when n_param_values is 0?
  */
 gboolean dialog_key_press_callback(GtkWidget *window, GdkEventKey *event, GClosure *submit_closure) {

@@ -54,6 +54,10 @@ Adapter* adapter_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     adapter->frame = gtk_frame_new(NULL);
     g_object_ref_sink(adapter->frame);
     gtk_box_pack_start(GTK_BOX(window->header), adapter->frame, FALSE, FALSE, 0);
+    gtk_box_reorder_child(
+	GTK_BOX(window->header),
+	adapter->frame,
+	adapter_list_position(proxy, window->objects[OBJECT_ADAPTER]));
 
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
     gtk_container_add(GTK_CONTAINER(adapter->frame), vbox);
@@ -102,4 +106,24 @@ void bind_adapter_device(Adapter *adapter, Device *device) {
 
 void unbind_adapter_device(Adapter *adapter, Device *device) {
     gtk_container_remove(GTK_CONTAINER(adapter->device_buttons), device->button);
+}
+
+guint adapter_list_position(GDBusProxy *proxy1, ObjectList *list) {
+    guint i;
+
+    i = 0;
+    while (list != NULL) {
+	GDBusProxy *proxy0;
+
+	proxy0 = G_DBUS_PROXY(g_dbus_object_get_interface(list->object, IWD_IFACE_ADAPTER));
+	if (adapter_sort(proxy0, proxy1)) {
+	    i ++;
+	    list = list->next;
+	}
+	else {
+	    break;
+	}
+    }
+
+    return i;
 }

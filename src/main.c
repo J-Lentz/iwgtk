@@ -57,12 +57,21 @@ const ErrorMessage detailed_errors_standard[] = {
 
 static const GOptionEntry command_options[] = {
     {
-	"no-icon",
-	'I',
+	"indicators",
+	'i',
 	G_OPTION_FLAG_NONE,
 	G_OPTION_ARG_NONE,
-	&global.icon_disable,
-	"Disable indicator icon",
+	NULL,
+	"Enable indicator (tray) icons and run iwgtk in the background",
+	NULL
+    },
+    {
+	"notifications",
+	'n',
+	G_OPTION_FLAG_NONE,
+	G_OPTION_ARG_NONE,
+	NULL,
+	"Enable desktop notifications (default)",
 	NULL
     },
     {
@@ -70,25 +79,34 @@ static const GOptionEntry command_options[] = {
 	'N',
 	G_OPTION_FLAG_NONE,
 	G_OPTION_ARG_NONE,
-	&global.notifications_disable,
+	NULL,
 	"Disable desktop notifications",
 	NULL
     },
     {
-	"signal-strength",
+	"signal-strength-icons",
 	's',
 	G_OPTION_FLAG_NONE,
 	G_OPTION_ARG_NONE,
-	&global.signal_icon_disable,
-	"Display signal strengths numerically (in dBm)",
+	NULL,
+	"Display signal strength levels as icons (default)",
+	NULL
+    },
+    {
+	"signal-strength-numeric",
+	'S',
+	G_OPTION_FLAG_NONE,
+	G_OPTION_ARG_NONE,
+	NULL,
+	"Display signal strength levels numerically, in dBm",
 	NULL
     },
     {
 	"version",
 	'V',
-	G_OPTION_FLAG_NO_ARG,
-	G_OPTION_ARG_CALLBACK,
-	(GOptionArgFunc) print_version,
+	G_OPTION_FLAG_NONE,
+	G_OPTION_ARG_NONE,
+	NULL,
 	"Print version",
 	NULL
     },
@@ -107,15 +125,19 @@ void object_manager_callback(GDBusObjectManagerClient *manager, GAsyncResult *re
 	}
     }
 
-    {
-	Window *window;
-
-	window = global.windows;
-	while (window != NULL) {
-	    window_set(window);
-	    window = window->next;
-	}
+    for (Window *window = global.windows; window != NULL; window = window->next) {
+	window_set(window);
     }
+
+    if (global.indicators_enable) {
+	g_application_release(G_APPLICATION(global.application));
+	add_all_dbus_objects(NULL);
+    }
+
+    g_signal_connect(global.manager, "interface-added",   G_CALLBACK(interface_add), NULL);
+    g_signal_connect(global.manager, "interface-removed", G_CALLBACK(interface_rm),  NULL);
+    g_signal_connect(global.manager, "object-added",      G_CALLBACK(object_add),    NULL);
+    g_signal_connect(global.manager, "object-removed",    G_CALLBACK(object_rm),     NULL);
 
     {
 	GDBusProxy *agent_manager;
@@ -125,11 +147,11 @@ void object_manager_callback(GDBusObjectManagerClient *manager, GAsyncResult *re
     }
 }
 
-void iwd_up_handler(GDBusConnection *conn, const gchar *name, const gchar *name_owner) {
+void iwd_up(GDBusConnection *connection) {
     g_dbus_object_manager_client_new(
-	conn,
+	connection,
 	G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
-	name,
+	IWD_BUS_NAME,
 	IWD_PATH_OBJECT_MANAGER,
 	NULL,
 	NULL,
@@ -140,7 +162,7 @@ void iwd_up_handler(GDBusConnection *conn, const gchar *name, const gchar *name_
     );
 }
 
-void iwd_down_handler(GDBusConnection *conn, const gchar *name) {
+void iwd_down(GDBusConnection *connection) {
     if (global.manager != NULL) {
 	g_object_unref(global.manager);
 	global.manager = NULL;
@@ -165,44 +187,93 @@ void startup(GtkApplication *app) {
 	global.iwd_error_domain = (GQuark) error_domain_volatile;
     }
 
+    {
+	GError *err;
+
+	err = NULL;
+	global.session_bus_address = g_dbus_address_get_for_bus_sync(G_BUS_TYPE_SESSION, NULL, &err);
+
+	if (err != NULL) {
+	    fprintf(stderr, "Error: Could not look up D-Bus session address: %s\n", err->message);
+	    g_error_free(err);
+	}
+    }
+
     g_bus_watch_name(
 	G_BUS_TYPE_SYSTEM,
-	IWD_DBUS_NAME,
+	IWD_BUS_NAME,
 	G_BUS_NAME_WATCHER_FLAGS_NONE,
-	(GBusNameAppearedCallback) iwd_up_handler,
-	(GBusNameVanishedCallback) iwd_down_handler,
+	(GBusNameAppearedCallback) iwd_up,
+	(GBusNameVanishedCallback) iwd_down,
 	NULL,
 	NULL
     );
 }
 
-void print_version() {
-    puts(VERSION_STRING);
-    exit(0);
+gint handle_local_options(GApplication *application, GVariantDict *options) {
+    if (g_variant_dict_contains(options, "version")) {
+	puts(VERSION_STRING);
+	return 0;
+    }
+
+    return -1;
+}
+
+gint command_line(GApplication *application, GApplicationCommandLine *command_line) {
+    GVariantDict *options;
+
+    options = g_application_command_line_get_options_dict(command_line);
+
+    if (g_variant_dict_contains(options, "notifications")) {
+	global.notifications_disable = FALSE;
+    }
+
+    if (g_variant_dict_contains(options, "no-notifications")) {
+	global.notifications_disable = TRUE;
+    }
+
+    if (g_variant_dict_contains(options, "signal-strength-icons")) {
+	global.signal_icon_disable = FALSE;
+    }
+
+    if (g_variant_dict_contains(options, "signal-strength-numeric")) {
+	global.signal_icon_disable = TRUE;
+    }
+
+    if (g_variant_dict_contains(options, "indicators")) {
+	global.indicators_enable = TRUE;
+	g_application_hold(application);
+    }
+    else {
+	window_new();
+    }
+
+    return 0;
+}
+
+void iwgtk_quit() {
+    while (global.windows != NULL) {
+	gtk_widget_destroy(global.windows->window);
+    }
+
+    while (global.indicators != NULL) {
+	Indicator *rm;
+
+	rm = global.indicators;
+	global.indicators = global.indicators->next;
+	indicator_rm(rm);
+    }
 }
 
 int main (int argc, char **argv) {
-    {
-	GOptionContext *context;
-	GError *err;
+    global.application = gtk_application_new("application.iwgtk", G_APPLICATION_HANDLES_COMMAND_LINE);
 
-	context = g_option_context_new(NULL);
-	g_option_context_set_summary(context, "iwgtk is a graphical wifi management utility.");
-	g_option_context_add_main_entries(context, command_options, NULL);
+    g_application_set_option_context_summary(G_APPLICATION(global.application), "iwgtk is a graphical wifi management utility.");
+    g_application_add_main_option_entries(G_APPLICATION(global.application), command_options);
 
-	err = NULL;
-	g_option_context_parse(context, &argc, &argv, &err);
-	g_option_context_free(context);
-
-	if (err) {
-	    fprintf(stderr, "Incorrect usage: %s\n", err->message);
-	    g_error_free(err);
-	    exit(1);
-	}
-    }
-
-    global.application = gtk_application_new("application.iwgtk", G_APPLICATION_FLAGS_NONE);
     g_signal_connect(global.application, "startup", G_CALLBACK(startup), NULL);
+    g_signal_connect(global.application, "handle-local-options", G_CALLBACK(handle_local_options), NULL);
+    g_signal_connect(global.application, "command-line", G_CALLBACK(command_line), NULL);
     g_signal_connect(global.application, "activate", G_CALLBACK(window_new), NULL);
 
     {

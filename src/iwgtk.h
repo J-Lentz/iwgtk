@@ -23,12 +23,13 @@
 #include <gtk/gtk.h>
 #include <gio/gio.h>
 
-#define VERSION_STRING "iwgtk 0.3"
+#define VERSION_STRING "iwgtk 0.4"
 
-#define IWD_DBUS_NAME "net.connman.iwd"
+#define IWD_BUS_NAME "net.connman.iwd"
 
 #define IWD_PATH_OBJECT_MANAGER "/"
 #define IWD_PATH_AGENT_MANAGER  "/net/connman/iwd"
+#define IWD_PATH_PREFIX_LENGTH 17
 
 #define IWGTK_PATH_AGENT        "/iwgtk/agent"
 #define IWGTK_RESOURCE_PATH     "/application/iwgtk/"
@@ -104,6 +105,8 @@ typedef struct {
     const ErrorMessage *error_table;
 } CallbackMessages;
 
+#include "sni.h"
+#include "indicator.h"
 #include "window.h"
 #include "main.h"
 #include "utilities.h"

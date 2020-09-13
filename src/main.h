@@ -17,18 +17,20 @@
  *  along with iwgtk.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef _MAIN_H
-#define _MAIN_H
+#ifndef _IWGTK_MAIN_H
+#define _IWGTK_MAIN_H
 
 typedef struct {
     GtkApplication *application;
     GDBusObjectManager *manager;
     GQuark iwd_error_domain;
+    const gchar *session_bus_address;
 
     Window *windows;
+    Indicator *indicators;
 
     // Command line flags
-    gboolean icon_disable;
+    gboolean indicators_enable;
     gboolean notifications_disable;
     gboolean signal_icon_disable;
 } GlobalData;
@@ -37,9 +39,11 @@ extern GlobalData global;
 extern const ErrorMessage detailed_errors_standard[];
 
 void object_manager_callback(GDBusObjectManagerClient *manager, GAsyncResult *res);
-void iwd_up_handler(GDBusConnection *conn, const gchar *name, const gchar *name_owner);
-void iwd_down_handler(GDBusConnection *conn, const gchar *name);
+void iwd_up(GDBusConnection *connection);
+void iwd_down(GDBusConnection *connection);
 void startup(GtkApplication *app);
-void print_version();
+gint handle_local_options(GApplication *application, GVariantDict *options);
+gint command_line(GApplication *application, GApplicationCommandLine *command_line);
+void iwgtk_quit();
 
 #endif
