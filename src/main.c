@@ -266,7 +266,7 @@ void iwgtk_quit() {
 }
 
 int main (int argc, char **argv) {
-    global.application = gtk_application_new("application.iwgtk", G_APPLICATION_HANDLES_COMMAND_LINE);
+    global.application = gtk_application_new(APPLICATION_ID, G_APPLICATION_HANDLES_COMMAND_LINE);
 
     g_application_set_option_context_summary(G_APPLICATION(global.application), "iwgtk is a graphical wifi management utility.");
     g_application_add_main_option_entries(G_APPLICATION(global.application), command_options);

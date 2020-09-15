@@ -24,6 +24,7 @@
 #include <gio/gio.h>
 
 #define VERSION_STRING "iwgtk 0.4"
+#define APPLICATION_ID "org.twosheds.iwgtk"
 
 #define IWD_BUS_NAME "net.connman.iwd"
 
@@ -32,7 +33,7 @@
 #define IWD_PATH_PREFIX_LENGTH 17
 
 #define IWGTK_PATH_AGENT        "/iwgtk/agent"
-#define IWGTK_RESOURCE_PATH     "/application/iwgtk/"
+#define IWGTK_RESOURCE_PATH     "/org/twosheds/iwgtk/"
 
 #define RESOURCE_CONNECTED  IWGTK_RESOURCE_PATH "connected"
 #define RESOURCE_CONNECTING IWGTK_RESOURCE_PATH "connecting"
