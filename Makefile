@@ -47,22 +47,22 @@ install : iwgtk iwgtk.1.gz
 	install -d $(DESTDIR)$(svg_icon_dir)/apps
 	install icons/iwgtk.svg $(DESTDIR)$(svg_icon_dir)/apps
 	install -d $(DESTDIR)$(svg_icon_dir)/actions
-	install icons/unknown.svg $(DESTDIR)$(svg_icon_dir)/actions/iwgtk-station-down.svg
-	install icons/connecting.svg $(DESTDIR)$(svg_icon_dir)/actions/iwgtk-station-connecting.svg
-	install icons/connected.svg $(DESTDIR)$(svg_icon_dir)/actions/iwgtk-station-up.svg
-	install icons/ap-down.svg $(DESTDIR)$(svg_icon_dir)/actions/iwgtk-ap-down.svg
-	install icons/ap-up.svg $(DESTDIR)$(svg_icon_dir)/actions/iwgtk-ap-up.svg
+	install icons/unknown.svg $(DESTDIR)$(svg_icon_dir)/actions/com.github.j_lentz.iwgtk.station-down.svg
+	install icons/connecting.svg $(DESTDIR)$(svg_icon_dir)/actions/com.github.j_lentz.iwgtk.station-connecting.svg
+	install icons/connected.svg $(DESTDIR)$(svg_icon_dir)/actions/com.github.j_lentz.iwgtk.station-up.svg
+	install icons/ap-down.svg $(DESTDIR)$(svg_icon_dir)/actions/com.github.j_lentz.iwgtk.ap-down.svg
+	install icons/ap-up.svg $(DESTDIR)$(svg_icon_dir)/actions/com.github.j_lentz.iwgtk.ap-up.svg
 
 uninstall :
 	rm $(DESTDIR)$(bindir)/iwgtk
 	rm $(DESTDIR)$(desktopdir)/iwgtk.desktop
 	rm $(DESTDIR)$(man1dir)/iwgtk.1.gz
 	rm $(DESTDIR)$(svg_icon_dir)/apps/iwgtk.svg
-	rm $(DESTDIR)$(svg_icon_dir)/actions/iwgtk-station-down.svg
-	rm $(DESTDIR)$(svg_icon_dir)/actions/iwgtk-station-connecting.svg
-	rm $(DESTDIR)$(svg_icon_dir)/actions/iwgtk-station-up.svg
-	rm $(DESTDIR)$(svg_icon_dir)/actions/iwgtk-ap-down.svg
-	rm $(DESTDIR)$(svg_icon_dir)/actions/iwgtk-ap-up.svg
+	rm $(DESTDIR)$(svg_icon_dir)/actions/com.github.j_lentz.iwgtk.station-down.svg
+	rm $(DESTDIR)$(svg_icon_dir)/actions/com.github.j_lentz.iwgtk.station-connecting.svg
+	rm $(DESTDIR)$(svg_icon_dir)/actions/com.github.j_lentz.iwgtk.station-up.svg
+	rm $(DESTDIR)$(svg_icon_dir)/actions/icom.github.j_lentz.wgtk-ap-down.svg
+	rm $(DESTDIR)$(svg_icon_dir)/actions/com.github.j_lentz.iwgtk.ap-up.svg
 
 clean :
 	rm -f iwgtk *.o $(srcdir)/icons.c $(srcdir)/icons.h iwgtk.1.gz

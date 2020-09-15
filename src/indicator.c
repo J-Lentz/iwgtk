@@ -58,15 +58,15 @@ void indicator_set_station(Indicator *indicator) {
     state = g_variant_get_string(state_var, NULL);
 
     if (!strcmp(state, "connected")) {
-	icon_name = "iwgtk-station-up";
+	icon_name = "com.github.j_lentz.iwgtk.station-up";
 	icon_desc = "Connected to wifi network";
     }
     else if (!strcmp(state, "connecting")) {
-	icon_name = "iwgtk-station-connecting";
+	icon_name = "com.github.j_lentz.iwgtk.station-connecting";
 	icon_desc = "Connecting to wifi network";
     }
     else {
-	icon_name = "iwgtk-station-down";
+	icon_name = "com.github.j_lentz.iwgtk.station-down";
 	icon_desc = "Not connected to a wifi network";
     }
 
@@ -89,11 +89,11 @@ void indicator_set_ap(Indicator *indicator) {
     }
 
     if (started) {
-	icon_name = "iwgtk-ap-up";
+	icon_name = "com.github.j_lentz.iwgtk.ap-up";
 	icon_desc = "AP is up";
     }
     else {
-	icon_name = "iwgtk-ap-down";
+	icon_name = "com.github.j_lentz.iwgtk.ap-down";
 	icon_desc = "AP is down";
     }
 
@@ -122,11 +122,11 @@ void indicator_set_adhoc(Indicator *indicator) {
     }
 
     if (started) {
-	icon_name = "iwgtk-ap-up";
+	icon_name = "com.github.j_lentz.iwgtk.ap-up";
 	icon_desc = "Ad-hoc node is up";
     }
     else {
-	icon_name = "iwgtk-ap-down";
+	icon_name = "com.github.j_lentz.iwgtk.ap-down";
 	icon_desc = "Ad-hoc node is down";
     }
 
