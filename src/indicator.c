@@ -142,13 +142,13 @@ void indicator_activate(GDBusObject *device_object) {
 	Window *window;
 
 	window = global.windows;
-	while (window != NULL) {
-	    if (gtk_window_is_active(GTK_WINDOW(window->window))) {
-		gtk_widget_destroy(window->window);
-		return;
+        if (window != NULL) {
+	    while (window != NULL) {
+                gtk_widget_destroy(window->window);
+	        window = window->next;
 	    }
-	    window = window->next;
-	}
+            return;
+        }
     }
 
     /*
