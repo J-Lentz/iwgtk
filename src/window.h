@@ -53,7 +53,7 @@ typedef struct CoupleList {
     struct CoupleList *next;
 } CoupleList;
 
-typedef struct Window_s {
+typedef struct {
     GtkWidget *window;
 
     GtkWidget *master;
@@ -65,7 +65,6 @@ typedef struct Window_s {
 
     ObjectList *objects[n_object_types];
     CoupleList *couples[n_couple_types];
-    struct Window_s *next;
 } Window;
 
 typedef gpointer (*ConstructorFunction) (Window *window, GDBusObject *object, GDBusProxy *proxy);
@@ -92,7 +91,7 @@ extern CoupleMethods couple_methods[];
 typedef void (*ObjectIterFunction) (GDBusObjectManager *manager, GDBusObject *object, GDBusProxy *proxy, Window *window);
 
 void window_new();
-void window_set(Window *window);
+void window_set();
 void window_rm(Window *window);
 void known_network_table_show(GtkToggleButton *button, Window *window);
 

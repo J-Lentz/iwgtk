@@ -135,35 +135,14 @@ void indicator_set_adhoc(Indicator *indicator) {
 }
 
 void indicator_activate(GDBusObject *device_object) {
-    /*
-     * If there is an active window, our objective is to destroy it.
-     */
-    {
-	Window *window;
-
-	window = global.windows;
-        if (window != NULL) {
-	    while (window != NULL) {
-                gtk_widget_destroy(window->window);
-	        window = window->next;
-	    }
-            return;
-        }
+    if (global.window != NULL) {
+	gtk_widget_destroy(global.window->window);
     }
-
-    /*
-     * There is no active window, so our objective is to create one.
-     */
-    {
+    else {
 	ObjectList *list;
 
-	/*
-	 * window_new() prepends the global.windows list.
-	 * If that behavior changes, this function will break!
-	 */
-
-	window_new(global.application);
-	list = global.windows->objects[OBJECT_DEVICE];
+	window_new();
+	list = global.window->objects[OBJECT_DEVICE];
 
 	while (list != NULL) {
 	    if (list->object == device_object) {

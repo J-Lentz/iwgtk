@@ -39,25 +39,33 @@ CoupleMethods couple_methods[] = {
 };
 
 void window_new() {
-    Window *window;
+    if (global.window != NULL) {
+	/*
+	 * Ideally, we should use gtk_window_present() here.
+	 * But gtk_window_present() seems to do nothing in Sway 1.5.
+	 * As an ugly workaround, destroy the existing window before creating a new one.
+	 */
+	gtk_widget_destroy(global.window->window);
+    }
 
-    window = malloc(sizeof(Window));
+    global.window = malloc(sizeof(Window));
 
-    window->next = global.windows;
-    global.windows = window;
+    memset(global.window->objects, 0, sizeof(void *) * n_object_types);
+    memset(global.window->couples, 0, sizeof(void *) * n_couple_types);
 
-    memset(window->objects, 0, sizeof(void *) * n_object_types);
-    memset(window->couples, 0, sizeof(void *) * n_couple_types);
+    global.window->window = gtk_application_window_new(global.application);
+    gtk_window_set_title(GTK_WINDOW(global.window->window), "iwgtk");
+    gtk_window_set_default_size(GTK_WINDOW(global.window->window), 600, 700);
+    gtk_window_set_icon_name(GTK_WINDOW(global.window->window), "iwgtk");
 
-    window->window = gtk_application_window_new(global.application);
-    gtk_window_set_title(GTK_WINDOW(window->window), "iwgtk");
-    gtk_window_set_default_size(GTK_WINDOW(window->window), 600, 700);
-    gtk_window_set_icon_name(GTK_WINDOW(window->window), "iwgtk");
-
-    window_set(window);
+    window_set();
 }
 
-void window_set(Window *window) {
+void window_set() {
+    Window *window;
+
+    window = global.window;
+
     bin_empty(GTK_BIN(window->window));
 
     if (!global.manager) {
@@ -154,20 +162,8 @@ void window_rm(Window *window) {
 	}
     }
 
-    {
-	Window **w;
-
-	w = &global.windows;
-	while (*w != NULL) {
-	    if (*w == window) {
-		*w = (*w)->next;
-		break;
-	    }
-	    w = &(*w)->next;
-	}
-    }
-
     free(window);
+    global.window = NULL;
 }
 
 void known_network_table_show(GtkToggleButton *button, Window *window) {
@@ -233,12 +229,8 @@ void interface_add(GDBusObjectManager *manager, GDBusObject *object, GDBusProxy 
 		 * If window=NULL and manager=NULL, then we are only interested in
 		 * initializing the indicators.
 		 */
-		if (manager != NULL) {
-		    window = global.windows;
-		    while (window != NULL) {
-			window_add_object(object, proxy, window, i);
-			window = window->next;
-		    }
+		if (manager != NULL && global.window != NULL) {
+		    window_add_object(object, proxy, global.window, i);
 		}
 
 		/*
@@ -287,18 +279,15 @@ void interface_rm(GDBusObjectManager *manager, GDBusObject *object, GDBusProxy *
 
     for (int i = 0; i < n_object_types; i ++) {
 	if (!strcmp(name, object_methods[i].interface)) {
-	    Window *window;
-
-	    window = global.windows;
-	    while (window != NULL) {
+	    if (global.window != NULL) {
 		ObjectList **list;
 
-		list = &window->objects[i];
+		list = &global.window->objects[i];
 		while ((*list)->object != object) {
 		    list = &(*list)->next;
 		}
 
-		object_methods[i].rm(window, (*list)->data);
+		object_methods[i].rm(global.window, (*list)->data);
 
 		{
 		    ObjectList *rm;
@@ -307,8 +296,6 @@ void interface_rm(GDBusObjectManager *manager, GDBusObject *object, GDBusProxy *
 		    *list = (*list)->next;
 		    free(rm);
 		}
-
-		window = window->next;
 	    }
 	    break;
 	}

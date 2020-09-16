@@ -26,7 +26,7 @@ typedef struct {
     GQuark iwd_error_domain;
     const gchar *session_bus_address;
 
-    Window *windows;
+    Window *window;
     Indicator *indicators;
 
     // Command line flags

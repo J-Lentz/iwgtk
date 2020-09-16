@@ -125,8 +125,8 @@ void object_manager_callback(GDBusObjectManagerClient *manager, GAsyncResult *re
 	}
     }
 
-    for (Window *window = global.windows; window != NULL; window = window->next) {
-	window_set(window);
+    if (global.window != NULL) {
+	window_set();
     }
 
     if (global.indicators_enable) {
@@ -168,14 +168,8 @@ void iwd_down(GDBusConnection *connection) {
 	global.manager = NULL;
     }
 
-    {
-	Window *window;
-
-	window = global.windows;
-	while (window != NULL) {
-	    window_set(window);
-	    window = window->next;
-	}
+    if (global.window != NULL) {
+	window_set();
     }
 }
 
@@ -252,8 +246,8 @@ gint command_line(GApplication *application, GApplicationCommandLine *command_li
 }
 
 void iwgtk_quit() {
-    while (global.windows != NULL) {
-	gtk_widget_destroy(global.windows->window);
+    if (global.window != NULL) {
+	gtk_widget_destroy(global.window->window);
     }
 
     while (global.indicators != NULL) {

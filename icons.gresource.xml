@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-    <gresource prefix="/application/iwgtk">
+    <gresource prefix="/org/twosheds/iwgtk">
 	<file alias="connected">connected.svg</file>
 	<file alias="connecting">connecting.svg</file>
 	<file alias="known">known.svg</file>
