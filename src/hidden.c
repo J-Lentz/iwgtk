@@ -80,7 +80,7 @@ void bind_station_network_hidden(Station *station, const gchar *address, const g
     GtkWidget *security_label;
     GtkWidget *signal;
 
-    status_icon = gtk_image_new_from_resource(RESOURCE_HIDDEN);
+    status_icon = gtk_image_new_from_icon_name(RESOURCE_HIDDEN, GTK_ICON_SIZE_DND);
     address_label = gtk_label_new(address);
     security_label = gtk_label_new(get_security_type(type));
     signal = signal_widget(signal_strength);

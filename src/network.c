@@ -126,10 +126,10 @@ void network_set(Network *network) {
 	    state = g_variant_get_string(state_var, NULL);
 
 	    if (strcmp(state, "connected") == 0) {
-		gtk_image_set_from_resource(status_icon, RESOURCE_CONNECTED);
+		gtk_image_set_from_icon_name(status_icon, RESOURCE_CONNECTED, GTK_ICON_SIZE_DND);
 	    }
 	    else {
-		gtk_image_set_from_resource(status_icon, RESOURCE_CONNECTING);
+		gtk_image_set_from_icon_name(status_icon, RESOURCE_CONNECTING, GTK_ICON_SIZE_DND);
 	    }
 
 	    g_variant_unref(state_var);
@@ -143,10 +143,10 @@ void network_set(Network *network) {
 	    known_network_var = g_dbus_proxy_get_cached_property(network->proxy, "KnownNetwork");
 	    if (known_network_var) {
 		g_variant_unref(known_network_var);
-		gtk_image_set_from_resource(status_icon, RESOURCE_KNOWN);
+		gtk_image_set_from_icon_name(status_icon, RESOURCE_KNOWN, GTK_ICON_SIZE_DND);
 	    }
 	    else {
-		gtk_image_set_from_resource(status_icon, RESOURCE_UNKNOWN);
+		gtk_image_set_from_icon_name(status_icon, RESOURCE_UNKNOWN, GTK_ICON_SIZE_DND);
 	    }
 
 	    gtk_button_set_label(button, "Connect");
@@ -225,7 +225,7 @@ GtkWidget* signal_widget(gint16 signal_strength) {
 	    signal_resource = RESOURCE_SIGNAL_0;
 	}
 
-	return gtk_image_new_from_resource(signal_resource);
+	return gtk_image_new_from_icon_name(signal_resource, GTK_ICON_SIZE_DND);
     }
 }
 
