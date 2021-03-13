@@ -33,19 +33,20 @@
 #define IWD_PATH_PREFIX_LENGTH 17
 
 #define IWGTK_PATH_AGENT        "/iwgtk/agent"
-#define IWGTK_RESOURCE_PATH     "/org/twosheds/iwgtk/"
 
-#define RESOURCE_CONNECTED  IWGTK_RESOURCE_PATH "connected"
-#define RESOURCE_CONNECTING IWGTK_RESOURCE_PATH "connecting"
-#define RESOURCE_KNOWN      IWGTK_RESOURCE_PATH "known"
-#define RESOURCE_UNKNOWN    IWGTK_RESOURCE_PATH "unknown"
-#define RESOURCE_HIDDEN     IWGTK_RESOURCE_PATH "hidden"
+#define RESOURCE_CONNECTED  "network-wireless-connected-symbolic"
+#define RESOURCE_CONNECTING "network-wireless-acquiring-symbolic"
+#define RESOURCE_KNOWN      "network-wireless-signal-excellent-symbolic"
+#define RESOURCE_UNKNOWN    "network-wireless-signal-none-symbolic"
+#define RESOURCE_HIDDEN     "network-wireless-no-route-symbolic"
+#define RESOURCE_AP_UP      "network-wireless-hotspot-symbolic"
+#define RESOURCE_AP_DOWN    "network-wireless-offline-symbolic"
 
-#define RESOURCE_SIGNAL_0  IWGTK_RESOURCE_PATH "signal-0"
-#define RESOURCE_SIGNAL_1  IWGTK_RESOURCE_PATH "signal-1"
-#define RESOURCE_SIGNAL_2  IWGTK_RESOURCE_PATH "signal-2"
-#define RESOURCE_SIGNAL_3  IWGTK_RESOURCE_PATH "signal-3"
-#define RESOURCE_SIGNAL_4  IWGTK_RESOURCE_PATH "signal-4"
+#define RESOURCE_SIGNAL_0  "network-cellular-signal-none-symbolic"
+#define RESOURCE_SIGNAL_1  "network-cellular-signal-weak-symbolic"
+#define RESOURCE_SIGNAL_2  "network-cellular-signal-ok-symbolic"
+#define RESOURCE_SIGNAL_3  "network-cellular-signal-good-symbolic"
+#define RESOURCE_SIGNAL_4  "network-cellular-signal-excellent-symbolic"
 
 #define IWD_IFACE_ADAPTER       "net.connman.iwd.Adapter"
 #define IWD_IFACE_DEVICE        "net.connman.iwd.Device"
@@ -126,6 +127,5 @@ typedef struct {
 
 #include "switch.h"
 
-#include "icons.h"
 
 #endif

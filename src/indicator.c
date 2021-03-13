@@ -58,15 +58,15 @@ void indicator_set_station(Indicator *indicator) {
     state = g_variant_get_string(state_var, NULL);
 
     if (!strcmp(state, "connected")) {
-	icon_name = APPLICATION_ID ".station-up";
+	icon_name = RESOURCE_KNOWN;
 	icon_desc = "Connected to wifi network";
     }
     else if (!strcmp(state, "connecting")) {
-	icon_name = APPLICATION_ID ".station-connecting";
+	icon_name = RESOURCE_CONNECTING;
 	icon_desc = "Connecting to wifi network";
     }
     else {
-	icon_name = APPLICATION_ID ".station-down";
+	icon_name = RESOURCE_UNKNOWN;
 	icon_desc = "Not connected to a wifi network";
     }
 
@@ -89,11 +89,11 @@ void indicator_set_ap(Indicator *indicator) {
     }
 
     if (started) {
-	icon_name = APPLICATION_ID ".ap-up";
+	icon_name = RESOURCE_AP_UP;
 	icon_desc = "AP is up";
     }
     else {
-	icon_name = APPLICATION_ID ".ap-down";
+	icon_name = RESOURCE_AP_DOWN;
 	icon_desc = "AP is down";
     }
 
@@ -122,11 +122,11 @@ void indicator_set_adhoc(Indicator *indicator) {
     }
 
     if (started) {
-	icon_name = APPLICATION_ID ".ap-up";
+	icon_name = RESOURCE_AP_UP;
 	icon_desc = "Ad-hoc node is up";
     }
     else {
-	icon_name = APPLICATION_ID ".ap-down";
+	icon_name = RESOURCE_AP_DOWN;
 	icon_desc = "Ad-hoc node is down";
     }
 
