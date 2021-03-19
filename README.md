@@ -29,7 +29,7 @@ sudo make prefix=/usr install
 ```
 
 ## License
-Copyright 2020 Jesse Lentz <jesselnz@gmail.com>
+Copyright 2020-2021 Jesse Lentz <jesselnz@gmail.com> and contributors (see below)
 
 iwgtk is licensed under the GPL version 3 or later.
 
@@ -37,3 +37,9 @@ All icons, including the application icon, tray icons, and icons within the GUI,
 the "wifi states" collection by i cons from the Noun Project. These icons are licensed
 under the Creative Commons BY license.
 <https://thenounproject.com/iconsguru/collection/wifi-states/>
+
+## Contributors
+* Jove Yu
+* Jaron Viëtor (Thulinma)
+* tinywrkb
+* Érico Nogueira Rolim
