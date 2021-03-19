@@ -1,3 +1,7 @@
+## Next release
+* Use GTK icons rather than supplying our own
+* Added support for iwd's StationDiagnostic API
+
 ## 0.4
  * Added application icon
  * Added support for multiple windows per process

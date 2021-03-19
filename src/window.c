@@ -1,5 +1,5 @@
 /*
- *  Copyright 2020 Jesse Lentz
+ *  Copyright 2020-2021 Jesse Lentz
  *
  *  This file is part of iwgtk.
  *
@@ -27,15 +27,17 @@ ObjectMethods object_methods[] = {
     {IWD_IFACE_AP,            (ConstructorFunction) ap_add,            (DestructorFunction) ap_remove,            indicator_set_ap},
     {IWD_IFACE_AD_HOC,        (ConstructorFunction) adhoc_add,         (DestructorFunction) adhoc_remove,         indicator_set_adhoc},
     {IWD_IFACE_WPS,           (ConstructorFunction) wps_add,           (DestructorFunction) wps_remove,           NULL},
+    {IWD_IFACE_DIAGNOSTIC,    (ConstructorFunction) diagnostic_add,    (DestructorFunction) diagnostic_remove,    NULL},
     {IWD_IFACE_NETWORK,       (ConstructorFunction) network_add,       (DestructorFunction) network_remove,       NULL}
 };
 
 CoupleMethods couple_methods[] = {
-    {(BindFunction) bind_adapter_device, (UnbindFunction) unbind_adapter_device},
-    {(BindFunction) bind_device_station, (UnbindFunction) unbind_device_station},
-    {(BindFunction) bind_device_ap,      (UnbindFunction) unbind_device_ap},
-    {(BindFunction) bind_device_adhoc,   (UnbindFunction) unbind_device_adhoc},
-    {(BindFunction) bind_device_wps,     (UnbindFunction) unbind_device_wps}
+    {(BindFunction) bind_adapter_device,    (UnbindFunction) unbind_adapter_device},
+    {(BindFunction) bind_device_station,    (UnbindFunction) unbind_device_station},
+    {(BindFunction) bind_device_ap,         (UnbindFunction) unbind_device_ap},
+    {(BindFunction) bind_device_adhoc,      (UnbindFunction) unbind_device_adhoc},
+    {(BindFunction) bind_device_wps,        (UnbindFunction) unbind_device_wps},
+    {(BindFunction) bind_device_diagnostic, (UnbindFunction) unbind_device_diagnostic}
 };
 
 void window_new() {

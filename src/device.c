@@ -221,6 +221,7 @@ Device* device_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 	gtk_widget_set_valign(device->mode_box, GTK_ALIGN_CENTER);
 
 	gtk_grid_set_row_spacing(GTK_GRID(device->table), 3);
+	gtk_grid_set_column_spacing(GTK_GRID(device->table), 3);
     }
 
     gtk_widget_show_all(device->master);
@@ -230,10 +231,11 @@ Device* device_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 
     g_signal_connect(device->mode_box, "changed", G_CALLBACK(mode_box_changed), (gpointer) device);
 
-    couple_register(window, DEVICE_STATION, 0, device, object);
-    couple_register(window, DEVICE_AP,      0, device, object);
-    couple_register(window, DEVICE_ADHOC,   0, device, object);
-    couple_register(window, DEVICE_WPS,     0, device, object);
+    couple_register(window, DEVICE_STATION,    0, device, object);
+    couple_register(window, DEVICE_AP,         0, device, object);
+    couple_register(window, DEVICE_ADHOC,      0, device, object);
+    couple_register(window, DEVICE_WPS,        0, device, object);
+    couple_register(window, DEVICE_DIAGNOSTIC, 0, device, object);
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(device->button), TRUE);
     return device;
@@ -269,10 +271,11 @@ void device_remove(Window *window, Device *device) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button_alt), TRUE);
     }
 
-    couple_unregister(window, DEVICE_STATION, 0, device);
-    couple_unregister(window, DEVICE_AP,      0, device);
-    couple_unregister(window, DEVICE_ADHOC,   0, device);
-    couple_unregister(window, DEVICE_WPS,     0, device);
+    couple_unregister(window, DEVICE_STATION,    0, device);
+    couple_unregister(window, DEVICE_AP,         0, device);
+    couple_unregister(window, DEVICE_ADHOC,      0, device);
+    couple_unregister(window, DEVICE_WPS,        0, device);
+    couple_unregister(window, DEVICE_DIAGNOSTIC, 0, device);
 
     couple_unregister(window, ADAPTER_DEVICE, 1, device);
 

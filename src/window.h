@@ -1,5 +1,5 @@
 /*
- *  Copyright 2020 Jesse Lentz
+ *  Copyright 2020-2021 Jesse Lentz
  *
  *  This file is part of iwgtk.
  *
@@ -20,7 +20,7 @@
 #ifndef _WINDOW_H
 #define _WINDOW_H
 
-#define n_object_types 8
+#define n_object_types 9
 typedef enum {
     OBJECT_KNOWN_NETWORK,
     OBJECT_ADAPTER,
@@ -29,16 +29,18 @@ typedef enum {
     OBJECT_ACCESS_POINT,
     OBJECT_ADHOC,
     OBJECT_WPS,
+    OBJECT_DIAGNOSTIC,
     OBJECT_NETWORK
 } ObjectType;
 
-#define n_couple_types 5
+#define n_couple_types 6
 typedef enum {
     ADAPTER_DEVICE,
     DEVICE_STATION,
     DEVICE_AP,
     DEVICE_ADHOC,
-    DEVICE_WPS
+    DEVICE_WPS,
+    DEVICE_DIAGNOSTIC
 } CoupleType;
 
 typedef struct ObjectList {

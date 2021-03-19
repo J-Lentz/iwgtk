@@ -2,8 +2,6 @@ CC=gcc
 CFLAGS=`pkg-config --cflags gtk+-3.0`
 LDLIBS=`pkg-config --libs gtk+-3.0`
 
-application_id=org.twosheds.iwgtk
-
 prefix=/usr/local
 exec_prefix=$(prefix)
 bindir=$(exec_prefix)/bin
@@ -16,7 +14,7 @@ svg_icon_dir=$(datadir)/icons/hicolor/scalable
 
 srcdir=src
 
-files=sni main window indicator dialog adapter device station wps ap adhoc utilities switch known_network network hidden agent
+files=sni main window indicator dialog adapter device station wps diagnostic ap adhoc utilities switch known_network network hidden agent
 icons=icons/*.svg
 
 headers=$(patsubst %,$(srcdir)/%.h,$(files) iwgtk)
