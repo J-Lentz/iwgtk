@@ -111,22 +111,43 @@ void ap_button_clicked(AP *ap) {
 }
 
 void ap_set(AP *ap) {
-    GVariant *started_var;
-    gboolean started;
+    {
+	GVariant *started_var;
+	gboolean started;
 
-    started_var = g_dbus_proxy_get_cached_property(ap->proxy, "Started");
-    started = g_variant_get_boolean(started_var);
+	started_var = g_dbus_proxy_get_cached_property(ap->proxy, "Started");
+	started = g_variant_get_boolean(started_var);
 
-    if (started) {
-	gtk_label_set_text(GTK_LABEL(ap->device->status), "AP running");
-	gtk_button_set_label(GTK_BUTTON(ap->button), "Stop AP");
+	if (started) {
+	    gtk_label_set_text(GTK_LABEL(ap->device->status), "AP running");
+	    gtk_button_set_label(GTK_BUTTON(ap->button), "Stop AP");
+	}
+	else {
+	    gtk_label_set_text(GTK_LABEL(ap->device->status), "AP down");
+	    gtk_button_set_label(GTK_BUTTON(ap->button), "Start AP");
+	}
+	g_variant_unref(started_var);
     }
-    else {
-	gtk_label_set_text(GTK_LABEL(ap->device->status), "AP down");
-	gtk_button_set_label(GTK_BUTTON(ap->button), "Start AP");
-    }
 
-    g_variant_unref(started_var);
+    {
+	GVariant *name_var;
+	name_var = g_dbus_proxy_get_cached_property(ap->proxy, "Name");
+
+	if (name_var) {
+	    gchar *ssid_label;
+
+	    ssid_label = g_strconcat("SSID: ", g_variant_get_string(name_var, NULL), NULL);
+	    g_variant_unref(name_var);
+
+	    gtk_label_set_text(GTK_LABEL(ap->ssid), ssid_label);
+	    g_free(ssid_label);
+
+	    gtk_widget_show(ap->ssid);
+	}
+	else {
+	    gtk_widget_hide(ap->ssid);
+	}
+    }
 }
 
 AP* ap_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
@@ -138,8 +159,12 @@ AP* ap_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     ap->button = gtk_button_new_with_label(NULL);
     g_object_ref_sink(ap->button);
     g_signal_connect_swapped(ap->button, "clicked", G_CALLBACK(ap_button_clicked), (gpointer) ap);
-
     gtk_widget_show_all(ap->button);
+
+    ap->ssid = gtk_label_new(NULL);
+    g_object_ref_sink(ap->ssid);
+    gtk_widget_hide(ap->ssid);
+    gtk_widget_set_halign(ap->ssid, GTK_ALIGN_START);
 
     couple_register(window, DEVICE_AP, 1, ap, object);
 
@@ -151,6 +176,7 @@ AP* ap_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 void ap_remove(Window *window, AP *ap) {
     couple_unregister(window, DEVICE_AP, 1, ap);
     g_object_unref(ap->button);
+    g_object_unref(ap->ssid);
 
     g_signal_handler_disconnect(ap->proxy, ap->handler_update);
     free(ap);
@@ -159,10 +185,12 @@ void ap_remove(Window *window, AP *ap) {
 void bind_device_ap(Device *device, AP *ap) {
     ap->device = device;
     gtk_grid_attach(GTK_GRID(device->table), ap->button, 4, 0, 1, 1);
+    gtk_box_pack_end(GTK_BOX(device->master), ap->ssid, FALSE, FALSE, 0);
     ap_set(ap);
 }
 
 void unbind_device_ap(Device *device, AP *ap) {
     ap->device = NULL;
     gtk_container_remove(GTK_CONTAINER(device->table), ap->button);
+    gtk_container_remove(GTK_CONTAINER(device->master), ap->ssid);
 }

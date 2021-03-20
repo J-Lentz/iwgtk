@@ -26,6 +26,7 @@ typedef struct {
 
     // Widgets
     GtkWidget *button;
+    GtkWidget *ssid;
 
     // Handlers
     gulong handler_update;
