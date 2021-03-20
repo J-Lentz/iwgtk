@@ -127,9 +127,11 @@ void network_set(Network *network) {
 
 	    if (strcmp(state, "connected") == 0) {
 		gtk_image_set_from_icon_name(status_icon, RESOURCE_CONNECTED, GTK_ICON_SIZE_DND);
+		gtk_widget_set_tooltip_text(GTK_WIDGET(status_icon), "Connected");
 	    }
 	    else {
 		gtk_image_set_from_icon_name(status_icon, RESOURCE_CONNECTING, GTK_ICON_SIZE_DND);
+		gtk_widget_set_tooltip_text(GTK_WIDGET(status_icon), "Connecting");
 	    }
 
 	    g_variant_unref(state_var);
@@ -144,9 +146,11 @@ void network_set(Network *network) {
 	    if (known_network_var) {
 		g_variant_unref(known_network_var);
 		gtk_image_set_from_icon_name(status_icon, RESOURCE_KNOWN, GTK_ICON_SIZE_DND);
+		gtk_widget_set_tooltip_text(GTK_WIDGET(status_icon), "Known network");
 	    }
 	    else {
 		gtk_image_set_from_icon_name(status_icon, RESOURCE_UNKNOWN, GTK_ICON_SIZE_DND);
+		gtk_widget_set_tooltip_text(GTK_WIDGET(status_icon), "Unknown network");
 	    }
 
 	    gtk_button_set_label(button, "Connect");

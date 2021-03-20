@@ -173,6 +173,8 @@ Device* device_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     device->mac_label = gtk_label_new(NULL);
     device->status = gtk_label_new(NULL);
 
+    gtk_widget_set_tooltip_text(GTK_WIDGET(device->power_switch), "Enable/disable interface");
+
     {
 	GtkWidget *address_label, *status_label, *up_label, *mode_label;
 

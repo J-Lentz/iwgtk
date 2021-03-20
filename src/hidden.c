@@ -81,6 +81,7 @@ void bind_station_network_hidden(Station *station, const gchar *address, const g
     GtkWidget *signal;
 
     status_icon = gtk_image_new_from_icon_name(RESOURCE_HIDDEN, GTK_ICON_SIZE_DND);
+    gtk_widget_set_tooltip_text(GTK_WIDGET(status_icon), "Hidden network");
     address_label = gtk_label_new(address);
     security_label = gtk_label_new(get_security_type(type));
     signal = signal_widget(signal_strength);

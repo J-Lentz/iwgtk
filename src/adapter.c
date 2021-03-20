@@ -19,28 +19,36 @@
 
 #include "iwgtk.h"
 
-/*
- * TODO:
- * Use vendor and model names for something, or don't retrieve them at all.
- */
 void adapter_set(Adapter *adapter) {
-    GVariant *model_var, *vendor_var, *name_var;
-    const gchar *model, *vendor, *name;
-    gchar *card;
+    {
+	GVariant *name_var;
+	const gchar *name;
 
-    model_var = g_dbus_proxy_get_cached_property(adapter->proxy, "Model");
-    vendor_var = g_dbus_proxy_get_cached_property(adapter->proxy, "Vendor");
-    name_var = g_dbus_proxy_get_cached_property(adapter->proxy, "Name");
+	name_var = g_dbus_proxy_get_cached_property(adapter->proxy, "Name");
+	name = g_variant_get_string(name_var, NULL);
+	gtk_label_set_text(GTK_LABEL(adapter->name_label), name);
+	g_variant_unref(name_var);
+    }
 
-    model = g_variant_get_string(model_var, NULL);
-    vendor = g_variant_get_string(vendor_var, NULL);
-    name = g_variant_get_string(name_var, NULL);
+    {
+	GVariant *vendor_var, *model_var;
+	const gchar *vendor, *model;
+	gchar *card_full_name;
 
-    gtk_label_set_text(GTK_LABEL(adapter->name_label), name);
+	vendor_var = g_dbus_proxy_get_cached_property(adapter->proxy, "Vendor");
+	model_var = g_dbus_proxy_get_cached_property(adapter->proxy, "Model");
 
-    g_variant_unref(model_var);
-    g_variant_unref(vendor_var);
-    g_variant_unref(name_var);
+	vendor = g_variant_get_string(vendor_var, NULL);
+	model = g_variant_get_string(model_var, NULL);
+
+	card_full_name = g_strconcat(vendor, " ", model, NULL);
+	g_variant_unref(vendor_var);
+	g_variant_unref(model_var);
+
+	gtk_widget_set_tooltip_text(GTK_WIDGET(adapter->frame), card_full_name);
+	g_free(card_full_name);
+    }
+
 }
 
 Adapter* adapter_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
@@ -77,6 +85,7 @@ Adapter* adapter_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     adapter->power_switch = switch_new(proxy, "Powered");
     g_object_ref_sink(adapter->power_switch);
     gtk_box_pack_start(GTK_BOX(row1), adapter->power_switch, FALSE, FALSE, 0);
+    gtk_widget_set_tooltip_text(GTK_WIDGET(adapter->power_switch), "RF kill switch");
 
     gtk_widget_show_all(adapter->frame);
 
