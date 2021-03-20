@@ -84,7 +84,21 @@ void diagnostic_show(StationDiagnostic *diagnostic) {
     GtkWidget *table;
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), "Station diagnostics");
+
+    {
+	GVariant *device_name_var;
+	const gchar *device_name;
+	gchar *window_title;
+
+	device_name_var = g_dbus_proxy_get_cached_property(diagnostic->device_proxy, "Name");
+	device_name = g_variant_get_string(device_name_var, NULL);
+
+	window_title = g_strconcat(device_name, ": Station diagnostics", NULL);
+	g_variant_unref(device_name_var);
+
+	gtk_window_set_title(GTK_WINDOW(window), window_title);
+	g_free(window_title);
+    }
 
     table = gtk_grid_new();
     gtk_container_add(GTK_CONTAINER(window), table);
@@ -141,6 +155,8 @@ void diagnostic_remove(Window *window, StationDiagnostic *diagnostic) {
 }
 
 void bind_device_diagnostic(Device *device, StationDiagnostic *diagnostic) {
+    diagnostic->device_proxy = device->proxy;
+
     gtk_grid_attach(GTK_GRID(device->table), diagnostic->button, 5, 0, 1, 1);
     gtk_widget_set_halign(diagnostic->button, GTK_ALIGN_START);
     gtk_widget_show_all(diagnostic->button);

@@ -22,6 +22,7 @@
 
 typedef struct {
     GDBusProxy *proxy;
+    GDBusProxy *device_proxy;
     GtkWidget *button;
 } StationDiagnostic;
 
