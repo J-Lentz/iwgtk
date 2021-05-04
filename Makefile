@@ -1,8 +1,9 @@
-CC=gcc
-CFLAGS=`pkg-config --cflags gtk+-3.0`
+CC?=gcc
+CCINCS=`pkg-config --cflags gtk+-3.0`
 LDLIBS=`pkg-config --libs gtk+-3.0`
 
-prefix=/usr/local
+prefix=$(PREFIX)
+prefix?=/usr/local
 exec_prefix=$(prefix)
 bindir=$(exec_prefix)/bin
 datarootdir=$(prefix)/share
@@ -23,10 +24,10 @@ objects=$(patsubst %,%.o,$(files))
 .PHONY : clean install uninstall
 
 iwgtk : $(objects)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
+	$(CC) $(CCINCS) $(CFLAGS) -o $@ $^ $(LDLIBS)
 
 %.o : $(srcdir)/%.c $(headers)
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(CC) -c $(CCINCS) $(CFLAGS) -o $@ $<
 
 iwgtk.1.gz : iwgtk.1
 	gzip -k $<
