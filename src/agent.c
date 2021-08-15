@@ -219,9 +219,6 @@ void request_dialog(Agent *agent, guint8 request_type) {
 
     agent->pass_widget = gtk_entry_new();
     gtk_entry_set_visibility(GTK_ENTRY(agent->pass_widget), pass_visibility);
-    
-    agent->pass_vis_icon = gtk_image_new();
-    gtk_image_set_
 
     gtk_grid_attach(GTK_GRID(table), gtk_label_new("Password: "), 0, i, 1, 1);
     gtk_grid_attach(GTK_GRID(table), agent->pass_widget,           1, i, 1, 1);
