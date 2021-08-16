@@ -43,6 +43,7 @@ void ap_dialog_launch(AP *ap) {
 
     dialog->ssid = gtk_entry_new();
     dialog->psk = gtk_entry_new();
+    gtk_entry_set_visibility(GTK_ENTRY(dialog->psk), 0);
 
     buttons = dialog_buttons(dialog, G_CALLBACK(ap_dialog_submit), dialog->window);
 

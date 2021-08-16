@@ -49,6 +49,8 @@ void adhoc_dialog_launch(AdHoc *adhoc) {
 
     adhoc_dialog->ssid = gtk_entry_new();
     adhoc_dialog->psk = gtk_entry_new();
+    gtk_entry_set_visibility(GTK_ENTRY(adhoc_dialog->psk), 0);
+
 
     buttons = dialog_buttons(adhoc_dialog, G_CALLBACK(adhoc_dialog_submit), adhoc_dialog->window);
 
