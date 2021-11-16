@@ -14,6 +14,12 @@ NetworkManager).
 * iwd
 * gtk3
 
+### i3wm
+
+Since i3wm only supports the Xembed API but not the StatusNotifierItem tray icon API, a compatibility layer is required (see [#19](https://github.com/J-Lentz/iwgtk/issues/19#issuecomment-970804494)).
+
+[snixembed](https://git.sr.ht/~steef/snixembed) is an option for this and can be installed on arch with `yay -S snixembed-git`
+
 ## Installation
 To build iwgtk and install it to /usr/local, run:
 
