@@ -14,12 +14,6 @@ NetworkManager).
 * iwd
 * gtk3
 
-### i3wm
-
-Since i3wm only supports the Xembed API but not the StatusNotifierItem tray icon API, a compatibility layer is required (see [#19](https://github.com/J-Lentz/iwgtk/issues/19#issuecomment-970804494)).
-
-[snixembed](https://git.sr.ht/~steef/snixembed) is an option for this and can be installed on arch with `yay -S snixembed-git`
-
 ## Installation
 To build iwgtk and install it to /usr/local, run:
 
@@ -34,8 +28,24 @@ To install to /usr instead of /usr/local use:
 sudo make prefix=/usr install
 ```
 
+## Troubleshooting
+
+### The indicator icon doesn't show up
+iwgtk's icon should show up on any system tray which supports the StatusNotifierItem API.
+If your tray only supports the older XEmbed API, then a compatibility layer such as
+[snixembed](https://git.sr.ht/~steef/snixembed) is required.
+
+The following trays support StatusNotifierItem:
+* KDE Plasma
+* swaybar
+* xfce4-panel (*must be built with the optional libdbusmenu-gtk3 dependency*)
+
+The following trays only support XEmbed, and require a compatibility layer:
+* AwesomeWM
+* i3bar
+
 ## License
-Copyright 2020-2021 Jesse Lentz <jesselnz@gmail.com> and contributors (see below)
+Copyright 2020-2022 Jesse Lentz <jesselnz@gmail.com> and contributors (see below)
 
 iwgtk is licensed under the GPL version 3 or later.
 
@@ -49,3 +59,6 @@ under the Creative Commons BY license.
 * Jaron Viëtor (Thulinma)
 * tinywrkb
 * Érico Nogueira Rolim
+* VaguePenguin
+* Andrew Benson
+* Alex Piechowski (grepsedawk)
