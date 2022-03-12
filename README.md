@@ -44,6 +44,9 @@ The following trays only support XEmbed, and require a compatibility layer:
 * AwesomeWM
 * i3bar
 
+### iwgtk and iwctl stopped working after updating to iwd >=1.23
+As of iwd 1.23, user accounts must be added to the `netdev` group to control iwd.
+
 ## License
 Copyright 2020-2022 Jesse Lentz <jesselnz@gmail.com> and contributors (see below)
 
