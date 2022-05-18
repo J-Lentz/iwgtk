@@ -20,7 +20,10 @@
 #ifndef _IWGTK_DEVICE_H
 #define _IWGTK_DEVICE_H
 
-typedef struct Device {
+typedef struct Device_s Device;
+typedef struct Window_s Window;
+
+struct Device_s {
     GDBusProxy *proxy;
     Window *window;
 
@@ -37,7 +40,7 @@ typedef struct Device {
 
     // Handlers
     gulong handler_update;
-} Device;
+};
 
 void device_show(GtkToggleButton *button, Device *device);
 void device_set(Device *device);

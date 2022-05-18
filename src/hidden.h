@@ -20,12 +20,15 @@
 #ifndef _IWGTK_HIDDEN_H
 #define _IWGTK_HIDDEN_H
 
-typedef struct {
+typedef struct HiddenNetworkDialog_s HiddenNetworkDialog;
+typedef struct Station_s Station;
+
+struct HiddenNetworkDialog_s {
     Station *station;
 
     GtkWidget *window;
     GtkWidget *ssid;
-} HiddenNetworkDialog;
+};
 
 void hidden_ssid_dialog(Station *station);
 void hidden_ssid_submit(HiddenNetworkDialog *dialog);

@@ -20,13 +20,16 @@
 #ifndef _IWGTK_INDICATOR_H
 #define _IWGTK_INDICATOR_H
 
-typedef struct Indicator_s {
+typedef struct Indicator_s Indicator;
+typedef struct StatusNotifierItem_s StatusNotifierItem;
+
+struct Indicator_s {
     GDBusProxy *proxy;
     StatusNotifierItem *sni;
     gulong update_handler;
 
-    struct Indicator_s *next;
-} Indicator;
+    Indicator *next;
+};
 
 typedef void (*IndicatorSetter) (Indicator *indicator);
 

@@ -20,7 +20,9 @@
 #ifndef _IWGTK_ADAPTER_H
 #define _IWGTK_ADAPTER_H
 
-typedef struct Adapter {
+typedef struct Adapter_s Adapter;
+
+struct Adapter_s {
     GDBusProxy *proxy;
 
     // Widgets
@@ -31,7 +33,7 @@ typedef struct Adapter {
 
     // Handlers
     gulong handler_update;
-} Adapter;
+};
 
 void adapter_set(Adapter *adapter);
 Adapter* adapter_add(Window *window, GDBusObject *object, GDBusProxy *proxy);

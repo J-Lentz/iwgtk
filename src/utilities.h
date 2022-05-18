@@ -24,11 +24,13 @@
 
 typedef void (*SetFunction) (gpointer data);
 
-typedef struct {
+typedef struct FailureClosure_s FailureClosure;
+
+struct FailureClosure_s {
     SetFunction callback;
     gpointer data;
     const gchar *property;
-} FailureClosure;
+};
 
 void validation_callback(GDBusProxy *proxy, GAsyncResult *res, CallbackMessages *data);
 void validation_callback_log(GDBusProxy *proxy, GAsyncResult *res, const gchar *message);

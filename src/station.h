@@ -20,7 +20,10 @@
 #ifndef _IWGTK_STATION_H
 #define _IWGTK_STATION_H
 
-typedef struct {
+typedef struct Station_s Station;
+typedef struct Device_s Device;
+
+struct Station_s {
     GDBusProxy *proxy;
     Device *device;
 
@@ -35,7 +38,7 @@ typedef struct {
     // Handlers
     gulong handler_update;
     gulong handler_scan;
-} Station;
+};
 
 void scan_button_clicked(GtkButton *button, Station *station);
 void network_remove_callback(GtkWidget *network, GtkWidget *network_table);

@@ -20,7 +20,9 @@
 #ifndef _IWGTK_MAIN_H
 #define _IWGTK_MAIN_H
 
-typedef struct {
+typedef struct GlobalData_s GlobalData;
+
+struct GlobalData_s {
     GtkApplication *application;
     GDBusObjectManager *manager;
     GQuark iwd_error_domain;
@@ -33,7 +35,7 @@ typedef struct {
     gboolean indicators_enable;
     gboolean notifications_disable;
     gboolean signal_icon_disable;
-} GlobalData;
+};
 
 extern GlobalData global;
 extern const ErrorMessage detailed_errors_standard[];

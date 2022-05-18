@@ -20,7 +20,11 @@
 #ifndef _IWGTK_ADHOC_H
 #define _IWGTK_ADHOC_H
 
-typedef struct {
+typedef struct AdHoc_s AdHoc;
+typedef struct AdHocDialog_s AdHocDialog;
+typedef struct Device_s Device;
+
+struct AdHoc_s {
     GDBusProxy *proxy;
     Device *device;
 
@@ -31,16 +35,16 @@ typedef struct {
 
     // Handlers
     gulong handler_update;
-} AdHoc;
+};
 
-typedef struct {
+struct AdHocDialog_s {
     AdHoc *adhoc;
 
     GtkWidget *window;
     GtkWidget *ssid;
     GtkWidget *psk;
     GtkWidget *psk_toggle;
-} AdHocDialog;
+};
 
 void psk_toggle_changed(GtkToggleButton *psk_toggle, AdHocDialog *adhoc_dialog);
 void adhoc_dialog_launch(AdHoc *adhoc);

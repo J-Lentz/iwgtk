@@ -20,11 +20,13 @@
 #ifndef _IWGTK_DIAGNOSTIC_H
 #define _IWGTK_DIAGNOSTIC_H
 
-typedef struct {
+typedef struct StationDiagnostic_s StationDiagnostic;
+
+struct StationDiagnostic_s {
     GDBusProxy *proxy;
     GDBusProxy *device_proxy;
     GtkWidget *button;
-} StationDiagnostic;
+};
 
 void diagnostic_callback(GDBusProxy *proxy, GAsyncResult *res, GtkWidget *table);
 gboolean diagnostic_key_press_callback(GtkWidget *window, GdkEventKey *event);

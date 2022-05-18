@@ -31,7 +31,9 @@
 typedef void (*SNIActivateHandler) (gpointer user_data);
 typedef void (*SNIScrollHandler) (int delta, const gchar *orientation, gpointer user_data);
 
-typedef struct {
+typedef struct StatusNotifierItem_s StatusNotifierItem;
+
+struct StatusNotifierItem_s {
     GDBusConnection *connection;
     gpointer user_data;
     guint owner_id;
@@ -53,7 +55,7 @@ typedef struct {
     const gchar *attention_icon_name;
     const gchar *attention_movie_name;
     gboolean item_is_menu;
-} StatusNotifierItem;
+};
 
 StatusNotifierItem* sni_new(gpointer user_data);
 void sni_rm(StatusNotifierItem *sni);

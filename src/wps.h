@@ -20,20 +20,23 @@
 #ifndef _IWGTK_WPS_H
 #define _IWGTK_WPS_H
 
-typedef struct {
+typedef struct WPS_s WPS;
+typedef struct WPSDialog_s WPSDialog;
+
+struct WPS_s {
     GDBusProxy *proxy;
 
     // Widgets
     GtkWidget *menu;
     GtkWidget *cancel;
     GtkWidget *hbox;
-} WPS;
+};
 
-typedef struct {
+struct WPSDialog_s {
     WPS *wps;
     GtkWidget *window;
     GtkWidget *pin;
-} WPSDialog;
+};
 
 void wps_callback(GDBusProxy *proxy, GAsyncResult *res, WPS *wps);
 void wps_connect_pin_dialog(WPS *wps);

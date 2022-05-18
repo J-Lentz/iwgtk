@@ -20,7 +20,9 @@
 #ifndef _IWGTK_KNOWN_NETWORKS_H
 #define _IWGTK_KNOWN_NETWORKS_H
 
-typedef struct KnownNetwork {
+typedef struct KnownNetwork_s KnownNetwork;
+
+struct KnownNetwork_s {
     GDBusProxy *proxy;
     guint index;
 
@@ -36,7 +38,7 @@ typedef struct KnownNetwork {
 
     // Handlers
     gulong handler_update;
-} KnownNetwork;
+};
 
 void forget_button_clicked(GDBusProxy *proxy);
 KnownNetwork* known_network_add(Window *window, GDBusObject *object, GDBusProxy *proxy);

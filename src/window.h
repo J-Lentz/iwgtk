@@ -20,6 +20,9 @@
 #ifndef _WINDOW_H
 #define _WINDOW_H
 
+// Needed for definition of IndicatorSetter
+#include "indicator.h"
+
 #define n_object_types 9
 typedef enum {
     OBJECT_KNOWN_NETWORK,
@@ -43,19 +46,25 @@ typedef enum {
     DEVICE_DIAGNOSTIC
 } CoupleType;
 
-typedef struct ObjectList {
+typedef struct ObjectList_s ObjectList;
+typedef struct CoupleList_s CoupleList;
+typedef struct Window_s Window;
+typedef struct ObjectMethods_s ObjectMethods;
+typedef struct CoupleMethods_s CoupleMethods;
+
+struct ObjectList_s {
     GDBusObject *object;
     gpointer data;
-    struct ObjectList *next;
-} ObjectList;
+    ObjectList *next;
+};
 
-typedef struct CoupleList {
+struct CoupleList_s {
     GDBusObject *object;
     gpointer data[2];
-    struct CoupleList *next;
-} CoupleList;
+    CoupleList *next;
+};
 
-typedef struct {
+struct Window_s {
     GtkWidget *window;
 
     GtkWidget *master;
@@ -67,25 +76,25 @@ typedef struct {
 
     ObjectList *objects[n_object_types];
     CoupleList *couples[n_couple_types];
-} Window;
+};
 
 typedef gpointer (*ConstructorFunction) (Window *window, GDBusObject *object, GDBusProxy *proxy);
 typedef void (*DestructorFunction) (Window *window, gpointer data);
 
-typedef struct {
+struct ObjectMethods_s {
     const gchar *interface;
     ConstructorFunction new;
     DestructorFunction rm;
     IndicatorSetter indicator_set;
-} ObjectMethods;
+};
 
 typedef void (*BindFunction) (gpointer A, gpointer B);
 typedef void (*UnbindFunction) (gpointer A, gpointer B);
 
-typedef struct {
+struct CoupleMethods_s {
     BindFunction bind;
     UnbindFunction unbind;
-} CoupleMethods;
+};
 
 extern ObjectMethods object_methods[];
 extern CoupleMethods couple_methods[];

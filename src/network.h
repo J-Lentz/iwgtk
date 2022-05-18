@@ -20,7 +20,9 @@
 #ifndef _IWGTK_NETWORK_H
 #define _IWGTK_NETWORK_H
 
-typedef struct {
+typedef struct Network_s Network;
+
+struct Network_s {
     GDBusProxy *proxy;
     GDBusProxy *station_proxy;
 
@@ -33,7 +35,7 @@ typedef struct {
     // Handlers
     gulong handler_update;
     gulong button_handler_id;
-} Network;
+};
 
 const gchar* get_security_type(const gchar *type_raw);
 void connect_button_clicked(GtkButton *button, GDBusProxy *network_proxy);

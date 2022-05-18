@@ -20,7 +20,11 @@
 #ifndef _IWGTK_AP_H
 #define _IWGTK_AP_H
 
-typedef struct {
+typedef struct AP_s AP;
+typedef struct APDialog_s APDialog;
+typedef struct Device_s Device;
+
+struct AP_s {
     GDBusProxy *proxy;
     Device *device;
 
@@ -30,15 +34,15 @@ typedef struct {
 
     // Handlers
     gulong handler_update;
-} AP;
+};
 
-typedef struct {
+struct APDialog_s {
     AP *ap;
 
     GtkWidget *window;
     GtkWidget *ssid;
     GtkWidget *psk;
-} APDialog;
+};
 
 void ap_dialog_launch(AP *ap);
 void ap_dialog_submit(APDialog *data);

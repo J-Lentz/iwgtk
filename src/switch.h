@@ -20,12 +20,14 @@
 #ifndef _IWGTK_SWITCH_H
 #define _IWGTK_SWITCH_H
 
-typedef struct {
+typedef struct SwitchData_s SwitchData;
+
+struct SwitchData_s {
     GDBusProxy *proxy;
     GtkWidget *widget;
     const gchar *property;
     gulong handler;
-} SwitchData;
+};
 
 gboolean switch_handler(GtkSwitch *widget, gboolean state, SwitchData *switch_data);
 void switch_set(SwitchData *switch_data);

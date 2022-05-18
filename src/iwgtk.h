@@ -87,10 +87,13 @@ typedef enum {
     IWD_ERROR_AGENT_CANCELED
 } IWDError;
 
-typedef struct {
+typedef struct ErrorMessage_s ErrorMessage;
+typedef struct CallbackMessages_s CallbackMessages;
+
+struct ErrorMessage_s {
     int code;
     const gchar *message;
-} ErrorMessage;
+};
 
 /*
  * If no message is desired on success/failure, set success_message and/or
@@ -102,11 +105,11 @@ typedef struct {
  * If no message is desired in this case, its message should be NULL.
  */
 
-typedef struct {
+struct CallbackMessages_s {
     const gchar *success;
     const gchar *failure;
     const ErrorMessage *error_table;
-} CallbackMessages;
+};
 
 #include "sni.h"
 #include "indicator.h"

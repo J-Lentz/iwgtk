@@ -24,7 +24,9 @@
 #define USERNAME_ASK  1
 #define USERNAME_TELL 2
 
-typedef struct {
+typedef struct Agent_s Agent;
+
+struct Agent_s {
     guint registration_id;
     GDBusProxy *proxy;
     GDBusMethodInvocation *invocation;
@@ -32,7 +34,7 @@ typedef struct {
     GtkWidget *window;
     GtkWidget *user_widget;
     GtkWidget *pass_widget;
-} Agent;
+};
 
 void agent_register(GDBusProxy *proxy);
 void agent_remove(Agent *agent);
