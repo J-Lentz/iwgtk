@@ -27,9 +27,14 @@ Indicator* indicator_new(GDBusProxy *proxy, IndicatorSetter indicator_set) {
     indicator->next = NULL;
 
     device_object = g_dbus_interface_get_object(G_DBUS_INTERFACE(proxy));
+
     indicator->sni = sni_new(device_object);
-    indicator->sni->activate = (SNIActivateHandler) indicator_activate;
-    indicator->sni->context_menu = (SNIActivateHandler) indicator_activate;
+    indicator->sni->context_menu_handler = (SNIActivateHandler) indicator_activate;
+    indicator->sni->activate_handler = (SNIActivateHandler) indicator_activate;
+
+    sni_category_set(indicator->sni, "Hardware");
+    sni_id_set(indicator->sni, "iwgtk");
+    sni_status_set(indicator->sni, "Active");
 
     indicator->proxy = proxy;
     indicator->update_handler = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(indicator_set), indicator);
@@ -72,7 +77,7 @@ void indicator_set_station(Indicator *indicator) {
 
     g_variant_unref(state_var);
 
-    sni_icon_set(indicator->sni, icon_name);
+    sni_icon_name_set(indicator->sni, icon_name);
     sni_title_set(indicator->sni, icon_desc);
 }
 
@@ -97,7 +102,7 @@ void indicator_set_ap(Indicator *indicator) {
 	icon_desc = "AP is down";
     }
 
-    sni_icon_set(indicator->sni, icon_name);
+    sni_icon_name_set(indicator->sni, icon_name);
     sni_title_set(indicator->sni, icon_desc);
 }
 
@@ -130,7 +135,7 @@ void indicator_set_adhoc(Indicator *indicator) {
 	icon_desc = "Ad-hoc node is down";
     }
 
-    sni_icon_set(indicator->sni, icon_name);
+    sni_icon_name_set(indicator->sni, icon_name);
     sni_title_set(indicator->sni, icon_desc);
 }
 

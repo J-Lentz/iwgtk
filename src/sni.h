@@ -40,35 +40,53 @@ struct StatusNotifierItem_s {
     guint registration_id;
     gchar *bus_name;
 
-    SNIActivateHandler context_menu;
-    SNIActivateHandler activate;
-    SNIActivateHandler secondary_activate;
-    SNIScrollHandler scroll;
+    // Methods to be exported via DBus
+    SNIActivateHandler context_menu_handler;
+    SNIActivateHandler activate_handler;
+    SNIActivateHandler secondary_activate_handler;
+    SNIScrollHandler scroll_handler;
 
-    const gchar *category;
-    const gchar *id;
-    const gchar *title;
-    const gchar *status;
+    // Properties to be exported via DBus
+    GVariant *category;
+    GVariant *id;
+    GVariant *title;
+    GVariant *status;
     guint32 window_id;
-    const gchar *icon_name;
-    const gchar *overlay_icon_name;
-    const gchar *attention_icon_name;
-    const gchar *attention_movie_name;
+    GVariant *icon_name;
+    GVariant *icon_pixmap;
+    GVariant *overlay_icon_name;
+    GVariant *overlay_icon_pixmap;
+    GVariant *attention_icon_name;
+    GVariant *attention_icon_pixmap;
+    GVariant *attention_movie_name;
+    GVariant *tooltip;
     gboolean item_is_menu;
+    GVariant *menu;
 };
 
 StatusNotifierItem* sni_new(gpointer user_data);
 void sni_rm(StatusNotifierItem *sni);
-void sni_connection_closed_callback(GDBusConnection *connection, GAsyncResult *res, StatusNotifierItem *sni);
 void sni_connection_acquired(GDBusConnection *connection, GAsyncResult *res, StatusNotifierItem *sni);
 void sni_bus_name_acquired(GDBusConnection *connection, const gchar *name, StatusNotifierItem *sni);
-void sni_watcher_up(GDBusConnection *connection, const gchar *name, const gchar *name_owner, StatusNotifierItem *sni);
-void validate_method_call(GDBusConnection *connection, GAsyncResult *res, const gchar *message);
 void sni_bus_name_lost(GDBusConnection *connection, const gchar *name, StatusNotifierItem *sni);
-void sni_icon_set(StatusNotifierItem *sni, const gchar *icon_name);
-void sni_title_set(StatusNotifierItem *sni, const gchar *title);
+void sni_watcher_up(GDBusConnection *connection, const gchar *name, const gchar *name_owner, StatusNotifierItem *sni);
+void sni_connection_closed_callback(GDBusConnection *connection, GAsyncResult *res, StatusNotifierItem *sni);
+void validate_method_call(GDBusConnection *connection, GAsyncResult *res, const gchar *message);
 void sni_method_call(GDBusConnection *connection, const gchar *sender, const gchar *object_path, const gchar *interface_name, const gchar *method_name, GVariant *parameters, GDBusMethodInvocation *invocation, StatusNotifierItem *sni);
 GVariant* sni_get_property(GDBusConnection *connection, const gchar *sender, const gchar *object_path, const gchar *interface_name, const gchar *property_name, GError **error, StatusNotifierItem *sni);
-void sni_emit_signal(StatusNotifierItem *sni, const gchar *signal_name);
+void sni_emit_signal(StatusNotifierItem *sni, const gchar *signal_name, GVariant *parameters);
+
+gboolean sni_abstract_icon_pixmap_set(GVariant **sni_icon_pixmap, const GdkPixbuf *pixbuf);
+void sni_category_set(StatusNotifierItem *sni, const gchar *category);
+void sni_id_set(StatusNotifierItem *sni, const gchar *id);
+void sni_title_set(StatusNotifierItem *sni, const gchar *title);
+void sni_status_set(StatusNotifierItem *sni, const gchar *status);
+void sni_icon_name_set(StatusNotifierItem *sni, const gchar *icon_name);
+void sni_icon_pixmap_set(StatusNotifierItem *sni, const GdkPixbuf *pixbuf);
+void sni_overlay_icon_name_set(StatusNotifierItem *sni, const gchar *overlay_icon_name);
+void sni_overlay_icon_pixmap_set(StatusNotifierItem *sni, const GdkPixbuf *pixbuf);
+void sni_attention_icon_name_set(StatusNotifierItem *sni, const gchar *attention_icon_name);
+void sni_attention_icon_pixmap_set(StatusNotifierItem *sni, const GdkPixbuf *pixbuf);
+void sni_attention_movie_name_set(StatusNotifierItem *sni, const gchar *attention_movie_name);
 
 #endif
