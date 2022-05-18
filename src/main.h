@@ -34,7 +34,6 @@ struct GlobalData_s {
     // Command line flags
     gboolean indicators_enable;
     gboolean notifications_disable;
-    gboolean signal_icon_disable;
 };
 
 extern GlobalData global;

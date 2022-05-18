@@ -84,24 +84,6 @@ static const GOptionEntry command_options[] = {
 	NULL
     },
     {
-	"signal-strength-icons",
-	's',
-	G_OPTION_FLAG_NONE,
-	G_OPTION_ARG_NONE,
-	NULL,
-	"Display signal strength levels as icons (default)",
-	NULL
-    },
-    {
-	"signal-strength-numeric",
-	'S',
-	G_OPTION_FLAG_NONE,
-	G_OPTION_ARG_NONE,
-	NULL,
-	"Display signal strength levels numerically, in dBm",
-	NULL
-    },
-    {
 	"version",
 	'V',
 	G_OPTION_FLAG_NONE,
@@ -224,14 +206,6 @@ gint command_line(GApplication *application, GApplicationCommandLine *command_li
 
     if (g_variant_dict_contains(options, "no-notifications")) {
 	global.notifications_disable = TRUE;
-    }
-
-    if (g_variant_dict_contains(options, "signal-strength-icons")) {
-	global.signal_icon_disable = FALSE;
-    }
-
-    if (g_variant_dict_contains(options, "signal-strength-numeric")) {
-	global.signal_icon_disable = TRUE;
     }
 
     if (g_variant_dict_contains(options, "indicators")) {

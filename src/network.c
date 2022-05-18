@@ -205,32 +205,25 @@ void network_remove(Window *window, Network *network) {
 }
 
 GtkWidget* signal_widget(gint16 signal_strength) {
-    if (global.signal_icon_disable) {
-	gchar signal_text[5];
-	sprintf(signal_text, "%d", signal_strength / 100);
-	return gtk_label_new(signal_text);
+    const gchar *signal_resource;
+
+    if (signal_strength > -6000) {
+	signal_resource = RESOURCE_SIGNAL_4;
+    }
+    else if (signal_strength > -6700) {
+	signal_resource = RESOURCE_SIGNAL_3;
+    }
+    else if (signal_strength > -7400) {
+	signal_resource = RESOURCE_SIGNAL_2;
+    }
+    else if (signal_strength > -8100) {
+	signal_resource = RESOURCE_SIGNAL_1;
     }
     else {
-	const gchar *signal_resource;
-
-	if (signal_strength > -6000) {
-	    signal_resource = RESOURCE_SIGNAL_4;
-	}
-	else if (signal_strength > -6700) {
-	    signal_resource = RESOURCE_SIGNAL_3;
-	}
-	else if (signal_strength > -7400) {
-	    signal_resource = RESOURCE_SIGNAL_2;
-	}
-	else if (signal_strength > -8100) {
-	    signal_resource = RESOURCE_SIGNAL_1;
-	}
-	else {
-	    signal_resource = RESOURCE_SIGNAL_0;
-	}
-
-	return gtk_image_new_from_icon_name(signal_resource, GTK_ICON_SIZE_DND);
+	signal_resource = RESOURCE_SIGNAL_0;
     }
+
+    return gtk_image_new_from_icon_name(signal_resource, GTK_ICON_SIZE_DND);
 }
 
 void bind_station_network(Station *station, Network *network, gint16 signal_strength, int index) {
