@@ -66,11 +66,10 @@ struct StatusNotifierItem_s {
 
 StatusNotifierItem* sni_new(gpointer user_data);
 void sni_rm(StatusNotifierItem *sni);
-void sni_connection_acquired(GDBusConnection *connection, GAsyncResult *res, StatusNotifierItem *sni);
+void sni_bus_acquired(GDBusConnection *connection, const gchar *name, StatusNotifierItem *sni);
 void sni_bus_name_acquired(GDBusConnection *connection, const gchar *name, StatusNotifierItem *sni);
 void sni_bus_name_lost(GDBusConnection *connection, const gchar *name, StatusNotifierItem *sni);
 void sni_watcher_up(GDBusConnection *connection, const gchar *name, const gchar *name_owner, StatusNotifierItem *sni);
-void sni_connection_closed_callback(GDBusConnection *connection, GAsyncResult *res, StatusNotifierItem *sni);
 void validate_method_call(GDBusConnection *connection, GAsyncResult *res, const gchar *message);
 void sni_method_call(GDBusConnection *connection, const gchar *sender, const gchar *object_path, const gchar *interface_name, const gchar *method_name, GVariant *parameters, GDBusMethodInvocation *invocation, StatusNotifierItem *sni);
 GVariant* sni_get_property(GDBusConnection *connection, const gchar *sender, const gchar *object_path, const gchar *interface_name, const gchar *property_name, GError **error, StatusNotifierItem *sni);

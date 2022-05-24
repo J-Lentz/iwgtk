@@ -222,13 +222,20 @@ StatusNotifierItem* sni_new(gpointer user_data) {
     sni = g_malloc0(sizeof(StatusNotifierItem));
     sni->user_data = user_data;
 
-    g_dbus_connection_new_for_address(
-	global.session_bus_address,
-	G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_CLIENT | G_DBUS_CONNECTION_FLAGS_MESSAGE_BUS_CONNECTION,
-	NULL,
-	NULL,
-	(GAsyncReadyCallback) sni_connection_acquired,
-	sni);
+    {
+	static int sni_id = 0;
+
+	sni->bus_name = g_strdup_printf("%s-%d-%d", STATUS_NOTIFIER_ITEM_BUS_NAME_PREFIX, getpid(), ++ sni_id);
+	sni->owner_id = g_bus_own_name(
+	    G_BUS_TYPE_SESSION,
+	    sni->bus_name,
+	    G_BUS_NAME_OWNER_FLAGS_DO_NOT_QUEUE,
+	    (GBusAcquiredCallback) sni_bus_acquired,
+	    (GBusNameAcquiredCallback) sni_bus_name_acquired,
+	    (GBusNameLostCallback) sni_bus_name_lost,
+	    sni,
+	    NULL);
+    }
 
     return sni;
 }
@@ -236,98 +243,6 @@ StatusNotifierItem* sni_new(gpointer user_data) {
 void sni_rm(StatusNotifierItem *sni) {
     g_bus_unown_name(sni->owner_id);
     g_dbus_connection_unregister_object(sni->connection, sni->registration_id);
-    g_dbus_connection_close(
-	sni->connection,
-	NULL,
-	(GAsyncReadyCallback) sni_connection_closed_callback,
-	sni);
-}
-
-void sni_connection_acquired(GDBusConnection *connection, GAsyncResult *res, StatusNotifierItem *sni) {
-    GError *err;
-
-    err = NULL;
-    g_dbus_connection_new_for_address_finish(res, &err);
-
-    if (err != NULL) {
-	fprintf(stderr, "Error connecting to D-Bus session bus: %s\n", err->message);
-	g_error_free(err);
-	return;
-    }
-
-    sni->connection = connection;
-
-    err = NULL;
-    sni->registration_id = g_dbus_connection_register_object(
-	    connection,
-	    STATUS_NOTIFIER_ITEM_OBJECT_PATH,
-	    &sni_interface_info,
-	    &sni_interface_vtable,
-	    sni,
-	    NULL,
-	    &err);
-
-    if (err != NULL) {
-	fprintf(stderr, "Error registering StatusNotifierItem object: %s\n", err->message);
-	g_error_free(err);
-    }
-
-    {
-	static int sni_id = 0;
-
-	sni->bus_name = g_strdup_printf("%s-%d-%d", STATUS_NOTIFIER_ITEM_BUS_NAME_PREFIX, getpid(), ++ sni_id);
-	sni->owner_id = g_bus_own_name_on_connection(
-	    connection,
-	    sni->bus_name,
-	    G_BUS_NAME_OWNER_FLAGS_DO_NOT_QUEUE,
-	    (GBusNameAcquiredCallback) sni_bus_name_acquired,
-	    (GBusNameLostCallback) sni_bus_name_lost,
-	    sni,
-	    NULL);
-    }
-}
-
-void sni_bus_name_acquired(GDBusConnection *connection, const gchar *name, StatusNotifierItem *sni) {
-    g_bus_watch_name_on_connection(
-	connection,
-	STATUS_NOTIFIER_WATCHER_BUS_NAME,
-	G_BUS_NAME_WATCHER_FLAGS_NONE,
-	(GBusNameAppearedCallback) sni_watcher_up,
-	NULL,
-	sni,
-	NULL);
-}
-
-void sni_bus_name_lost(GDBusConnection *connection, const gchar *name, StatusNotifierItem *sni) {
-    fprintf(stderr, "Error: Lost bus name %s\n", name);
-}
-
-void sni_watcher_up(GDBusConnection *connection, const gchar *name, const gchar *name_owner, StatusNotifierItem *sni) {
-    g_dbus_connection_call(
-	connection,
-	STATUS_NOTIFIER_WATCHER_BUS_NAME,
-	STATUS_NOTIFIER_WATCHER_OBJECT_PATH,
-	STATUS_NOTIFIER_WATCHER_INTERFACE,
-	"RegisterStatusNotifierItem",
-	g_variant_new("(s)", sni->bus_name),
-	NULL,
-	G_DBUS_CALL_FLAGS_NONE,
-	-1,
-	NULL,
-	(GAsyncReadyCallback) validate_method_call,
-	"Failed to register StatusNotifierItem: %s\n");
-}
-
-void sni_connection_closed_callback(GDBusConnection *connection, GAsyncResult *res, StatusNotifierItem *sni) {
-    GError *err;
-
-    err = NULL;
-    g_dbus_connection_close_finish(connection, res, &err);
-
-    if (err != NULL) {
-	fprintf(stderr, "Error closing D-Bus connection: %s\n", err->message);
-	g_error_free(err);
-    }
 
     if (sni->category != NULL) {
 	g_variant_unref(sni->category);
@@ -371,6 +286,58 @@ void sni_connection_closed_callback(GDBusConnection *connection, GAsyncResult *r
 
     g_free(sni->bus_name);
     g_free(sni);
+}
+
+void sni_bus_acquired(GDBusConnection *connection, const gchar *name, StatusNotifierItem *sni) {
+    GError *err;
+
+    sni->connection = connection;
+
+    err = NULL;
+    sni->registration_id = g_dbus_connection_register_object(
+	    connection,
+	    STATUS_NOTIFIER_ITEM_OBJECT_PATH,
+	    &sni_interface_info,
+	    &sni_interface_vtable,
+	    sni,
+	    NULL,
+	    &err);
+
+    if (err != NULL) {
+	fprintf(stderr, "Error registering StatusNotifierItem object: %s\n", err->message);
+	g_error_free(err);
+    }
+}
+
+void sni_bus_name_acquired(GDBusConnection *connection, const gchar *name, StatusNotifierItem *sni) {
+    g_bus_watch_name_on_connection(
+	connection,
+	STATUS_NOTIFIER_WATCHER_BUS_NAME,
+	G_BUS_NAME_WATCHER_FLAGS_NONE,
+	(GBusNameAppearedCallback) sni_watcher_up,
+	NULL,
+	sni,
+	NULL);
+}
+
+void sni_bus_name_lost(GDBusConnection *connection, const gchar *name, StatusNotifierItem *sni) {
+    fprintf(stderr, "Bus name '%s' lost\n", name);
+}
+
+void sni_watcher_up(GDBusConnection *connection, const gchar *name, const gchar *name_owner, StatusNotifierItem *sni) {
+    g_dbus_connection_call(
+	connection,
+	STATUS_NOTIFIER_WATCHER_BUS_NAME,
+	STATUS_NOTIFIER_WATCHER_OBJECT_PATH,
+	STATUS_NOTIFIER_WATCHER_INTERFACE,
+	"RegisterStatusNotifierItem",
+	g_variant_new("(s)", sni->bus_name),
+	NULL,
+	G_DBUS_CALL_FLAGS_NONE,
+	-1,
+	NULL,
+	(GAsyncReadyCallback) validate_method_call,
+	"Failed to register StatusNotifierItem: %s\n");
 }
 
 void validate_method_call(GDBusConnection *connection, GAsyncResult *res, const gchar *message) {
@@ -559,18 +526,13 @@ gboolean sni_abstract_icon_pixmap_set(GVariant **sni_icon_pixmap, const GdkPixbu
 
     {
 	GVariant *tuple_var;
-	GVariantType *tuple_type;
 
 	tuple_var = g_variant_new_tuple(tuple, 3);
-	tuple_type = g_variant_type_new("(iiay)");
-
 	if (*sni_icon_pixmap != NULL) {
 	    g_variant_unref(*sni_icon_pixmap);
 	}
-
-	*sni_icon_pixmap = g_variant_new_array(tuple_type, &tuple_var, 1);
+	*sni_icon_pixmap = g_variant_new_array(G_VARIANT_TYPE("(iiay)"), &tuple_var, 1);
 	g_variant_ref_sink(*sni_icon_pixmap);
-	g_variant_type_free(tuple_type);
     }
 
     return TRUE;
