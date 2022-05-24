@@ -52,8 +52,7 @@ to control iwd:
 ```
 # usermod -a -G netdev YOUR_USER_ACCOUNT
 ```
-
-If you don't already have a `netdev` group, you'll need to create one first:
+If no `netdev` group exists on your system, then you'll need to create it first:
 ```
 # groupadd netdev
 ```

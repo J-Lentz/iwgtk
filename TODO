@@ -1,19 +1,11 @@
-Modify icon colors to increase the distinction between known networks and the connected network.
-
-Show signal strength via the indicator icon (different icons for different signal
-strength levels).
-
 Show the connected network's SSID in the indicator icon tooltip.
 
-Indicator icon menus
+Context menus for indicator icons
 
 Notifications and error messages:
  * Review all notification/error messages and make them more consistent.
  * Allow users to select which types of messages they'd like to see.
  * Display the SSID of the network in the "connected" and "disconnected" messages.
- * Show a message when a device is added/removed.
-
-Remember the SSID of a newly created AP or ad-hoc node and display it while the AP/node is running.
 
 Modify UI so that widgets don't move around and change sizes when the following actions
 are performed:
