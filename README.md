@@ -1,8 +1,8 @@
 ## About
-iwgtk is a lightweight, graphical wifi management utility for Linux. It is used to control
-iwd, with supported functionality similar to that of iwctl. It is particularly useful in
-a system where iwd is being used as a standalone network management daemon (i.e., without
-NetworkManager).
+iwgtk is a lightweight, graphical wifi management utility for Linux. It controls
+iwd, with supported functionality similar to that of iwctl. It is particularly
+useful in a system where iwd is used as a standalone network management daemon
+(i.e., without NetworkManager).
 
 ![Screenshot](screenshot/station.png)
 
@@ -13,6 +13,7 @@ NetworkManager).
 ## Dependencies
 * iwd
 * gtk3
+* adwaita-icon-theme (or an equivalent icon package)
 
 ## Installation
 To build iwgtk and install it to /usr/local, run:
@@ -31,9 +32,10 @@ sudo make prefix=/usr install
 ## Troubleshooting
 
 ### The indicator icon doesn't show up
-iwgtk's icon should show up on any system tray which supports the StatusNotifierItem API.
-If your tray only supports the older XEmbed API, then a compatibility layer such as
-[snixembed](https://git.sr.ht/~steef/snixembed) is required.
+iwgtk's icon should show up on any system tray which supports the
+StatusNotifierItem API. If your tray only supports the older XEmbed API, then a
+compatibility layer such as [snixembed](https://git.sr.ht/~steef/snixembed) is
+required.
 
 The following trays support StatusNotifierItem:
 * KDE Plasma
@@ -44,18 +46,28 @@ The following trays only support XEmbed, and require a compatibility layer:
 * AwesomeWM
 * i3bar
 
-### iwgtk and iwctl stopped working after updating to iwd >=1.23
-As of iwd 1.23, user accounts must be added to the `netdev` group to control iwd.
+### iwgtk and iwctl only work with superuser privileges (iwd >=1.23)
+As of iwd 1.23, membership in either the `netdev` or `wheel` group is required
+to control iwd:
+```
+# usermod -a -G netdev YOUR_USER_ACCOUNT
+```
+
+If you don't already have a `netdev` group, you'll need to create one first:
+```
+# groupadd netdev
+```
 
 ## License
-Copyright 2020-2022 Jesse Lentz <jesselnz@gmail.com> and contributors (see below)
+Copyright 2020-2022 Jesse Lentz <jesse@twosheds.org> and contributors (see below)
 
 iwgtk is licensed under the GPL version 3 or later.
 
-All icons, including the application icon, tray icons, and icons within the GUI, are from
-the "wifi states" collection by i cons from the Noun Project. These icons are licensed
-under the Creative Commons BY license.
-<https://thenounproject.com/iconsguru/collection/wifi-states/>
+The application icon is from the [wifi
+states](https://thenounproject.com/iconsguru/collection/wifi-states/) collection
+by [i cons](https://thenounproject.com/iconsguru/) from the Noun Project. This
+icon is licensed under the [Creative Commons BY
+license](https://creativecommons.org/licenses/by/3.0/us/legalcode).
 
 ## Contributors
 * Jove Yu
