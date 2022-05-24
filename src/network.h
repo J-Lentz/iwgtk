@@ -21,10 +21,20 @@
 #define _IWGTK_NETWORK_H
 
 typedef struct Network_s Network;
+typedef struct Station_s Station;
+
+typedef enum {
+    NETWORK_CONNECTED,
+    NETWORK_CONNECTING,
+    NETWORK_KNOWN,
+    NETWORK_UNKNOWN
+} NetworkStatus;
 
 struct Network_s {
     GDBusProxy *proxy;
-    GDBusProxy *station_proxy;
+    Station *station;
+
+    gint8 level;
 
     // Widgets
     GtkWidget *status_icon;
@@ -41,10 +51,7 @@ const gchar* get_security_type(const gchar *type_raw);
 void connect_button_clicked(GtkButton *button, GDBusProxy *network_proxy);
 void disconnect_button_clicked(GtkButton *button, GDBusProxy *station_proxy);
 void network_set(Network *network);
-Network* network_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
-void network_remove(Window *window, Network *network);
-GtkWidget* signal_widget(gint16 signal_strength);
-void bind_station_network(Station *station, Network *network, gint16 signal_strength, int index);
-Network* network_lookup(Station *station, const char *path);
+void station_add_network(Station *station, GDBusProxy *network_proxy, gint16 signal_strength, int index);
+void network_remove(Network *network);
 
 #endif

@@ -74,27 +74,31 @@ void hidden_ssid_submit(HiddenNetworkDialog *dialog) {
     gtk_widget_destroy(dialog->window);
 }
 
-void bind_station_network_hidden(Station *station, const gchar *address, const gchar *type, gint16 signal_strength, int index) {
+void station_add_hidden_network(Station *station, const gchar *address, const gchar *type, gint16 signal_strength, int index) {
     GtkWidget *status_icon;
     GtkWidget *address_label;
     GtkWidget *security_label;
-    GtkWidget *signal;
 
-    status_icon = gtk_image_new_from_icon_name(RESOURCE_HIDDEN, GTK_ICON_SIZE_DND);
+    status_icon = gtk_image_new();
     gtk_widget_set_tooltip_text(GTK_WIDGET(status_icon), "Hidden network");
+
+    {
+	const gchar *icon_name;
+
+	icon_name = station_icons[get_signal_level(signal_strength)];
+	icon_load(icon_name, &color_gray, (IconLoadCallback) gtk_image_set_from_pixbuf, status_icon);
+    }
+
     address_label = gtk_label_new(address);
     security_label = gtk_label_new(get_security_type(type));
-    signal = signal_widget(signal_strength);
 
-    gtk_grid_attach(GTK_GRID(station->networks), status_icon,    0, index, 1, 1);
-    gtk_grid_attach(GTK_GRID(station->networks), address_label,  1, index, 1, 1);
-    gtk_grid_attach(GTK_GRID(station->networks), security_label, 2, index, 1, 1);
-    gtk_grid_attach(GTK_GRID(station->networks), signal,         3, index, 1, 1);
+    gtk_grid_attach(GTK_GRID(station->network_table), status_icon,    0, index, 1, 1);
+    gtk_grid_attach(GTK_GRID(station->network_table), address_label,  1, index, 1, 1);
+    gtk_grid_attach(GTK_GRID(station->network_table), security_label, 2, index, 1, 1);
 
     gtk_widget_set_halign(status_icon,    GTK_ALIGN_START);
     gtk_widget_set_halign(address_label,  GTK_ALIGN_START);
     gtk_widget_set_halign(security_label, GTK_ALIGN_START);
-    gtk_widget_set_halign(signal,         GTK_ALIGN_START);
 
     gtk_widget_set_hexpand(address_label, TRUE);
 }

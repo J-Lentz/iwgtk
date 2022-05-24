@@ -26,7 +26,6 @@ struct GlobalData_s {
     GtkApplication *application;
     GDBusObjectManager *manager;
     GQuark iwd_error_domain;
-    const gchar *session_bus_address;
 
     Window *window;
     Indicator *indicators;

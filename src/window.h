@@ -23,7 +23,7 @@
 // Needed for definition of IndicatorSetter
 #include "indicator.h"
 
-#define n_object_types 9
+#define n_object_types 8
 typedef enum {
     OBJECT_KNOWN_NETWORK,
     OBJECT_ADAPTER,
@@ -32,8 +32,7 @@ typedef enum {
     OBJECT_ACCESS_POINT,
     OBJECT_ADHOC,
     OBJECT_WPS,
-    OBJECT_DIAGNOSTIC,
-    OBJECT_NETWORK
+    OBJECT_DIAGNOSTIC
 } ObjectType;
 
 #define n_couple_types 6

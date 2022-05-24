@@ -19,6 +19,40 @@
 
 #include "iwgtk.h"
 
+GDBusArgInfo arg_device = {-1, "device", "o", NULL};
+GDBusArgInfo arg_level = {-1, "level", "y", NULL};
+
+GDBusInterfaceInfo signal_agent_interface_info = {
+    -1,
+    IWD_IFACE_SIGNAL_LEVEL_AGENT,
+    (GDBusMethodInfo *[]) {
+	&(GDBusMethodInfo) {
+	    -1,
+	    "Release",
+	    (GDBusArgInfo *[]) {&arg_device, NULL},
+	    NULL,
+	    NULL
+	},
+	&(GDBusMethodInfo) {
+	    -1,
+	    "Changed",
+	    (GDBusArgInfo *[]) {&arg_device, &arg_level, NULL},
+	    NULL,
+	    NULL
+	},
+	NULL
+    },
+    NULL, // Signal info
+    NULL, // Property info
+    NULL  // Annotation info
+};
+
+GDBusInterfaceVTable signal_agent_interface_vtable = {
+    (GDBusInterfaceMethodCallFunc) signal_agent_method_call_handler,
+    NULL,
+    NULL
+};
+
 Indicator* indicator_new(GDBusProxy *proxy, IndicatorSetter indicator_set) {
     Indicator *indicator;
     GDBusObject *device_object;
@@ -31,112 +65,150 @@ Indicator* indicator_new(GDBusProxy *proxy, IndicatorSetter indicator_set) {
     indicator->sni = sni_new(device_object);
     indicator->sni->context_menu_handler = (SNIActivateHandler) indicator_activate;
     indicator->sni->activate_handler = (SNIActivateHandler) indicator_activate;
+    indicator->level = N_SIGNAL_THRESHOLDS + 1;
 
     sni_category_set(indicator->sni, "Hardware");
-    sni_id_set(indicator->sni, "iwgtk");
+    sni_id_set(indicator->sni, APPLICATION_ID);
     sni_status_set(indicator->sni, "Active");
 
     indicator->proxy = proxy;
     indicator->update_handler = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(indicator_set), indicator);
 
-    indicator_set(indicator);
+    if (indicator_set == indicator_set_station) {
+	GError *err;
+	const gchar *path;
+	GVariant *levels;
 
+	path = g_dbus_proxy_get_object_path(proxy);
+
+	err = NULL;
+	indicator->signal_agent_id = g_dbus_connection_register_object(
+	    g_dbus_proxy_get_connection(proxy),
+	    path,
+	    &signal_agent_interface_info,
+	    &signal_agent_interface_vtable,
+	    indicator,
+	    NULL,
+	    &err);
+
+	if (err != NULL) {
+	    fprintf(stderr, "Error registering signal level agent: %s\n", err->message);
+	    g_error_free(err);
+	}
+
+	levels = g_variant_new_fixed_array(G_VARIANT_TYPE_INT16, signal_thresholds, N_SIGNAL_THRESHOLDS, sizeof(gint16));
+	g_dbus_proxy_call(
+	    indicator->proxy,
+	    "RegisterSignalLevelAgent",
+	    g_variant_new("(o@an)", path, levels),
+	    G_DBUS_CALL_FLAGS_NONE,
+	    -1,
+	    NULL,
+	    (GAsyncReadyCallback) validation_callback_log,
+	    "Failed to register signal level agent: %s\n");
+    }
+    else {
+	indicator->signal_agent_id = 0;
+    }
+
+    indicator_set(indicator);
     g_application_hold(G_APPLICATION(global.application));
 
     return indicator;
 }
 
 void indicator_rm(Indicator *indicator) {
+    if (indicator->signal_agent_id != 0) {
+	g_dbus_connection_unregister_object(g_dbus_proxy_get_connection(indicator->proxy), indicator->signal_agent_id);
+    }
+
     sni_rm(indicator->sni);
-    g_application_release(G_APPLICATION(global.application));
     g_signal_handler_disconnect(indicator->proxy, indicator->update_handler);
     free(indicator);
+    g_application_release(G_APPLICATION(global.application));
 }
 
 void indicator_set_station(Indicator *indicator) {
     GVariant *state_var;
     const gchar *state;
-    const gchar *icon_name;
-    const gchar *icon_desc;
 
     state_var = g_dbus_proxy_get_cached_property(indicator->proxy, "State");
     state = g_variant_get_string(state_var, NULL);
 
     if (!strcmp(state, "connected")) {
-	icon_name = RESOURCE_KNOWN;
-	icon_desc = "Connected to wifi network";
+	indicator->status = INDICATOR_STATION_CONNECTED;
+	sni_title_set(indicator->sni, "Connected to wifi network");
+
+	if (indicator->level <= N_SIGNAL_THRESHOLDS) {
+	    indicator_set_connected(indicator);
+	}
     }
     else if (!strcmp(state, "connecting")) {
-	icon_name = RESOURCE_CONNECTING;
-	icon_desc = "Connecting to wifi network";
+	indicator->status = INDICATOR_STATION_CONNECTING;
+	sni_title_set(indicator->sni, "Connecting to wifi network");
+
+	if (indicator->level <= N_SIGNAL_THRESHOLDS) {
+	    indicator_set_connected(indicator);
+	}
     }
     else {
-	icon_name = RESOURCE_UNKNOWN;
-	icon_desc = "Not connected to a wifi network";
+	indicator->status = INDICATOR_STATION_DISCONNECTED;
+	sni_title_set(indicator->sni, "Not connected to any wifi network");
+	icon_load(ICON_STATION_OFFLINE, &color_gray, (IconLoadCallback) sni_icon_pixmap_set, indicator->sni);
     }
 
     g_variant_unref(state_var);
+}
 
-    sni_icon_name_set(indicator->sni, icon_name);
-    sni_title_set(indicator->sni, icon_desc);
+void indicator_set_connected(Indicator *indicator) {
+    const GdkRGBA *color;
+
+    if (indicator->status == INDICATOR_STATION_CONNECTED) {
+	color = &color_green;
+    }
+    else if (indicator->status == INDICATOR_STATION_CONNECTING) {
+	color = &color_yellow;
+    }
+    else {
+	fprintf(stderr, "Error: Signal level is set, but the station is neither connected nor connecting\n");
+	return;
+    }
+
+    icon_load(station_icons[indicator->level], color, (IconLoadCallback) sni_icon_pixmap_set, indicator->sni);
 }
 
 void indicator_set_ap(Indicator *indicator) {
-    gboolean started;
-    const gchar *icon_name;
-    const gchar *icon_desc;
+    GVariant *started_var;
 
-    {
-	GVariant *started_var;
-	started_var = g_dbus_proxy_get_cached_property(indicator->proxy, "Started");
-	started = g_variant_get_boolean(started_var);
-	g_variant_unref(started_var);
-    }
+    started_var = g_dbus_proxy_get_cached_property(indicator->proxy, "Started");
 
-    if (started) {
-	icon_name = RESOURCE_AP_UP;
-	icon_desc = "AP is up";
+    if (g_variant_get_boolean(started_var)) {
+	sni_title_set(indicator->sni, "AP is up");
+	icon_load(ICON_AP, &color_green, (IconLoadCallback) sni_icon_pixmap_set, indicator->sni);
     }
     else {
-	icon_name = RESOURCE_AP_DOWN;
-	icon_desc = "AP is down";
+	sni_title_set(indicator->sni, "AP is down");
+	icon_load(ICON_AP, &color_gray, (IconLoadCallback) sni_icon_pixmap_set, indicator->sni);
     }
 
-    sni_icon_name_set(indicator->sni, icon_name);
-    sni_title_set(indicator->sni, icon_desc);
+    g_variant_unref(started_var);
 }
 
-/*
- * TODO:
- * Merge common code from indicator_set_ap() and indicator_set_adhoc() into a single
- * procedure.
- *
- * TODO:
- * Use a distinct icon for ad-hoc mode
- */
 void indicator_set_adhoc(Indicator *indicator) {
-    gboolean started;
-    const gchar *icon_name;
-    const gchar *icon_desc;
+    GVariant *started_var;
 
-    {
-	GVariant *started_var;
-	started_var = g_dbus_proxy_get_cached_property(indicator->proxy, "Started");
-	started = g_variant_get_boolean(started_var);
-	g_variant_unref(started_var);
-    }
+    started_var = g_dbus_proxy_get_cached_property(indicator->proxy, "Started");
 
-    if (started) {
-	icon_name = RESOURCE_AP_UP;
-	icon_desc = "Ad-hoc node is up";
+    if (g_variant_get_boolean(started_var)) {
+	sni_title_set(indicator->sni, "Ad-hoc node is up");
+	icon_load(ICON_ADHOC, &color_green, (IconLoadCallback) sni_icon_pixmap_set, indicator->sni);
     }
     else {
-	icon_name = RESOURCE_AP_DOWN;
-	icon_desc = "Ad-hoc node is down";
+	sni_title_set(indicator->sni, "Ad-hoc node is down");
+	icon_load(ICON_ADHOC, &color_gray, (IconLoadCallback) sni_icon_pixmap_set, indicator->sni);
     }
 
-    sni_icon_name_set(indicator->sni, icon_name);
-    sni_title_set(indicator->sni, icon_desc);
+    g_variant_unref(started_var);
 }
 
 void indicator_activate(GDBusObject *device_object) {
@@ -159,5 +231,30 @@ void indicator_activate(GDBusObject *device_object) {
 	    }
 	    list = list->next;
 	}
+    }
+}
+
+void signal_agent_method_call_handler(GDBusConnection *connection, const gchar *sender, const gchar *object_path, const gchar *interface_name, const gchar *method_name, GVariant *parameters, GDBusMethodInvocation *invocation, Indicator *indicator) {
+    if (strcmp(method_name, "Changed") == 0) {
+	const gchar *device;
+
+	g_variant_get(parameters, "(oy)", &device, &indicator->level);
+	g_dbus_method_invocation_return_value(invocation, NULL);
+
+	if (indicator->level <= N_SIGNAL_THRESHOLDS) {
+	    indicator_set_connected(indicator);
+	}
+	else {
+	    fprintf(stderr, "Error: SignalLevelAgent provided an invalid signal level\n");
+	}
+    }
+    else if (strcmp(method_name, "Release") == 0) {
+	/*
+	 * NOOP
+	 */
+	g_dbus_method_invocation_return_value(invocation, NULL);
+    }
+    else {
+	g_dbus_method_invocation_return_dbus_error(invocation, "org.freedesktop.DBus.Error.UnknownMethod", "Unknown method");
     }
 }

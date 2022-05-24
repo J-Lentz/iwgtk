@@ -32,6 +32,6 @@ struct HiddenNetworkDialog_s {
 
 void hidden_ssid_dialog(Station *station);
 void hidden_ssid_submit(HiddenNetworkDialog *dialog);
-void bind_station_network_hidden(Station *station, const gchar *address, const gchar *type, gint16 signal_strength, int index);
+void station_add_hidden_network(Station *station, const gchar *address, const gchar *type, gint16 signal_strength, int index);
 
 #endif

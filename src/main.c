@@ -163,18 +163,6 @@ void startup(GtkApplication *app) {
 	global.iwd_error_domain = (GQuark) error_domain_volatile;
     }
 
-    {
-	GError *err;
-
-	err = NULL;
-	global.session_bus_address = g_dbus_address_get_for_bus_sync(G_BUS_TYPE_SESSION, NULL, &err);
-
-	if (err != NULL) {
-	    fprintf(stderr, "Error: Could not look up D-Bus session address: %s\n", err->message);
-	    g_error_free(err);
-	}
-    }
-
     g_bus_watch_name(
 	G_BUS_TYPE_SYSTEM,
 	IWD_BUS_NAME,

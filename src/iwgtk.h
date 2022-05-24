@@ -32,33 +32,20 @@
 #define IWD_PATH_AGENT_MANAGER  "/net/connman/iwd"
 #define IWD_PATH_PREFIX_LENGTH 17
 
-#define IWGTK_PATH_AGENT        "/iwgtk/agent"
+#define IWGTK_PATH_AGENT        "/Agent"
 
-#define RESOURCE_CONNECTED  "network-wireless-connected-symbolic"
-#define RESOURCE_CONNECTING "network-wireless-acquiring-symbolic"
-#define RESOURCE_KNOWN      "network-wireless-signal-excellent-symbolic"
-#define RESOURCE_UNKNOWN    "network-wireless-signal-none-symbolic"
-#define RESOURCE_HIDDEN     "network-wireless-no-route-symbolic"
-#define RESOURCE_AP_UP      "network-wireless-hotspot-symbolic"
-#define RESOURCE_AP_DOWN    "network-wireless-offline-symbolic"
-
-#define RESOURCE_SIGNAL_0  "network-cellular-signal-none-symbolic"
-#define RESOURCE_SIGNAL_1  "network-cellular-signal-weak-symbolic"
-#define RESOURCE_SIGNAL_2  "network-cellular-signal-ok-symbolic"
-#define RESOURCE_SIGNAL_3  "network-cellular-signal-good-symbolic"
-#define RESOURCE_SIGNAL_4  "network-cellular-signal-excellent-symbolic"
-
-#define IWD_IFACE_ADAPTER       "net.connman.iwd.Adapter"
-#define IWD_IFACE_DEVICE        "net.connman.iwd.Device"
-#define IWD_IFACE_STATION       "net.connman.iwd.Station"
-#define IWD_IFACE_DIAGNOSTIC    "net.connman.iwd.StationDiagnostic"
-#define IWD_IFACE_AP            "net.connman.iwd.AccessPoint"
-#define IWD_IFACE_AD_HOC        "net.connman.iwd.AdHoc"
-#define IWD_IFACE_WPS           "net.connman.iwd.SimpleConfiguration"
-#define IWD_IFACE_NETWORK       "net.connman.iwd.Network"
-#define IWD_IFACE_KNOWN_NETWORK "net.connman.iwd.KnownNetwork"
-#define IWD_IFACE_AGENT_MANAGER "net.connman.iwd.AgentManager"
-#define IWD_IFACE_AGENT         "net.connman.iwd.Agent"
+#define IWD_IFACE_ADAPTER            "net.connman.iwd.Adapter"
+#define IWD_IFACE_DEVICE             "net.connman.iwd.Device"
+#define IWD_IFACE_STATION            "net.connman.iwd.Station"
+#define IWD_IFACE_DIAGNOSTIC         "net.connman.iwd.StationDiagnostic"
+#define IWD_IFACE_AP                 "net.connman.iwd.AccessPoint"
+#define IWD_IFACE_AD_HOC             "net.connman.iwd.AdHoc"
+#define IWD_IFACE_WPS                "net.connman.iwd.SimpleConfiguration"
+#define IWD_IFACE_NETWORK            "net.connman.iwd.Network"
+#define IWD_IFACE_KNOWN_NETWORK      "net.connman.iwd.KnownNetwork"
+#define IWD_IFACE_AGENT_MANAGER      "net.connman.iwd.AgentManager"
+#define IWD_IFACE_AGENT              "net.connman.iwd.Agent"
+#define IWD_IFACE_SIGNAL_LEVEL_AGENT "net.connman.iwd.SignalLevelAgent"
 
 typedef enum {
     ERROR_OTHER = 0,
@@ -116,6 +103,7 @@ struct CallbackMessages_s {
 #include "window.h"
 #include "main.h"
 #include "utilities.h"
+#include "icon.h"
 
 #include "dialog.h"
 #include "device.h"
@@ -131,6 +119,5 @@ struct CallbackMessages_s {
 #include "hidden.h"
 
 #include "switch.h"
-
 
 #endif

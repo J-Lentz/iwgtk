@@ -27,8 +27,7 @@ ObjectMethods object_methods[] = {
     {IWD_IFACE_AP,            (ConstructorFunction) ap_add,            (DestructorFunction) ap_remove,            indicator_set_ap},
     {IWD_IFACE_AD_HOC,        (ConstructorFunction) adhoc_add,         (DestructorFunction) adhoc_remove,         indicator_set_adhoc},
     {IWD_IFACE_WPS,           (ConstructorFunction) wps_add,           (DestructorFunction) wps_remove,           NULL},
-    {IWD_IFACE_DIAGNOSTIC,    (ConstructorFunction) diagnostic_add,    (DestructorFunction) diagnostic_remove,    NULL},
-    {IWD_IFACE_NETWORK,       (ConstructorFunction) network_add,       (DestructorFunction) network_remove,       NULL}
+    {IWD_IFACE_DIAGNOSTIC,    (ConstructorFunction) diagnostic_add,    (DestructorFunction) diagnostic_remove,    NULL}
 };
 
 CoupleMethods couple_methods[] = {

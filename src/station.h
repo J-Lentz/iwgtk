@@ -22,15 +22,26 @@
 
 typedef struct Station_s Station;
 typedef struct Device_s Device;
+typedef struct Network_s Network;
+
+typedef enum {
+    STATION_CONNECTED,
+    STATION_CONNECTING,
+    STATION_DISCONNECTED
+} StationState;
 
 struct Station_s {
     GDBusProxy *proxy;
     Device *device;
+    StationState state;
 
-    int i;
+    // Networks
+    gsize n_networks;
+    Network *networks;
+    Network *network_connected;
 
     // Widgets
-    GtkWidget *networks;
+    GtkWidget *network_table;
     GtkWidget *scan_button;
     GtkWidget *scan_widget_idle;
     GtkWidget *scan_widget_scanning;
@@ -54,5 +65,6 @@ void insert_separator(Station *station);
 void populate_network_list(Station *station);
 void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *station);
 void get_hidden_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *station);
+void station_remove_all_networks(Station *station);
 
 #endif
