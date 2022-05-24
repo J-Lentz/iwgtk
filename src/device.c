@@ -166,41 +166,36 @@ Device* device_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     gtk_widget_set_margin_end(device->table, 5);
 
     device->power_switch = switch_new(proxy, "Powered");
-    device->mac_label = gtk_label_new(NULL);
-
     gtk_widget_set_tooltip_text(GTK_WIDGET(device->power_switch), "Enable/disable interface");
 
-    {
-	GtkWidget *address_label, *up_label, *mode_label;
+    device->mac_label = gtk_label_new(NULL);
+    gtk_widget_set_tooltip_text(GTK_WIDGET(device->mac_label), "MAC address");
 
-	address_label = gtk_label_new("MAC: ");
+    {
+	GtkWidget *up_label, *mode_label;
+
 	up_label = gtk_label_new("Power: ");
 	mode_label = gtk_label_new("Mode: ");
 
-	gtk_grid_attach(GTK_GRID(device->table), address_label,         0, 0, 1, 1);
-	gtk_grid_attach(GTK_GRID(device->table), device->mac_label,     1, 0, 1, 1);
+	gtk_grid_attach(GTK_GRID(device->table), device->mac_label,     0, 0, 1, 1);
 
-	gtk_grid_attach(GTK_GRID(device->table), up_label,              2, 0, 1, 1);
-	gtk_grid_attach(GTK_GRID(device->table), device->power_switch,  3, 0, 1, 1);
-	gtk_grid_attach(GTK_GRID(device->table), mode_label,            2, 1, 1, 1);
-	gtk_grid_attach(GTK_GRID(device->table), device->mode_box,      3, 1, 1, 1);
+	gtk_grid_attach(GTK_GRID(device->table), up_label,              1, 0, 1, 1);
+	gtk_grid_attach(GTK_GRID(device->table), device->power_switch,  2, 0, 1, 1);
+	gtk_grid_attach(GTK_GRID(device->table), mode_label,            1, 1, 1, 1);
+	gtk_grid_attach(GTK_GRID(device->table), device->mode_box,      2, 1, 1, 1);
 
 	gtk_widget_set_margin_start(up_label, 10);
 	gtk_widget_set_margin_start(mode_label, 10);
 	gtk_widget_set_margin_end(device->power_switch, 10);
 	gtk_widget_set_margin_end(device->mode_box, 10);
 
-	gtk_widget_set_halign(address_label, GTK_ALIGN_END);
-
-	gtk_widget_set_halign(device->mac_label, GTK_ALIGN_START);
+	gtk_widget_set_halign(device->mac_label, GTK_ALIGN_CENTER);
 
 	gtk_widget_set_halign(up_label, GTK_ALIGN_END);
 	gtk_widget_set_halign(mode_label, GTK_ALIGN_END);
 
 	gtk_widget_set_halign(device->power_switch, GTK_ALIGN_START);
 	gtk_widget_set_halign(device->mode_box, GTK_ALIGN_START);
-
-	gtk_widget_set_valign(address_label, GTK_ALIGN_CENTER);
 
 	gtk_widget_set_valign(device->mac_label, GTK_ALIGN_CENTER);
 

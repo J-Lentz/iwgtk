@@ -157,7 +157,7 @@ void diagnostic_remove(Window *window, StationDiagnostic *diagnostic) {
 void bind_device_diagnostic(Device *device, StationDiagnostic *diagnostic) {
     diagnostic->device_proxy = device->proxy;
 
-    gtk_grid_attach(GTK_GRID(device->table), diagnostic->button, 4, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(device->table), diagnostic->button, 3, 1, 1, 1);
     gtk_widget_set_halign(diagnostic->button, GTK_ALIGN_START);
     gtk_widget_show_all(diagnostic->button);
 }

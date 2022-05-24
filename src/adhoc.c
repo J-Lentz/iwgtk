@@ -244,7 +244,7 @@ void adhoc_remove(Window *window, AdHoc *adhoc) {
 
 void bind_device_adhoc(Device *device, AdHoc *adhoc) {
     adhoc->device = device;
-    gtk_grid_attach(GTK_GRID(device->table), adhoc->button, 4, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(device->table), adhoc->button, 3, 0, 1, 1);
     gtk_box_pack_start(GTK_BOX(device->master), adhoc->n_peers, TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(device->master), adhoc->peer_list, TRUE, TRUE, 0);
     adhoc_set(adhoc);

@@ -177,7 +177,7 @@ void station_remove(Window *window, Station *station) {
 void bind_device_station(Device *device, Station *station) {
     station->device = device;
 
-    gtk_grid_attach(GTK_GRID(device->table), station->scan_button, 4, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(device->table), station->scan_button, 3, 0, 1, 1);
     gtk_widget_set_halign(station->scan_button, GTK_ALIGN_FILL);
 
     gtk_box_pack_start(GTK_BOX(device->master), station->network_table, TRUE, TRUE, 0);

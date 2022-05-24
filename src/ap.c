@@ -183,7 +183,7 @@ void ap_remove(Window *window, AP *ap) {
 
 void bind_device_ap(Device *device, AP *ap) {
     ap->device = device;
-    gtk_grid_attach(GTK_GRID(device->table), ap->button, 4, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(device->table), ap->button, 3, 0, 1, 1);
     gtk_box_pack_end(GTK_BOX(device->master), ap->ssid, FALSE, FALSE, 0);
     ap_set(ap);
 }
