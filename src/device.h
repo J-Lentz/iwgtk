@@ -36,7 +36,6 @@ struct Device_s {
     GtkWidget *power_switch;
     GtkWidget *mac_label;
     GtkWidget *mode_box;
-    GtkWidget *status;
 
     // Handlers
     gulong handler_update;

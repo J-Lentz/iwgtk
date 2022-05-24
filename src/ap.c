@@ -120,11 +120,9 @@ void ap_set(AP *ap) {
 	started = g_variant_get_boolean(started_var);
 
 	if (started) {
-	    gtk_label_set_text(GTK_LABEL(ap->device->status), "AP running");
 	    gtk_button_set_label(GTK_BUTTON(ap->button), "Stop AP");
 	}
 	else {
-	    gtk_label_set_text(GTK_LABEL(ap->device->status), "AP down");
 	    gtk_button_set_label(GTK_BUTTON(ap->button), "Start AP");
 	}
 	g_variant_unref(started_var);

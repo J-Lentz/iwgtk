@@ -179,8 +179,9 @@ void wps_remove(Window *window, WPS *wps) {
 }
 
 void bind_device_wps(Device *device, WPS *wps) {
-    gtk_grid_attach(GTK_GRID(device->table), wps->hbox, 4, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(device->table), wps->hbox, 0, 1, 2, 1);
     gtk_widget_set_halign(wps->hbox, GTK_ALIGN_FILL);
+    gtk_widget_set_valign(wps->hbox, GTK_ALIGN_CENTER);
 }
 
 void unbind_device_wps(Device *device, WPS *wps) {

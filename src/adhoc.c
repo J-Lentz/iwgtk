@@ -195,12 +195,10 @@ void adhoc_set(AdHoc *adhoc) {
 	    }
 	}
 
-	gtk_label_set_text(GTK_LABEL(adhoc->device->status), "Node running");
 	gtk_button_set_label(GTK_BUTTON(adhoc->button), "Stop node");
     }
     else {
 	gtk_label_set_text(GTK_LABEL(adhoc->n_peers), "");
-	gtk_label_set_text(GTK_LABEL(adhoc->device->status), "Node down");
 	gtk_button_set_label(GTK_BUTTON(adhoc->button), "Start node");
     }
 

@@ -114,7 +114,6 @@ void station_set(Station *station) {
 
     state_var = g_dbus_proxy_get_cached_property(station->proxy, "State");
     state = g_variant_get_string(state_var, NULL);
-    gtk_label_set_text(GTK_LABEL(station->device->status), state);
 
     if (strcmp(state, "connected") == 0) {
 	station->state = STATION_CONNECTED;
