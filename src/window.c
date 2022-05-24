@@ -56,7 +56,7 @@ void window_new() {
 
     global.window->window = gtk_application_window_new(global.application);
     gtk_window_set_title(GTK_WINDOW(global.window->window), "iwgtk");
-    gtk_window_set_default_size(GTK_WINDOW(global.window->window), 600, 700);
+    gtk_window_set_default_size(GTK_WINDOW(global.window->window), 450, 600);
     gtk_window_set_icon_name(GTK_WINDOW(global.window->window), "iwgtk");
 
     window_set();
@@ -131,12 +131,6 @@ void window_set() {
     gtk_widget_set_margin_start(window->known_network_table, 5);
     gtk_widget_set_margin_end(window->known_network_table, 5);
     gtk_widget_set_margin_bottom(window->known_network_table, 5);
-
-    gtk_grid_attach(GTK_GRID(window->known_network_table), new_label_bold("SSID"),            0, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(window->known_network_table), new_label_bold("Security"),        1, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(window->known_network_table), new_label_bold("Autoconnect"),     2, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(window->known_network_table), new_label_bold("Forget"),          3, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(window->known_network_table), new_label_bold("Last connection"), 4, 0, 1, 1);
 
     gtk_grid_set_column_spacing(GTK_GRID(window->known_network_table), 10);
     gtk_grid_set_row_spacing(GTK_GRID(window->known_network_table), 10);

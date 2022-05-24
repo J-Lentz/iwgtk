@@ -125,14 +125,15 @@ void network_set(Network *network) {
 
 	    if (network->station->state == STATION_CONNECTED) {
 		network_status = NETWORK_CONNECTED;
-		gtk_widget_set_tooltip_text(GTK_WIDGET(network->status_icon), "Connected");
+		gtk_widget_set_tooltip_text(network->status_icon, "Connected");
 	    }
 	    else {
 		network_status = NETWORK_CONNECTING;
-		gtk_widget_set_tooltip_text(GTK_WIDGET(network->status_icon), "Connecting");
+		gtk_widget_set_tooltip_text(network->status_icon, "Connecting");
 	    }
 
 	    gtk_button_set_label(button, "Disconnect");
+	    gtk_widget_set_tooltip_text(network->connect_button, "Disconnect from network");
 	    network->button_handler_id = g_signal_connect(button, "clicked", G_CALLBACK(disconnect_button_clicked), (gpointer) network->station->proxy);
 	}
 	else {
@@ -146,14 +147,15 @@ void network_set(Network *network) {
 	    if (known_network_var) {
 		g_variant_unref(known_network_var);
 		network_status = NETWORK_KNOWN;
-		gtk_widget_set_tooltip_text(GTK_WIDGET(network->status_icon), "Known network");
+		gtk_widget_set_tooltip_text(network->status_icon, "Known network");
 	    }
 	    else {
 		network_status = NETWORK_UNKNOWN;
-		gtk_widget_set_tooltip_text(GTK_WIDGET(network->status_icon), "Unknown network");
+		gtk_widget_set_tooltip_text(network->status_icon, "Unknown network");
 	    }
 
 	    gtk_button_set_label(button, "Connect");
+	    gtk_widget_set_tooltip_text(network->connect_button, "Connect to network");
 	    network->button_handler_id = g_signal_connect(button, "clicked", G_CALLBACK(connect_button_clicked), (gpointer) network->proxy);
 	}
     }
@@ -180,6 +182,9 @@ void station_add_network(Station *station, GDBusProxy *network_proxy, gint16 sig
     network->ssid_label = gtk_label_new(NULL);
     network->security_label = gtk_label_new(NULL);
     network->connect_button = gtk_button_new();
+
+    gtk_widget_set_tooltip_text(network->ssid_label, "SSID");
+    gtk_widget_set_tooltip_text(network->security_label, "Network security");
 
     g_object_ref_sink(network->status_icon);
     g_object_ref_sink(network->ssid_label);

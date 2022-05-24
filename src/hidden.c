@@ -80,7 +80,7 @@ void station_add_hidden_network(Station *station, const gchar *address, const gc
     GtkWidget *security_label;
 
     status_icon = gtk_image_new();
-    gtk_widget_set_tooltip_text(GTK_WIDGET(status_icon), "Hidden network");
+    gtk_widget_set_tooltip_text(status_icon, "Hidden network");
 
     {
 	const gchar *icon_name;
@@ -91,6 +91,9 @@ void station_add_hidden_network(Station *station, const gchar *address, const gc
 
     address_label = gtk_label_new(address);
     security_label = gtk_label_new(get_security_type(type));
+
+    gtk_widget_set_tooltip_text(address_label, "MAC address");
+    gtk_widget_set_tooltip_text(security_label, "Network security");
 
     gtk_grid_attach(GTK_GRID(station->network_table), status_icon,    0, index, 1, 1);
     gtk_grid_attach(GTK_GRID(station->network_table), address_label,  1, index, 1, 1);

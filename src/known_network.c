@@ -116,6 +116,7 @@ KnownNetwork* known_network_add(Window *window, GDBusObject *object, GDBusProxy 
     kn->name_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 
     kn->name_label = gtk_label_new(NULL);
+    gtk_widget_set_tooltip_text(kn->name_label, "SSID");
     kn->hidden_label = new_label_gray("(Hidden)");
 
     gtk_box_pack_start(GTK_BOX(kn->name_box), kn->name_label, TRUE, TRUE, 0);
@@ -123,18 +124,22 @@ KnownNetwork* known_network_add(Window *window, GDBusObject *object, GDBusProxy 
     gtk_widget_show_all(kn->name_box);
 
     kn->security_label = gtk_label_new(NULL);
+    gtk_widget_set_tooltip_text(kn->security_label, "Network security");
     gtk_widget_show(kn->security_label);
 
     kn->autoconnect_switch = switch_new(proxy, "AutoConnect");
+    gtk_widget_set_tooltip_text(kn->autoconnect_switch, "Automatically connect to this network");
 
     kn->forget_button = gtk_button_new_with_label("Forget");
+    gtk_widget_set_tooltip_text(kn->forget_button, "Forget this network");
     g_signal_connect_swapped(kn->forget_button, "clicked", G_CALLBACK(forget_button_clicked), (gpointer) proxy);
     gtk_widget_show(kn->forget_button);
 
     kn->last_connection_label = gtk_label_new(NULL);
+    gtk_widget_set_tooltip_text(kn->last_connection_label, "Last connection to this network");
     gtk_widget_show(kn->last_connection_label);
 
-    kn->index = n_known_networks + 1;
+    kn->index = n_known_networks;
     n_known_networks ++;
 
     gtk_grid_attach(GTK_GRID(window->known_network_table), kn->name_box,              0, kn->index, 1, 1);
