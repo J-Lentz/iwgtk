@@ -61,7 +61,7 @@ Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
 void station_remove(Window *window, Station *station);
 void bind_device_station(Device *device, Station *station);
 void unbind_device_station(Device *device, Station *station);
-void insert_separator(Station *station);
+void insert_separator(Station *station, gint position);
 void populate_network_list(Station *station);
 void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *station);
 void get_hidden_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *station);

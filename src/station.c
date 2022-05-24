@@ -191,11 +191,11 @@ void unbind_device_station(Device *device, Station *station) {
     gtk_container_remove(GTK_CONTAINER(device->master), station->network_table);
 }
 
-void insert_separator(Station *station) {
+void insert_separator(Station *station, gint position) {
     GtkWidget *separator;
 
     separator = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
-    gtk_grid_attach(GTK_GRID(station->network_table), separator, 0, station->n_networks, 5, 1);
+    gtk_grid_attach(GTK_GRID(station->network_table), separator, 0, position, 5, 1);
 }
 
 void populate_network_list(Station *station) {
@@ -244,7 +244,7 @@ void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *statio
 	}
 
 	if (station->n_networks > 0) {
-	    insert_separator(station);
+	    insert_separator(station, station->n_networks);
 	}
 
 	g_variant_iter_free(iter);
@@ -301,7 +301,7 @@ void get_hidden_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station 
 	    gtk_widget_set_halign(connect_button, GTK_ALIGN_FILL);
 	    gtk_widget_set_valign(connect_button, GTK_ALIGN_FILL);
 
-	    insert_separator(station);
+	    insert_separator(station, station->n_networks + i + 1);
 	}
 
 	g_variant_iter_free(iter);
