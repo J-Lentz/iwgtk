@@ -78,6 +78,7 @@ void station_add_hidden_network(Station *station, const gchar *address, const gc
     GtkWidget *status_icon;
     GtkWidget *address_label;
     GtkWidget *security_label;
+    GtkWidget *connect_button;
 
     status_icon = gtk_image_new();
     gtk_widget_set_tooltip_text(status_icon, "Hidden network");
@@ -91,17 +92,23 @@ void station_add_hidden_network(Station *station, const gchar *address, const gc
 
     address_label = gtk_label_new(address);
     security_label = gtk_label_new(get_security_type(type));
+    connect_button = gtk_button_new_with_label("Connect");
 
     gtk_widget_set_tooltip_text(address_label, "MAC address");
     gtk_widget_set_tooltip_text(security_label, "Network security");
+    gtk_widget_set_tooltip_text(connect_button, "Connect to hidden network");
+
+    g_signal_connect_swapped(connect_button, "clicked", G_CALLBACK(hidden_ssid_dialog), (gpointer) station);
 
     gtk_grid_attach(GTK_GRID(station->network_table), status_icon,    0, index, 1, 1);
     gtk_grid_attach(GTK_GRID(station->network_table), address_label,  1, index, 1, 1);
     gtk_grid_attach(GTK_GRID(station->network_table), security_label, 2, index, 1, 1);
+    gtk_grid_attach(GTK_GRID(station->network_table), connect_button, 3, index, 1, 1);
 
     gtk_widget_set_halign(status_icon,    GTK_ALIGN_START);
     gtk_widget_set_halign(address_label,  GTK_ALIGN_START);
     gtk_widget_set_halign(security_label, GTK_ALIGN_START);
+    gtk_widget_set_halign(connect_button, GTK_ALIGN_FILL);
 
     gtk_widget_set_hexpand(address_label, TRUE);
 }

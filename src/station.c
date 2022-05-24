@@ -292,15 +292,6 @@ void get_hidden_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station 
 	}
 
 	if (i > 0) {
-	    GtkWidget *connect_button;
-
-	    connect_button = gtk_button_new_with_label("Connect");
-	    g_signal_connect_swapped(connect_button, "clicked", G_CALLBACK(hidden_ssid_dialog), (gpointer) station);
-
-	    gtk_grid_attach(GTK_GRID(station->network_table), connect_button, 3, station->n_networks + 1, 1, i);
-	    gtk_widget_set_halign(connect_button, GTK_ALIGN_FILL);
-	    gtk_widget_set_valign(connect_button, GTK_ALIGN_FILL);
-
 	    insert_separator(station, station->n_networks + i + 1);
 	}
 
