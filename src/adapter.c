@@ -56,7 +56,7 @@ Adapter* adapter_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     GtkWidget *vbox;
     GtkWidget *row1;
 
-    adapter = malloc(sizeof(Adapter));
+    adapter = g_malloc(sizeof(Adapter));
     adapter->proxy = proxy;
 
     adapter->frame = gtk_frame_new(NULL);
@@ -106,7 +106,7 @@ void adapter_remove(Window *window, Adapter *adapter) {
     g_object_unref(adapter->power_switch);
 
     g_signal_handler_disconnect(adapter->proxy, adapter->handler_update);
-    free(adapter);
+    g_free(adapter);
 }
 
 void bind_adapter_device(Adapter *adapter, Device *device) {

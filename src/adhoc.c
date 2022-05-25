@@ -41,7 +41,7 @@ void adhoc_dialog_launch(AdHoc *adhoc) {
     AdHocDialog *adhoc_dialog;
     GtkWidget *table, *buttons;
 
-    adhoc_dialog = malloc(sizeof(AdHocDialog));
+    adhoc_dialog = g_malloc(sizeof(AdHocDialog));
     adhoc_dialog->adhoc = adhoc;
 
     adhoc_dialog->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -71,7 +71,7 @@ void adhoc_dialog_launch(AdHoc *adhoc) {
     grid_column_set_alignment(table, 0, GTK_ALIGN_END);
     grid_column_set_alignment(table, 2, GTK_ALIGN_START);
 
-    g_signal_connect_swapped(adhoc_dialog->window, "destroy", G_CALLBACK(free), adhoc_dialog);
+    g_signal_connect_swapped(adhoc_dialog->window, "destroy", G_CALLBACK(g_free), adhoc_dialog);
     gtk_widget_show_all(adhoc_dialog->window);
 }
 
@@ -209,7 +209,7 @@ AdHoc* adhoc_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     AdHoc *adhoc;
     GtkWidget *row1;
 
-    adhoc = malloc(sizeof(AdHoc));
+    adhoc = g_malloc(sizeof(AdHoc));
     adhoc->proxy = proxy;
 
     adhoc->button = gtk_button_new_with_label(NULL);
@@ -239,7 +239,7 @@ void adhoc_remove(Window *window, AdHoc *adhoc) {
     g_object_unref(adhoc->button);
 
     g_signal_handler_disconnect(adhoc->proxy, adhoc->handler_update);
-    free(adhoc);
+    g_free(adhoc);
 }
 
 void bind_device_adhoc(Device *device, AdHoc *adhoc) {

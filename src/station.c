@@ -136,7 +136,7 @@ void station_set(Station *station) {
 Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     Station *station;
 
-    station = malloc(sizeof(Station));
+    station = g_malloc(sizeof(Station));
     station->proxy = proxy;
     station->n_networks = 0;
     station->network_connected = NULL;
@@ -171,7 +171,7 @@ void station_remove(Window *window, Station *station) {
 
     g_signal_handler_disconnect(station->proxy, station->handler_update);
     g_signal_handler_disconnect(station->proxy, station->handler_scan);
-    free(station);
+    g_free(station);
 }
 
 void bind_device_station(Device *device, Station *station) {
@@ -226,7 +226,7 @@ void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *statio
 	g_variant_get(ordered_networks, "(a(on))", &iter);
 
 	station->n_networks = g_variant_iter_n_children(iter);
-	station->networks = malloc(station->n_networks * sizeof(Network));
+	station->networks = g_malloc(station->n_networks * sizeof(Network));
 
 	i = 0;
 	while (g_variant_iter_next(iter, "(on)", &network_path, &signal_strength)) {
@@ -313,5 +313,5 @@ void station_remove_all_networks(Station *station) {
     }
     station->n_networks = 0;
     station->network_connected = NULL;
-    free(station->networks);
+    g_free(station->networks);
 }

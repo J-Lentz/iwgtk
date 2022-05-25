@@ -49,7 +49,7 @@ void window_new() {
 	gtk_widget_destroy(global.window->window);
     }
 
-    global.window = malloc(sizeof(Window));
+    global.window = g_malloc(sizeof(Window));
 
     memset(global.window->objects, 0, sizeof(void *) * n_object_types);
     memset(global.window->couples, 0, sizeof(void *) * n_couple_types);
@@ -152,12 +152,12 @@ void window_rm(Window *window) {
 
 		rm = window->objects[i];
 		window->objects[i] = window->objects[i]->next;
-		free(rm);
+		g_free(rm);
 	    }
 	}
     }
 
-    free(window);
+    g_free(window);
     global.window = NULL;
 }
 
@@ -288,7 +288,7 @@ void object_list_append(ObjectList **list, GDBusObject *object, gpointer data) {
 	list = &(*list)->next;
     }
 
-    *list = malloc(sizeof(ObjectList));
+    *list = g_malloc(sizeof(ObjectList));
     (*list)->object = object;
     (*list)->data = data;
     (*list)->next = NULL;
@@ -323,7 +323,7 @@ void interface_rm(GDBusObjectManager *manager, GDBusObject *object, GDBusProxy *
 
 		    rm = *list;
 		    *list = (*list)->next;
-		    free(rm);
+		    g_free(rm);
 		}
 	    }
 
@@ -378,7 +378,7 @@ void couple_register(Window *window, CoupleType couple_type, int this, gpointer 
 	    }
 	    else {
 		CoupleList *new_entry;
-		new_entry = malloc(sizeof(CoupleList));
+		new_entry = g_malloc(sizeof(CoupleList));
 		new_entry->object = object;
 		new_entry->data[this] = data;
 		new_entry->data[1 - this] = (*list)->data[1 - this];
@@ -396,7 +396,7 @@ void couple_register(Window *window, CoupleType couple_type, int this, gpointer 
 
     {
 	CoupleList *new_entry;
-	new_entry = malloc(sizeof(CoupleList));
+	new_entry = g_malloc(sizeof(CoupleList));
 	new_entry->object = object;
 	new_entry->data[this] = data;
 	new_entry->data[1 - this] = NULL;
@@ -418,7 +418,7 @@ void couple_unregister(Window *window, CoupleType couple_type, int this, gpointe
 
 		rm = *list;
 		*list = (*list)->next;
-		free(rm);
+		g_free(rm);
 	    }
 	    else {
 		// Unbind the couple

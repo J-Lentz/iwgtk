@@ -136,7 +136,7 @@ void diagnostic_show(StationDiagnostic *diagnostic) {
 StationDiagnostic* diagnostic_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     StationDiagnostic *diagnostic;
 
-    diagnostic = malloc(sizeof(StationDiagnostic));
+    diagnostic = g_malloc(sizeof(StationDiagnostic));
     diagnostic->proxy = proxy;
 
     diagnostic->button = gtk_button_new_with_label("Diagnostics");
@@ -151,7 +151,7 @@ StationDiagnostic* diagnostic_add(Window *window, GDBusObject *object, GDBusProx
 void diagnostic_remove(Window *window, StationDiagnostic *diagnostic) {
     couple_unregister(window, DEVICE_DIAGNOSTIC, 1, diagnostic);
     g_object_unref(diagnostic->button);
-    free(diagnostic);
+    g_free(diagnostic);
 }
 
 void bind_device_diagnostic(Device *device, StationDiagnostic *diagnostic) {

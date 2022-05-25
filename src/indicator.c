@@ -57,7 +57,7 @@ Indicator* indicator_new(GDBusProxy *device_proxy) {
     Indicator *indicator;
     GDBusObject *device_object;
 
-    indicator = malloc(sizeof(Indicator));
+    indicator = g_malloc(sizeof(Indicator));
     indicator->next = NULL;
     indicator->update_mode_handler = 0;
     indicator->signal_agent_id = 0;
@@ -96,7 +96,7 @@ void indicator_rm(Indicator *indicator) {
 	g_signal_handler_disconnect(indicator->proxy, indicator->update_mode_handler);
     }
 
-    free(indicator);
+    g_free(indicator);
     g_application_release(G_APPLICATION(global.application));
 }
 

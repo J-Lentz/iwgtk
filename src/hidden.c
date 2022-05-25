@@ -29,7 +29,7 @@ void hidden_ssid_dialog(Station *station) {
     HiddenNetworkDialog *dialog;
     GtkWidget *table, *buttons;
 
-    dialog = malloc(sizeof(HiddenNetworkDialog));
+    dialog = g_malloc(sizeof(HiddenNetworkDialog));
     dialog->station = station;
 
     dialog->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -49,7 +49,7 @@ void hidden_ssid_dialog(Station *station) {
     grid_column_set_alignment(table, 0, GTK_ALIGN_END);
     grid_column_set_alignment(table, 1, GTK_ALIGN_START);
 
-    g_signal_connect_swapped(dialog->window, "destroy", G_CALLBACK(free), dialog);
+    g_signal_connect_swapped(dialog->window, "destroy", G_CALLBACK(g_free), dialog);
     gtk_widget_show_all(dialog->window);
 }
 

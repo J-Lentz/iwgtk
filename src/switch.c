@@ -41,7 +41,7 @@ void switch_set(SwitchData *switch_data) {
 
 void switch_rm(GtkWidget *widget, SwitchData *switch_data) {
     g_signal_handler_disconnect(switch_data->proxy, switch_data->handler);
-    free(switch_data);
+    g_free(switch_data);
 }
 
 GtkWidget* switch_new(GDBusProxy *proxy, const gchar *property) {
@@ -49,7 +49,7 @@ GtkWidget* switch_new(GDBusProxy *proxy, const gchar *property) {
     GVariant *state_var;
     gboolean state;
 
-    switch_data = malloc(sizeof(SwitchData));
+    switch_data = g_malloc(sizeof(SwitchData));
     switch_data->proxy = proxy;
     switch_data->widget = gtk_switch_new();
     switch_data->property = property;

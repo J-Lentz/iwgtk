@@ -116,7 +116,7 @@ GtkWidget* mode_box_new(GDBusProxy *adapter_proxy) {
 Device* device_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     Device *device;
 
-    device = malloc(sizeof(Device));
+    device = g_malloc(sizeof(Device));
     device->proxy = proxy;
     device->window = window;
 
@@ -268,5 +268,5 @@ void device_remove(Window *window, Device *device) {
     g_object_unref(device->button);
 
     g_signal_handler_disconnect(device->proxy, device->handler_update);
-    free(device);
+    g_free(device);
 }

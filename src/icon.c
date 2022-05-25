@@ -61,7 +61,7 @@ void icon_load(const gchar *icon_name, const GdkRGBA *icon_color, IconLoadCallba
     GtkIconInfo *icon_info;
     IconLoadClosure *closure;
 
-    closure = malloc(sizeof(IconLoadClosure));
+    closure = g_malloc(sizeof(IconLoadClosure));
     closure->callback = user_callback;
     closure->object = user_object;
 
@@ -103,5 +103,5 @@ void icon_load_finish(GtkIconInfo *icon_info, GAsyncResult *res, IconLoadClosure
     closure->callback(closure->object, pixbuf);
 
     g_object_unref(pixbuf);
-    free(closure);
+    g_free(closure);
 }

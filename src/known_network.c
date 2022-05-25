@@ -110,7 +110,7 @@ void known_network_set(KnownNetwork *kn) {
 KnownNetwork* known_network_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     KnownNetwork *kn;
 
-    kn = malloc(sizeof(KnownNetwork));
+    kn = g_malloc(sizeof(KnownNetwork));
     kn->proxy = proxy;
 
     kn->name_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
@@ -182,5 +182,5 @@ void known_network_remove(Window *window, KnownNetwork *known_network) {
     }
 
     g_signal_handler_disconnect(known_network->proxy, known_network->handler_update);
-    free(known_network);
+    g_free(known_network);
 }

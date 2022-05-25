@@ -49,7 +49,7 @@ void wps_connect_pin_dialog(WPS *wps) {
 
     GtkWidget *table, *buttons;
 
-    wps_dialog = malloc(sizeof(WPSDialog));
+    wps_dialog = g_malloc(sizeof(WPSDialog));
     wps_dialog->wps = wps;
 
     wps_dialog->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -69,7 +69,7 @@ void wps_connect_pin_dialog(WPS *wps) {
     grid_column_set_alignment(table, 0, GTK_ALIGN_END);
     grid_column_set_alignment(table, 1, GTK_ALIGN_START);
 
-    g_signal_connect_swapped(wps_dialog->window, "destroy", G_CALLBACK(free), wps_dialog);
+    g_signal_connect_swapped(wps_dialog->window, "destroy", G_CALLBACK(g_free), wps_dialog);
     gtk_widget_show_all(wps_dialog->window);
 }
 
@@ -134,7 +134,7 @@ WPS* wps_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     GtkWidget *cancel_button;
     WPS *wps;
 
-    wps = malloc(sizeof(WPS));
+    wps = g_malloc(sizeof(WPS));
     wps->proxy = proxy;
 
     widget_pushbutton = gtk_menu_item_new_with_label("Push button");
@@ -175,7 +175,7 @@ WPS* wps_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 void wps_remove(Window *window, WPS *wps) {
     couple_unregister(window, DEVICE_WPS, 1, wps);
     g_object_unref(wps->hbox);
-    free(wps);
+    g_free(wps);
 }
 
 void bind_device_wps(Device *device, WPS *wps) {

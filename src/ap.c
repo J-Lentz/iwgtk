@@ -35,7 +35,7 @@ void ap_dialog_launch(AP *ap) {
     APDialog *dialog;
     GtkWidget *table, *buttons;
 
-    dialog = malloc(sizeof(APDialog));
+    dialog = g_malloc(sizeof(APDialog));
     dialog->ap = ap;
 
     dialog->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -59,7 +59,7 @@ void ap_dialog_launch(AP *ap) {
     grid_column_set_alignment(table, 0, GTK_ALIGN_END);
     grid_column_set_alignment(table, 1, GTK_ALIGN_START);
 
-    g_signal_connect_swapped(dialog->window, "destroy", G_CALLBACK(free), dialog);
+    g_signal_connect_swapped(dialog->window, "destroy", G_CALLBACK(g_free), dialog);
     gtk_widget_show_all(dialog->window);
 }
 
@@ -152,7 +152,7 @@ void ap_set(AP *ap) {
 AP* ap_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     AP *ap;
 
-    ap = malloc(sizeof(AP));
+    ap = g_malloc(sizeof(AP));
     ap->proxy = proxy;
 
     ap->button = gtk_button_new_with_label(NULL);
@@ -178,7 +178,7 @@ void ap_remove(Window *window, AP *ap) {
     g_object_unref(ap->ssid);
 
     g_signal_handler_disconnect(ap->proxy, ap->handler_update);
-    free(ap);
+    g_free(ap);
 }
 
 void bind_device_ap(Device *device, AP *ap) {

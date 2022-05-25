@@ -89,7 +89,7 @@ void agent_register(GDBusProxy *proxy) {
     GError *err;
     Agent *agent;
 
-    agent = malloc(sizeof(Agent));
+    agent = g_malloc(sizeof(Agent));
 
     agent->proxy = proxy;
     agent->invocation = NULL;
@@ -123,7 +123,7 @@ void agent_register(GDBusProxy *proxy) {
 }
 
 void agent_remove(Agent *agent) {
-    free(agent);
+    g_free(agent);
 }
 
 void agent_method_call_handler(GDBusConnection *connection, const gchar *sender, const gchar *object_path, const gchar *interface_name, const gchar *method_name, GVariant *parameters, GDBusMethodInvocation *invocation, Agent *agent) {

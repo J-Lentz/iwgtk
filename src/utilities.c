@@ -167,7 +167,7 @@ void set_remote_property_callback(GDBusProxy *proxy, GAsyncResult *res, FailureC
 	failure->callback(failure->data);
     }
 
-    free(failure);
+    g_free(failure);
 }
 
 /*
@@ -184,7 +184,7 @@ void set_remote_property(GDBusProxy *proxy, const gchar *property, GVariant *val
     if (!g_variant_equal(value, value_cached)) {
 	FailureClosure *failure_closure;
 
-	failure_closure = malloc(sizeof(FailureClosure));
+	failure_closure = g_malloc(sizeof(FailureClosure));
 	failure_closure->callback = failure_callback;
 	failure_closure->data = failure_data;
 	failure_closure->property = property;
