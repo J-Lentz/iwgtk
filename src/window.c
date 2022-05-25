@@ -20,14 +20,14 @@
 #include "iwgtk.h"
 
 ObjectMethods object_methods[] = {
-    {IWD_IFACE_KNOWN_NETWORK, (ConstructorFunction) known_network_add, (DestructorFunction) known_network_remove, NULL},
-    {IWD_IFACE_ADAPTER,       (ConstructorFunction) adapter_add,       (DestructorFunction) adapter_remove,       NULL},
-    {IWD_IFACE_DEVICE,        (ConstructorFunction) device_add,        (DestructorFunction) device_remove,        NULL},
-    {IWD_IFACE_STATION,       (ConstructorFunction) station_add,       (DestructorFunction) station_remove,       indicator_set_station},
-    {IWD_IFACE_AP,            (ConstructorFunction) ap_add,            (DestructorFunction) ap_remove,            indicator_set_ap},
-    {IWD_IFACE_AD_HOC,        (ConstructorFunction) adhoc_add,         (DestructorFunction) adhoc_remove,         indicator_set_adhoc},
-    {IWD_IFACE_WPS,           (ConstructorFunction) wps_add,           (DestructorFunction) wps_remove,           NULL},
-    {IWD_IFACE_DIAGNOSTIC,    (ConstructorFunction) diagnostic_add,    (DestructorFunction) diagnostic_remove,    NULL}
+    {IWD_IFACE_KNOWN_NETWORK, (ConstructorFunction) known_network_add, (DestructorFunction) known_network_remove},
+    {IWD_IFACE_ADAPTER,       (ConstructorFunction) adapter_add,       (DestructorFunction) adapter_remove},
+    {IWD_IFACE_DEVICE,        (ConstructorFunction) device_add,        (DestructorFunction) device_remove},
+    {IWD_IFACE_STATION,       (ConstructorFunction) station_add,       (DestructorFunction) station_remove},
+    {IWD_IFACE_AP,            (ConstructorFunction) ap_add,            (DestructorFunction) ap_remove},
+    {IWD_IFACE_AD_HOC,        (ConstructorFunction) adhoc_add,         (DestructorFunction) adhoc_remove},
+    {IWD_IFACE_WPS,           (ConstructorFunction) wps_add,           (DestructorFunction) wps_remove},
+    {IWD_IFACE_DIAGNOSTIC,    (ConstructorFunction) diagnostic_add,    (DestructorFunction) diagnostic_remove}
 };
 
 CoupleMethods couple_methods[] = {
@@ -233,14 +233,48 @@ void interface_add(GDBusObjectManager *manager, GDBusObject *object, GDBusProxy 
 		 * (1) due to a new object/interface being added (window=NULL, manager!=NULL)
 		 * (2) right after the manager is initialized (window=NULL, manager=NULL
 		 */
-		if (global.indicators_enable && object_methods[i].indicator_set != NULL) {
+		if (global.indicators_enable) {
 		    Indicator **indicator;
 
 		    indicator = &global.indicators;
 		    while (*indicator != NULL) {
+			GDBusObject *device_object;
+
+			device_object = g_dbus_interface_get_object(G_DBUS_INTERFACE((*indicator)->device_proxy));
+
+			if (object == device_object) {
+			    IndicatorSetter indicator_set_mode;
+
+			    indicator_set_mode = NULL;
+
+			    switch (i) {
+				case OBJECT_STATION:
+				    indicator_station_init_signal_agent(*indicator, proxy);
+				    indicator_set_mode = indicator_set_station;
+				    break;
+				case OBJECT_ACCESS_POINT:
+				    indicator_set_mode = indicator_set_ap;
+				    break;
+				case OBJECT_ADHOC:
+				    indicator_set_mode = indicator_set_adhoc;
+				    break;
+			    }
+
+			    if (indicator_set_mode != NULL) {
+				(*indicator)->proxy = proxy;
+				(*indicator)->update_mode_handler = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(indicator_set_mode), *indicator);
+				indicator_set_mode(*indicator);
+			    }
+
+			    return;
+			}
+
 			indicator = &(*indicator)->next;
 		    }
-		    *indicator = indicator_new(proxy, object_methods[i].indicator_set);
+
+		    if (i == OBJECT_DEVICE) {
+			*indicator = indicator_new(proxy);
+		    }
 		}
 	    }
 
@@ -292,24 +326,43 @@ void interface_rm(GDBusObjectManager *manager, GDBusObject *object, GDBusProxy *
 		    free(rm);
 		}
 	    }
-	    break;
-	}
-    }
 
-    {
-	Indicator **indicator;
+	    if (global.indicators_enable) {
+		Indicator **indicator;
 
-	indicator = &global.indicators;
-	while (*indicator != NULL) {
-	    if ((*indicator)->proxy == proxy) {
-		Indicator *rm;
+		indicator = &global.indicators;
 
-		rm = *indicator;
-		*indicator = (*indicator)->next;
-		indicator_rm(rm);
-		break;
+		while (*indicator != NULL) {
+		    GDBusObject *device_object;
+
+		    device_object = g_dbus_interface_get_object(G_DBUS_INTERFACE((*indicator)->device_proxy));
+
+		    if (device_object == object) {
+			if (proxy == (*indicator)->device_proxy) {
+			    // The indicator's device has been taken down; delete the indicator
+
+			    Indicator *rm;
+
+			    rm = *indicator;
+			    *indicator = (*indicator)->next;
+			    indicator_rm(rm);
+			}
+
+			if (proxy == (*indicator)->proxy) {
+			    // The indicator's mode has changed, or it has been powered down
+
+			    g_signal_handler_disconnect(proxy, (*indicator)->update_mode_handler);
+			    (*indicator)->update_mode_handler = 0;
+			}
+
+			return;
+		    }
+
+		    indicator = &(*indicator)->next;
+		}
 	    }
-	    indicator = &(*indicator)->next;
+
+	    break;
 	}
     }
 }

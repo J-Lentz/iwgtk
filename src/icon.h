@@ -30,9 +30,11 @@
  * TODO: Use a different icon for ad-hoc mode.
  */
 
-#define ICON_STATION_OFFLINE "network-wireless-offline-symbolic"
-#define ICON_AP              "network-wireless-hotspot-symbolic"
-#define ICON_ADHOC           "network-wireless-hotspot-symbolic"
+#define ICON_STATION_OFFLINE  "network-wireless-offline-symbolic"
+#define ICON_AP               "network-wireless-hotspot-symbolic"
+#define ICON_ADHOC            "network-wireless-hotspot-symbolic"
+#define ICON_DEVICE_DISABLED  "network-wireless-disabled-symbolic"
+#define ICON_ADAPTER_DISABLED "network-wireless-hardware-disabled-symbolic"
 
 #define N_SIGNAL_THRESHOLDS 4
 

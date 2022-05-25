@@ -20,9 +20,6 @@
 #ifndef _WINDOW_H
 #define _WINDOW_H
 
-// Needed for definition of IndicatorSetter
-#include "indicator.h"
-
 #define n_object_types 8
 typedef enum {
     OBJECT_KNOWN_NETWORK,
@@ -84,7 +81,6 @@ struct ObjectMethods_s {
     const gchar *interface;
     ConstructorFunction new;
     DestructorFunction rm;
-    IndicatorSetter indicator_set;
 };
 
 typedef void (*BindFunction) (gpointer A, gpointer B);

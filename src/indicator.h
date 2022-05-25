@@ -24,8 +24,6 @@ typedef enum {
     INDICATOR_STATION_CONNECTED,
     INDICATOR_STATION_CONNECTING,
     INDICATOR_STATION_DISCONNECTED,
-    INDICATOR_AP,
-    INDICATOR_ADHOC
 } IndicatorStatus;
 
 typedef struct Indicator_s Indicator;
@@ -33,9 +31,14 @@ typedef struct StatusNotifierItem_s StatusNotifierItem;
 
 struct Indicator_s {
     GDBusProxy *proxy;
+    GDBusProxy *device_proxy;
+
     StatusNotifierItem *sni;
-    gulong update_handler;
+
+    gulong update_device_handler;
+    gulong update_mode_handler;
     guint signal_agent_id;
+
     IndicatorStatus status;
     guint8 level;
 
@@ -44,12 +47,13 @@ struct Indicator_s {
 
 typedef void (*IndicatorSetter) (Indicator *indicator);
 
-Indicator* indicator_new(GDBusProxy *proxy, IndicatorSetter indicator_set);
+Indicator* indicator_new(GDBusProxy *device_proxy);
 void indicator_rm(Indicator *indicator);
+void indicator_station_init_signal_agent(Indicator *indicator, GDBusProxy *station_proxy);
 
+void indicator_set_device(Indicator *indicator);
 void indicator_set_station(Indicator *indicator);
-void indicator_set_connected(Indicator *indicator);
-
+void indicator_set_station_connected(Indicator *indicator);
 void indicator_set_ap(Indicator *indicator);
 void indicator_set_adhoc(Indicator *indicator);
 
