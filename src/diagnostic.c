@@ -66,7 +66,7 @@ void diagnostic_callback(GDBusProxy *proxy, GAsyncResult *res, GtkWidget *table)
 	gtk_widget_show_all(table);
     }
     else {
-	fprintf(stderr, "Error retrieving station diagnostics: %s\n", err->message);
+	g_printerr("Error retrieving station diagnostics: %s\n", err->message);
 	g_error_free(err);
     }
 }

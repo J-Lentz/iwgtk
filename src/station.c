@@ -238,7 +238,7 @@ void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *statio
 		station_add_network(station, network_proxy, signal_strength, i ++);
 	    }
 	    else {
-		fprintf(stderr, "Error: Network '%s' not found\n", network_path);
+		g_printerr("Error: Network '%s' not found\n", network_path);
 	    }
 	    g_free(network_path);
 	}
@@ -253,7 +253,7 @@ void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *statio
 	gtk_widget_show_all(station->network_table);
     }
     else {
-	fprintf(stderr, "Error retrieving network list: %s\n", err->message);
+	g_printerr("Error retrieving network list: %s\n", err->message);
 	g_error_free(err);
     }
 
@@ -301,7 +301,7 @@ void get_hidden_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station 
 	gtk_widget_show_all(station->network_table);
     }
     else {
-	fprintf(stderr, "Error retrieving hidden network list: %s\n", err->message);
+	g_printerr("Error retrieving hidden network list: %s\n", err->message);
 	g_error_free(err);
     }
 }

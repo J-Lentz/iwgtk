@@ -60,7 +60,7 @@ void validation_callback(GDBusProxy *proxy, GAsyncResult *res, CallbackMessages 
 	    }
 	}
 
-	fprintf(stderr, "%s\n", err->message);
+	g_printerr("%s\n", err->message);
 	g_error_free(err);
     }
 }
@@ -76,7 +76,7 @@ void validation_callback_log(GDBusProxy *proxy, GAsyncResult *res, const gchar *
 	g_variant_unref(ret);
     }
     else {
-	fprintf(stderr, message, err->message);
+	g_printerr(message, err->message);
 	g_error_free(err);
     }
 }
@@ -161,7 +161,7 @@ void set_remote_property_callback(GDBusProxy *proxy, GAsyncResult *res, FailureC
 	g_variant_unref(ret);
     }
     else {
-	fprintf(stderr, "Error setting remote property '%s': %s\n", failure->property, err->message);
+	g_printerr("Error setting remote property '%s': %s\n", failure->property, err->message);
 	g_error_free(err);
 
 	failure->callback(failure->data);

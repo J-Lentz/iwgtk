@@ -118,7 +118,7 @@ void indicator_station_init_signal_agent(Indicator *indicator, GDBusProxy *stati
 	&err);
 
     if (err != NULL) {
-	fprintf(stderr, "Error registering signal level agent: %s\n", err->message);
+	g_printerr("Error registering signal level agent: %s\n", err->message);
 	g_error_free(err);
 	return;
     }
@@ -197,7 +197,7 @@ void indicator_set_station_connected(Indicator *indicator) {
 	color = &color_yellow;
     }
     else {
-	fprintf(stderr, "Error: Signal level is set, but the station is neither connected nor connecting\n");
+	g_printerr("Error: Signal level is set, but the station is neither connected nor connecting\n");
 	return;
     }
 
@@ -272,7 +272,7 @@ void signal_agent_method_call_handler(GDBusConnection *connection, const gchar *
 	    indicator_set_station_connected(indicator);
 	}
 	else {
-	    fprintf(stderr, "Error: SignalLevelAgent provided an invalid signal level\n");
+	    g_printerr("Error: SignalLevelAgent provided an invalid signal level\n");
 	}
     }
     else if (strcmp(method_name, "Release") == 0) {

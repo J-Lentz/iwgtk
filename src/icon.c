@@ -92,12 +92,12 @@ void icon_load_finish(GtkIconInfo *icon_info, GAsyncResult *res, IconLoadClosure
     g_object_unref(icon_info);
 
     if (err != NULL) {
-	fprintf(stderr, "Error loading icon data: %s\n", err->message);
+	g_printerr("Error loading icon data: %s\n", err->message);
 	g_error_free(err);
     }
 
     if (!was_symbolic) {
-	fprintf(stderr, "Failed to find symbolic icon; using non-symbolic icon instead\n");
+	g_printerr("Failed to find symbolic icon; using non-symbolic icon instead\n");
     }
 
     closure->callback(closure->object, pixbuf);

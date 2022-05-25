@@ -107,7 +107,7 @@ void agent_register(GDBusProxy *proxy) {
 	    &err);
 
     if (agent->registration_id == 0) {
-	fprintf(stderr, "Error registering agent: %s\n", err->message);
+	g_printerr("Error registering agent: %s\n", err->message);
 	g_error_free(err);
     }
 

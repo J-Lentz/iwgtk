@@ -304,7 +304,7 @@ void sni_bus_acquired(GDBusConnection *connection, const gchar *name, StatusNoti
 	    &err);
 
     if (err != NULL) {
-	fprintf(stderr, "Error registering StatusNotifierItem object: %s\n", err->message);
+	g_printerr("Error registering StatusNotifierItem object: %s\n", err->message);
 	g_error_free(err);
     }
 }
@@ -321,7 +321,7 @@ void sni_bus_name_acquired(GDBusConnection *connection, const gchar *name, Statu
 }
 
 void sni_bus_name_lost(GDBusConnection *connection, const gchar *name, StatusNotifierItem *sni) {
-    fprintf(stderr, "Bus name '%s' lost\n", name);
+    g_printerr("Bus name '%s' lost\n", name);
 }
 
 void sni_watcher_up(GDBusConnection *connection, const gchar *name, const gchar *name_owner, StatusNotifierItem *sni) {
@@ -351,7 +351,7 @@ void validate_method_call(GDBusConnection *connection, GAsyncResult *res, const 
 	g_variant_unref(ret);
     }
     else {
-	fprintf(stderr, message, err->message);
+	g_printerr(message, err->message);
 	g_error_free(err);
     }
 }
@@ -482,7 +482,7 @@ void sni_emit_signal(StatusNotifierItem *sni, const gchar *signal_name, GVariant
 	    &err);
 
 	if (err != NULL) {
-	    fprintf(stderr, "Error emitting %s signal: %s\n", signal_name, err->message);
+	    g_printerr("Error emitting %s signal: %s\n", signal_name, err->message);
 	    g_error_free(err);
 	}
     }
@@ -493,7 +493,7 @@ gboolean sni_abstract_icon_pixmap_set(GVariant **sni_icon_pixmap, const GdkPixbu
 
     // Verify that the GdkPixbuf meets our assumptions about its format
     if (gdk_pixbuf_get_bits_per_sample(pixbuf) != 8 || gdk_pixbuf_get_n_channels(pixbuf) != 4) {
-	fprintf(stderr, "Could not update indicator icon: Invalid GdkPixbuf format\n");
+	g_printerr("Could not update indicator icon: Invalid GdkPixbuf format\n");
 	return FALSE;
     }
 

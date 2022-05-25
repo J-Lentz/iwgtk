@@ -101,7 +101,7 @@ void object_manager_callback(GDBusObjectManagerClient *manager, GAsyncResult *re
 
 	global.manager = g_dbus_object_manager_client_new_finish(res, &err);
 	if (!global.manager) {
-	    fprintf(stderr, "Error creating GDBusObjectManager: %s\n", err->message);
+	    g_printerr("Error creating GDBusObjectManager: %s\n", err->message);
 	    g_error_free(err);
 	    exit(1);
 	}
