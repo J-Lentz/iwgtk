@@ -32,10 +32,12 @@ typedef struct StatusNotifierItem_s StatusNotifierItem;
 struct Indicator_s {
     GDBusProxy *proxy;
     GDBusProxy *device_proxy;
+    GDBusProxy *adapter_proxy;
 
     StatusNotifierItem *sni;
 
     gulong update_device_handler;
+    gulong update_adapter_handler;
     gulong update_mode_handler;
     guint signal_agent_id;
 

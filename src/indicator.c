@@ -56,6 +56,7 @@ GDBusInterfaceVTable signal_agent_interface_vtable = {
 Indicator* indicator_new(GDBusProxy *device_proxy) {
     Indicator *indicator;
     GDBusObject *device_object;
+    GDBusProxy *adapter_proxy;
 
     indicator = g_malloc(sizeof(Indicator));
     indicator->next = NULL;
@@ -73,8 +74,21 @@ Indicator* indicator_new(GDBusProxy *device_proxy) {
     sni_id_set(indicator->sni, APPLICATION_ID);
     sni_status_set(indicator->sni, "Active");
 
+    {
+	GVariant *adapter_path_var;
+	const gchar *adapter_path;
+
+	adapter_path_var = g_dbus_proxy_get_cached_property(device_proxy, "Adapter");
+	adapter_path = g_variant_get_string(adapter_path_var, NULL);
+	adapter_proxy = G_DBUS_PROXY(g_dbus_object_manager_get_interface(global.manager, adapter_path, IWD_IFACE_ADAPTER));
+	g_variant_unref(adapter_path_var);
+    }
+
     indicator->device_proxy = device_proxy;
+    indicator->adapter_proxy = adapter_proxy;
+
     indicator->update_device_handler = g_signal_connect_swapped(device_proxy, "g-properties-changed", G_CALLBACK(indicator_set_device), indicator);
+    indicator->update_adapter_handler = g_signal_connect_swapped(adapter_proxy, "g-properties-changed", G_CALLBACK(indicator_set_device), indicator);
 
     indicator_set_device(indicator);
 
@@ -91,6 +105,7 @@ void indicator_rm(Indicator *indicator) {
     sni_rm(indicator->sni);
 
     g_signal_handler_disconnect(indicator->device_proxy, indicator->update_device_handler);
+    g_signal_handler_disconnect(indicator->adapter_proxy, indicator->update_adapter_handler);
 
     if (indicator->update_mode_handler != 0) {
 	g_signal_handler_disconnect(indicator->proxy, indicator->update_mode_handler);
@@ -139,19 +154,23 @@ void indicator_set_device(Indicator *indicator) {
     GVariant *powered_var;
     gboolean powered;
 
+    powered_var = g_dbus_proxy_get_cached_property(indicator->adapter_proxy, "Powered");
+    powered = g_variant_get_boolean(powered_var);
+    g_variant_unref(powered_var);
+
+    if (!powered) {
+	sni_title_set(indicator->sni, "Wireless adapter is powered off");
+	icon_load(ICON_ADAPTER_DISABLED, &color_gray, (IconLoadCallback) sni_icon_pixmap_set, indicator->sni);
+	return;
+    }
+
     powered_var = g_dbus_proxy_get_cached_property(indicator->device_proxy, "Powered");
     powered = g_variant_get_boolean(powered_var);
     g_variant_unref(powered_var);
 
     if (!powered) {
-	/*
-	 * TODO: Check the adapter to distinguish between soft-disabled and
-	 * hard-disabled devices.
-	 */
-
-	sni_title_set(indicator->sni, "Device is powered off");
+	sni_title_set(indicator->sni, "Wireless device is powered off");
 	icon_load(ICON_DEVICE_DISABLED, &color_gray, (IconLoadCallback) sni_icon_pixmap_set, indicator->sni);
-	return;
     }
 }
 
@@ -276,9 +295,9 @@ void signal_agent_method_call_handler(GDBusConnection *connection, const gchar *
 	}
     }
     else if (strcmp(method_name, "Release") == 0) {
+	g_dbus_method_invocation_return_value(invocation, NULL);
 	g_dbus_connection_unregister_object(connection, indicator->signal_agent_id);
 	indicator->signal_agent_id = 0;
-	g_dbus_method_invocation_return_value(invocation, NULL);
     }
     else {
 	g_dbus_method_invocation_return_dbus_error(invocation, "org.freedesktop.DBus.Error.UnknownMethod", "Unknown method");
