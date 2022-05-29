@@ -49,8 +49,8 @@ void adhoc_dialog_launch(AdHoc *adhoc) {
     gtk_window_set_title(GTK_WINDOW(adhoc_dialog->window), "Start Ad-Hoc Node");
 
     adhoc_dialog->ssid = gtk_entry_new();
-    adhoc_dialog->psk = gtk_entry_new();
-    gtk_entry_set_visibility(GTK_ENTRY(adhoc_dialog->psk), 0);
+    adhoc_dialog->psk = gtk_password_entry_new();
+    gtk_password_entry_set_show_peek_icon(GTK_PASSWORD_ENTRY(adhoc_dialog->psk), TRUE);
 
     buttons = dialog_buttons(adhoc_dialog, (SubmitCallback) adhoc_dialog_submit, adhoc_dialog->window);
 

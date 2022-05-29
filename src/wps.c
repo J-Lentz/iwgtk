@@ -55,7 +55,8 @@ void wps_connect_pin_dialog(WPS *wps) {
     wps_dialog->window = gtk_window_new();
     gtk_window_set_title(GTK_WINDOW(wps_dialog->window), "Connect via WPS");
 
-    wps_dialog->pin = gtk_entry_new();
+    wps_dialog->pin = gtk_password_entry_new();
+    gtk_password_entry_set_show_peek_icon(GTK_PASSWORD_ENTRY(wps_dialog->pin), TRUE);
 
     buttons = dialog_buttons(wps_dialog, (SubmitCallback) wps_pin_dialog_submit, wps_dialog->window);
 

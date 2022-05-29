@@ -42,8 +42,8 @@ void ap_dialog_launch(AP *ap) {
     gtk_window_set_title(GTK_WINDOW(dialog->window), "Create Access Point");
 
     dialog->ssid = gtk_entry_new();
-    dialog->psk = gtk_entry_new();
-    gtk_entry_set_visibility(GTK_ENTRY(dialog->psk), 0);
+    dialog->psk = gtk_password_entry_new();
+    gtk_password_entry_set_show_peek_icon(GTK_PASSWORD_ENTRY(dialog->psk), TRUE);
 
     buttons = dialog_buttons(dialog, (SubmitCallback) ap_dialog_submit, dialog->window);
 
