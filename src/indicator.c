@@ -160,7 +160,8 @@ void indicator_set_device(Indicator *indicator) {
 
     if (!powered) {
 	sni_title_set(indicator->sni, "Wireless adapter is powered off");
-	icon_load(ICON_ADAPTER_DISABLED, &color_gray, (IconLoadCallback) sni_icon_pixmap_set, indicator->sni);
+	sni_icon_pixmap_set(indicator->sni,
+		symbolic_icon_get_surface(ICON_ADAPTER_DISABLED, &color_gray));
 	return;
     }
 
@@ -170,7 +171,8 @@ void indicator_set_device(Indicator *indicator) {
 
     if (!powered) {
 	sni_title_set(indicator->sni, "Wireless device is powered off");
-	icon_load(ICON_DEVICE_DISABLED, &color_gray, (IconLoadCallback) sni_icon_pixmap_set, indicator->sni);
+	sni_icon_pixmap_set(indicator->sni,
+		symbolic_icon_get_surface(ICON_DEVICE_DISABLED, &color_gray));
     }
 }
 
@@ -200,7 +202,8 @@ void indicator_set_station(Indicator *indicator) {
     else {
 	indicator->status = INDICATOR_STATION_DISCONNECTED;
 	sni_title_set(indicator->sni, "Not connected to any wifi network");
-	icon_load(ICON_STATION_OFFLINE, &color_gray, (IconLoadCallback) sni_icon_pixmap_set, indicator->sni);
+	sni_icon_pixmap_set(indicator->sni,
+		symbolic_icon_get_surface(ICON_STATION_OFFLINE, &color_gray));
     }
 
     g_variant_unref(state_var);
@@ -220,7 +223,8 @@ void indicator_set_station_connected(Indicator *indicator) {
 	return;
     }
 
-    icon_load(station_icons[indicator->level], color, (IconLoadCallback) sni_icon_pixmap_set, indicator->sni);
+    sni_icon_pixmap_set(indicator->sni,
+	    symbolic_icon_get_surface(station_icons[indicator->level], color));
 }
 
 void indicator_set_ap(Indicator *indicator) {
@@ -230,11 +234,13 @@ void indicator_set_ap(Indicator *indicator) {
 
     if (g_variant_get_boolean(started_var)) {
 	sni_title_set(indicator->sni, "AP is up");
-	icon_load(ICON_AP, &color_green, (IconLoadCallback) sni_icon_pixmap_set, indicator->sni);
+	sni_icon_pixmap_set(indicator->sni,
+		symbolic_icon_get_surface(ICON_AP, &color_green));
     }
     else {
 	sni_title_set(indicator->sni, "AP is down");
-	icon_load(ICON_AP, &color_gray, (IconLoadCallback) sni_icon_pixmap_set, indicator->sni);
+	sni_icon_pixmap_set(indicator->sni,
+		symbolic_icon_get_surface(ICON_AP, &color_gray));
     }
 
     g_variant_unref(started_var);
@@ -247,11 +253,13 @@ void indicator_set_adhoc(Indicator *indicator) {
 
     if (g_variant_get_boolean(started_var)) {
 	sni_title_set(indicator->sni, "Ad-hoc node is up");
-	icon_load(ICON_ADHOC, &color_green, (IconLoadCallback) sni_icon_pixmap_set, indicator->sni);
+	sni_icon_pixmap_set(indicator->sni,
+		symbolic_icon_get_surface(ICON_ADHOC, &color_green));
     }
     else {
 	sni_title_set(indicator->sni, "Ad-hoc node is down");
-	icon_load(ICON_ADHOC, &color_gray, (IconLoadCallback) sni_icon_pixmap_set, indicator->sni);
+	sni_icon_pixmap_set(indicator->sni,
+		symbolic_icon_get_surface(ICON_ADHOC, &color_gray));
     }
 
     g_variant_unref(started_var);
@@ -259,12 +267,12 @@ void indicator_set_adhoc(Indicator *indicator) {
 
 void indicator_activate(GDBusObject *device_object) {
     if (global.window != NULL) {
-	gtk_widget_destroy(global.window->window);
+	gtk_window_destroy(GTK_WINDOW(global.window->window));
     }
     else {
 	ObjectList *list;
 
-	window_new();
+	window_launch();
 	list = global.window->objects[OBJECT_DEVICE];
 
 	while (list != NULL) {

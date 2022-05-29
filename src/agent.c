@@ -167,11 +167,11 @@ void request_dialog(Agent *agent, guint8 request_type) {
     int i;
 
     parameters = g_dbus_method_invocation_get_parameters(agent->invocation);
-    agent->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    agent->window = gtk_window_new();
     gtk_window_set_title(GTK_WINDOW(agent->window), "Network Password");
 
     table = gtk_grid_new();
-    gtk_container_add(GTK_CONTAINER(agent->window), table);
+    gtk_window_set_child(GTK_WINDOW(agent->window), table);
 
     if (request_type == USERNAME_NONE) {
 	g_variant_get(parameters, "(o)", &network_path);
@@ -226,7 +226,7 @@ void request_dialog(Agent *agent, guint8 request_type) {
 
     {
 	GtkWidget *buttons;
-	buttons = dialog_buttons(agent, G_CALLBACK(request_submit), agent->window);
+	buttons = dialog_buttons(agent, (SubmitCallback) request_submit, agent->window);
 	gtk_grid_attach(GTK_GRID(table), buttons, 1, i, 1, 1);
     }
 
@@ -234,12 +234,12 @@ void request_dialog(Agent *agent, guint8 request_type) {
     grid_column_set_alignment(table, 1, GTK_ALIGN_START);
 
     g_signal_connect_swapped(agent->window, "destroy", G_CALLBACK(request_cancel), agent);
-    gtk_widget_show_all(agent->window);
+    gtk_widget_show(agent->window);
 }
 
 void request_submit(Agent *agent) {
     const gchar *password;
-    password = gtk_entry_get_text(GTK_ENTRY(agent->pass_widget));
+    password = gtk_editable_get_text(GTK_EDITABLE(agent->pass_widget));
 
     if (*password == '\0') {
 	return;
@@ -247,7 +247,7 @@ void request_submit(Agent *agent) {
 
     if (agent->user_widget) {
 	const gchar *username;
-	username = gtk_entry_get_text(GTK_ENTRY(agent->user_widget));
+	username = gtk_editable_get_text(GTK_EDITABLE(agent->user_widget));
 	g_dbus_method_invocation_return_value(agent->invocation, g_variant_new("(ss)", username, password));
     }
     else {
@@ -255,7 +255,7 @@ void request_submit(Agent *agent) {
     }
 
     agent->invocation = NULL;
-    gtk_widget_destroy(agent->window);
+    gtk_window_destroy(GTK_WINDOW(agent->window));
 }
 
 void request_cancel(Agent *agent) {

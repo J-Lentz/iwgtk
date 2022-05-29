@@ -46,7 +46,7 @@ struct AdHocDialog_s {
     GtkWidget *psk_toggle;
 };
 
-void psk_toggle_changed(GtkToggleButton *psk_toggle, AdHocDialog *adhoc_dialog);
+void psk_toggle_changed(GtkCheckButton *psk_toggle, AdHocDialog *adhoc_dialog);
 void adhoc_dialog_launch(AdHoc *adhoc);
 void adhoc_dialog_submit(AdHocDialog *adhoc_dialog);
 void adhoc_dialog_cancel(AdHocDialog *adhoc_dialog);

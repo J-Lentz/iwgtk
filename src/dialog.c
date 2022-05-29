@@ -19,50 +19,49 @@
 
 #include "iwgtk.h"
 
-void dialog_cancel_callback(GtkWidget *cancel_button) {
-    GtkWidget *window;
-
-    window = gtk_widget_get_toplevel(cancel_button);
-    gtk_widget_destroy(window);
-}
-
-/*
- * TODO:
- * This placeholder GValue is an ugly hack.
- * Why does g_closure_invoke() fail when n_param_values is 0?
- */
-gboolean dialog_key_press_callback(GtkWidget *window, GdkEventKey *event, GClosure *submit_closure) {
-    GValue garbage = G_VALUE_INIT;
-    g_value_init(&garbage, G_TYPE_POINTER);
-
-    switch (event->keyval) {
+gboolean dialog_key_press(GtkEventControllerKey *controller, guint keyval, guint keycode, GdkModifierType state, Dialog *dialog) {
+    switch (keyval) {
 	case GDK_KEY_Return:
-	    g_closure_invoke(submit_closure, NULL, 1, &garbage, NULL);
+	    dialog->submit_callback(dialog->user_data);
 	    return TRUE;
 	case GDK_KEY_Escape:
-	    gtk_widget_destroy(window);
+	    gtk_window_destroy(GTK_WINDOW(dialog->window));
 	    return TRUE;
     }
+
     return FALSE;
 }
 
-GtkWidget* dialog_buttons(gpointer data, GCallback submit_callback, GtkWidget *window) {
-    GtkWidget *row, *submit, *cancel;
-    GClosure *submit_closure;
+GtkWidget* dialog_buttons(gpointer user_data, SubmitCallback submit_callback, GtkWidget *window) {
+    GtkWidget *row, *submit_button, *cancel_button;
+    Dialog *dialog;
 
-    row = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
+    row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
 
-    submit = gtk_button_new_with_label("Submit");
-    gtk_box_pack_start(GTK_BOX(row), submit, FALSE, FALSE, 0);
+    submit_button = gtk_button_new_with_label("Submit");
+    gtk_box_append(GTK_BOX(row), submit_button);
 
-    submit_closure = g_cclosure_new_swap(submit_callback, data, NULL);
-    g_signal_connect_closure(submit, "clicked", submit_closure, FALSE);
+    cancel_button = gtk_button_new_with_label("Cancel");
+    gtk_box_append(GTK_BOX(row), cancel_button);
 
-    cancel = gtk_button_new_with_label("Cancel");
-    gtk_box_pack_start(GTK_BOX(row), cancel, FALSE, FALSE, 0);
-    g_signal_connect(cancel, "clicked", G_CALLBACK(dialog_cancel_callback), NULL);
+    g_signal_connect_swapped(submit_button, "clicked", G_CALLBACK(submit_callback), user_data);
+    g_signal_connect_swapped(cancel_button, "clicked", G_CALLBACK(gtk_window_destroy), window);
 
-    g_signal_connect(window, "key-press-event", G_CALLBACK(dialog_key_press_callback), submit_closure);
+    dialog = g_malloc(sizeof(Dialog));
+    g_signal_connect_swapped(window, "destroy", G_CALLBACK(g_free), dialog);
+
+    dialog->window = window;
+    dialog->submit_callback = submit_callback;
+    dialog->user_data = user_data;
+
+    {
+	GtkEventController *controller;
+
+	controller = gtk_event_controller_key_new();
+	gtk_event_controller_set_propagation_phase(controller, GTK_PHASE_CAPTURE);
+	g_signal_connect(controller, "key-pressed", G_CALLBACK(dialog_key_press), dialog);
+	gtk_widget_add_controller(window, controller);
+    }
 
     return row;
 }

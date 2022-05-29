@@ -27,8 +27,9 @@ struct WPS_s {
     GDBusProxy *proxy;
 
     // Widgets
-    GtkWidget *menu;
+    GtkWidget *connect;
     GtkWidget *cancel;
+    GtkWidget *menu;
     GtkWidget *hbox;
 };
 

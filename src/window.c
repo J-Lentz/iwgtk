@@ -39,14 +39,10 @@ CoupleMethods couple_methods[] = {
     {(BindFunction) bind_device_diagnostic, (UnbindFunction) unbind_device_diagnostic}
 };
 
-void window_new() {
+void window_launch() {
     if (global.window != NULL) {
-	/*
-	 * Ideally, we should use gtk_window_present() here.
-	 * But gtk_window_present() seems to do nothing in Sway 1.5.
-	 * As an ugly workaround, destroy the existing window before creating a new one.
-	 */
-	gtk_widget_destroy(global.window->window);
+	gtk_window_present(GTK_WINDOW(global.window->window));
+	return;
     }
 
     global.window = g_malloc(sizeof(Window));
@@ -60,14 +56,13 @@ void window_new() {
     gtk_window_set_icon_name(GTK_WINDOW(global.window->window), "iwgtk");
 
     window_set();
+    gtk_widget_show(global.window->window);
 }
 
 void window_set() {
     Window *window;
 
     window = global.window;
-
-    bin_empty(GTK_BIN(window->window));
 
     if (!global.manager) {
 	GtkWidget *label;
@@ -76,57 +71,61 @@ void window_set() {
 	 * TODO:
 	 * Replace this with a more informative message.
 	 */
-	label = gtk_label_new("iwd is not running");
 
-	gtk_container_add(GTK_CONTAINER(window->window), label);
-	gtk_widget_show_all(window->window);
+	label = gtk_label_new("iwd is not running");
+	gtk_window_set_child(GTK_WINDOW(window->window), label);
 	return;
     }
 
     window->master = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     g_object_ref_sink(window->master);
-    gtk_container_add(GTK_CONTAINER(window->window), window->master);
+    gtk_window_set_child(GTK_WINDOW(window->window), window->master);
 
-    window->header = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
-    g_object_ref_sink(window->header);
-    gtk_box_pack_start(GTK_BOX(window->master), window->header, FALSE, FALSE, 0);
-
-    gtk_widget_set_margin_start(window->header, 5);
-    gtk_widget_set_margin_end(window->header, 5);
-    gtk_widget_set_margin_top(window->header, 5);
-
-    gtk_box_pack_start(GTK_BOX(window->master), gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), FALSE, FALSE, 0);
-
-    window->main = gtk_scrolled_window_new(NULL, NULL);
-    g_object_ref_sink(window->main);
-    gtk_scrolled_window_set_propagate_natural_height(GTK_SCROLLED_WINDOW(window->main), TRUE);
-    gtk_box_pack_start(GTK_BOX(window->master), window->main, FALSE, FALSE, 0);
-
-    window->known_network_button = gtk_radio_button_new_with_label(NULL, "Known Networks");
+    window->known_network_button = gtk_toggle_button_new_with_label("Known Networks");
     g_object_ref_sink(window->known_network_button);
-    gtk_toggle_button_set_mode(GTK_TOGGLE_BUTTON(window->known_network_button), FALSE);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(window->known_network_button), TRUE);
+    g_signal_connect(window->known_network_button, "toggled", G_CALLBACK(known_network_table_show), window);
 
     {
+	GtkWidget *header;
 	GtkWidget *known_network_button_vbox;
 
+	header = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
+	gtk_box_append(GTK_BOX(window->master), header);
+
+	gtk_widget_set_margin_start(header, 5);
+	gtk_widget_set_margin_end(header, 5);
+	gtk_widget_set_margin_top(header, 5);
+
+	window->adapter_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
+	g_object_ref_sink(window->adapter_hbox);
+	gtk_widget_set_hexpand(window->adapter_hbox, TRUE);
+	gtk_box_append(GTK_BOX(header), window->adapter_hbox);
+
 	known_network_button_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-	gtk_box_pack_end(GTK_BOX(window->header), known_network_button_vbox, FALSE, FALSE, 0);
+	gtk_box_append(GTK_BOX(header), known_network_button_vbox);
+
 	{
 	    GtkWidget *quit_button;
 
 	    quit_button = gtk_button_new_with_label("Quit");
 	    g_signal_connect(quit_button, "clicked", G_CALLBACK(iwgtk_quit), NULL);
-	    gtk_box_pack_start(GTK_BOX(known_network_button_vbox), quit_button, FALSE, FALSE, 0);
+	    gtk_box_append(GTK_BOX(known_network_button_vbox), quit_button);
 	}
-	gtk_box_pack_end(GTK_BOX(known_network_button_vbox), window->known_network_button, FALSE, FALSE, 0);
+
+	gtk_box_append(GTK_BOX(known_network_button_vbox), window->known_network_button);
     }
 
-    g_signal_connect(window->known_network_button, "toggled", G_CALLBACK(known_network_table_show), window);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(window->known_network_button), TRUE);
+    gtk_box_append(GTK_BOX(window->master), gtk_separator_new(GTK_ORIENTATION_HORIZONTAL));
+
+    window->main = gtk_scrolled_window_new();
+    g_object_ref_sink(window->main);
+    gtk_scrolled_window_set_propagate_natural_height(GTK_SCROLLED_WINDOW(window->main), TRUE);
+    gtk_box_append(GTK_BOX(window->master), window->main);
 
     window->known_network_table = gtk_grid_new();
     g_object_ref_sink(window->known_network_table);
-    gtk_container_add(GTK_CONTAINER(window->main), window->known_network_table);
+    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(window->main), window->known_network_table);
 
     gtk_widget_set_margin_start(window->known_network_table, 5);
     gtk_widget_set_margin_end(window->known_network_table, 5);
@@ -135,7 +134,6 @@ void window_set() {
     gtk_grid_set_column_spacing(GTK_GRID(window->known_network_table), 10);
     gtk_grid_set_row_spacing(GTK_GRID(window->known_network_table), 10);
 
-    gtk_widget_show_all(window->window);
     add_all_dbus_objects(window);
     g_signal_connect_swapped(window->window, "destroy", G_CALLBACK(window_rm), window);
 }
@@ -157,14 +155,19 @@ void window_rm(Window *window) {
 	}
     }
 
+    g_object_unref(window->master);
+    g_object_unref(window->adapter_hbox);
+    g_object_unref(window->main);
+    g_object_unref(window->known_network_button);
+    g_object_unref(window->known_network_table);
+
     g_free(window);
     global.window = NULL;
 }
 
 void known_network_table_show(GtkToggleButton *button, Window *window) {
     if (gtk_toggle_button_get_active(button)) {
-	bin_empty(GTK_BIN(window->main));
-	gtk_container_add(GTK_CONTAINER(window->main), window->known_network_table);
+	gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(window->main), window->known_network_table);
     }
 }
 

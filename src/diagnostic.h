@@ -29,7 +29,7 @@ struct StationDiagnostic_s {
 };
 
 void diagnostic_callback(GDBusProxy *proxy, GAsyncResult *res, GtkWidget *table);
-gboolean diagnostic_key_press_callback(GtkWidget *window, GdkEventKey *event);
+gboolean diagnostic_key_press(GtkEventControllerKey *controller, guint keyval, guint keycode, GdkModifierType state, GtkWindow *window);
 void diagnostic_show(StationDiagnostic *diagnostic);
 StationDiagnostic* diagnostic_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
 void diagnostic_remove(Window *window, StationDiagnostic *diagnostic);

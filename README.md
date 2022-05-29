@@ -12,7 +12,7 @@ useful in a system where iwd is used as a standalone network management daemon
 
 ## Dependencies
 * iwd
-* gtk3
+* gtk4
 * adwaita-icon-theme (or an equivalent icon package)
 
 ## Installation

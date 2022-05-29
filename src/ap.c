@@ -38,17 +38,17 @@ void ap_dialog_launch(AP *ap) {
     dialog = g_malloc(sizeof(APDialog));
     dialog->ap = ap;
 
-    dialog->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    dialog->window = gtk_window_new();
     gtk_window_set_title(GTK_WINDOW(dialog->window), "Create Access Point");
 
     dialog->ssid = gtk_entry_new();
     dialog->psk = gtk_entry_new();
     gtk_entry_set_visibility(GTK_ENTRY(dialog->psk), 0);
 
-    buttons = dialog_buttons(dialog, G_CALLBACK(ap_dialog_submit), dialog->window);
+    buttons = dialog_buttons(dialog, (SubmitCallback) ap_dialog_submit, dialog->window);
 
     table = gtk_grid_new();
-    gtk_container_add(GTK_CONTAINER(dialog->window), table);
+    gtk_window_set_child(GTK_WINDOW(dialog->window), table);
 
     gtk_grid_attach(GTK_GRID(table), gtk_label_new("SSID: "),     0, 0, 1, 1);
     gtk_grid_attach(GTK_GRID(table), dialog->ssid,                1, 0, 1, 1);
@@ -60,14 +60,14 @@ void ap_dialog_launch(AP *ap) {
     grid_column_set_alignment(table, 1, GTK_ALIGN_START);
 
     g_signal_connect_swapped(dialog->window, "destroy", G_CALLBACK(g_free), dialog);
-    gtk_widget_show_all(dialog->window);
+    gtk_widget_show(dialog->window);
 }
 
 void ap_dialog_submit(APDialog *dialog) {
     const gchar *ssid, *psk;
 
-    ssid = gtk_entry_get_text(GTK_ENTRY(dialog->ssid));
-    psk = gtk_entry_get_text(GTK_ENTRY(dialog->psk));
+    ssid = gtk_editable_get_text(GTK_EDITABLE(dialog->ssid));
+    psk = gtk_editable_get_text(GTK_EDITABLE(dialog->psk));
 
     if (*ssid == '\0' || *psk == '\0') {
 	return;
@@ -83,7 +83,7 @@ void ap_dialog_submit(APDialog *dialog) {
 	(GAsyncReadyCallback) validation_callback,
 	(gpointer) &ap_start_messages);
 
-    gtk_widget_destroy(dialog->window);
+    gtk_window_destroy(GTK_WINDOW(dialog->window));
 }
 
 void ap_button_clicked(AP *ap) {
@@ -158,7 +158,6 @@ AP* ap_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     ap->button = gtk_button_new_with_label(NULL);
     g_object_ref_sink(ap->button);
     g_signal_connect_swapped(ap->button, "clicked", G_CALLBACK(ap_button_clicked), (gpointer) ap);
-    gtk_widget_show_all(ap->button);
 
     ap->ssid = gtk_label_new(NULL);
     g_object_ref_sink(ap->ssid);
@@ -184,12 +183,12 @@ void ap_remove(Window *window, AP *ap) {
 void bind_device_ap(Device *device, AP *ap) {
     ap->device = device;
     gtk_grid_attach(GTK_GRID(device->table), ap->button, 3, 0, 1, 1);
-    gtk_box_pack_end(GTK_BOX(device->master), ap->ssid, FALSE, FALSE, 0);
+    gtk_box_append(GTK_BOX(device->master), ap->ssid);
     ap_set(ap);
 }
 
 void unbind_device_ap(Device *device, AP *ap) {
     ap->device = NULL;
-    gtk_container_remove(GTK_CONTAINER(device->table), ap->button);
-    gtk_container_remove(GTK_CONTAINER(device->master), ap->ssid);
+    gtk_grid_remove(GTK_GRID(device->table), ap->button);
+    gtk_box_remove(GTK_BOX(device->master), ap->ssid);
 }

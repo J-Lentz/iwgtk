@@ -32,15 +32,15 @@ void hidden_ssid_dialog(Station *station) {
     dialog = g_malloc(sizeof(HiddenNetworkDialog));
     dialog->station = station;
 
-    dialog->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    dialog->window = gtk_window_new();
     gtk_window_set_title(GTK_WINDOW(dialog->window), "Connect to Hidden Network");
 
     dialog->ssid = gtk_entry_new();
 
     table = gtk_grid_new();
-    gtk_container_add(GTK_CONTAINER(dialog->window), table);
+    gtk_window_set_child(GTK_WINDOW(dialog->window), table);
 
-    buttons = dialog_buttons(dialog, G_CALLBACK(hidden_ssid_submit), dialog->window);
+    buttons = dialog_buttons(dialog, (SubmitCallback) hidden_ssid_submit, dialog->window);
 
     gtk_grid_attach(GTK_GRID(table), gtk_label_new("SSID: "), 0, 0, 1, 1);
     gtk_grid_attach(GTK_GRID(table), dialog->ssid,            1, 0, 1, 1);
@@ -50,13 +50,13 @@ void hidden_ssid_dialog(Station *station) {
     grid_column_set_alignment(table, 1, GTK_ALIGN_START);
 
     g_signal_connect_swapped(dialog->window, "destroy", G_CALLBACK(g_free), dialog);
-    gtk_widget_show_all(dialog->window);
+    gtk_widget_show(dialog->window);
 }
 
 void hidden_ssid_submit(HiddenNetworkDialog *dialog) {
     const gchar *ssid;
 
-    ssid = gtk_entry_get_text(GTK_ENTRY(dialog->ssid));
+    ssid = gtk_editable_get_text(GTK_EDITABLE(dialog->ssid));
     if (*ssid == '\0') {
 	return;
     }
@@ -71,7 +71,7 @@ void hidden_ssid_submit(HiddenNetworkDialog *dialog) {
 	(GAsyncReadyCallback) validation_callback,
 	(gpointer) &connect_hidden_messages);
 
-    gtk_widget_destroy(dialog->window);
+    gtk_window_destroy(GTK_WINDOW(dialog->window));
 }
 
 void station_add_hidden_network(Station *station, const gchar *address, const gchar *type, gint16 signal_strength, int index) {
@@ -87,7 +87,7 @@ void station_add_hidden_network(Station *station, const gchar *address, const gc
 	const gchar *icon_name;
 
 	icon_name = station_icons[get_signal_level(signal_strength)];
-	icon_load(icon_name, &color_gray, (IconLoadCallback) gtk_image_set_from_pixbuf, status_icon);
+	symbolic_icon_set_image(icon_name, &color_gray, status_icon);
     }
 
     address_label = gtk_label_new(address);

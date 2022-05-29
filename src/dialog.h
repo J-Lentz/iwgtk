@@ -20,8 +20,17 @@
 #ifndef _IWGTK_DIALOG_H
 #define _IWGTK_DIALOG_H
 
-void dialog_cancel_callback(GtkWidget *cancel_button);
-gboolean dialog_key_press_callback(GtkWidget *window, GdkEventKey *event, GClosure *submit_closure);
-GtkWidget* dialog_buttons(gpointer data, GCallback submit_callback, GtkWidget *window);
+typedef struct Dialog_s Dialog;
+
+typedef void (*SubmitCallback) (gpointer data);
+
+struct Dialog_s {
+    GtkWidget *window;
+    SubmitCallback submit_callback;
+    gpointer user_data;
+};
+
+gboolean dialog_key_press(GtkEventControllerKey *controller, guint keyval, guint keycode, GdkModifierType state, Dialog *dialog);
+GtkWidget* dialog_buttons(gpointer user_data, SubmitCallback submit_callback, GtkWidget *window);
 
 #endif

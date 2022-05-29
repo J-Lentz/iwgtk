@@ -201,7 +201,7 @@ gint command_line(GApplication *application, GApplicationCommandLine *command_li
 	g_application_hold(application);
     }
     else {
-	window_new();
+	window_launch();
     }
 
     return 0;
@@ -209,7 +209,7 @@ gint command_line(GApplication *application, GApplicationCommandLine *command_li
 
 void iwgtk_quit() {
     if (global.window != NULL) {
-	gtk_widget_destroy(global.window->window);
+	gtk_window_destroy(GTK_WINDOW(global.window->window));
     }
 
     while (global.indicators != NULL) {
@@ -230,7 +230,7 @@ int main (int argc, char **argv) {
     g_signal_connect(global.application, "startup", G_CALLBACK(startup), NULL);
     g_signal_connect(global.application, "handle-local-options", G_CALLBACK(handle_local_options), NULL);
     g_signal_connect(global.application, "command-line", G_CALLBACK(command_line), NULL);
-    g_signal_connect(global.application, "activate", G_CALLBACK(window_new), NULL);
+    g_signal_connect(global.application, "activate", G_CALLBACK(window_launch), NULL);
 
     {
 	int status;

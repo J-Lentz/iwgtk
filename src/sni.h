@@ -75,17 +75,17 @@ void sni_method_call(GDBusConnection *connection, const gchar *sender, const gch
 GVariant* sni_get_property(GDBusConnection *connection, const gchar *sender, const gchar *object_path, const gchar *interface_name, const gchar *property_name, GError **error, StatusNotifierItem *sni);
 void sni_emit_signal(StatusNotifierItem *sni, const gchar *signal_name, GVariant *parameters);
 
-gboolean sni_abstract_icon_pixmap_set(GVariant **sni_icon_pixmap, const GdkPixbuf *pixbuf);
+gboolean sni_abstract_icon_pixmap_set(GVariant **sni_icon_pixmap, cairo_surface_t *surface);
 void sni_category_set(StatusNotifierItem *sni, const gchar *category);
 void sni_id_set(StatusNotifierItem *sni, const gchar *id);
 void sni_title_set(StatusNotifierItem *sni, const gchar *title);
 void sni_status_set(StatusNotifierItem *sni, const gchar *status);
 void sni_icon_name_set(StatusNotifierItem *sni, const gchar *icon_name);
-void sni_icon_pixmap_set(StatusNotifierItem *sni, const GdkPixbuf *pixbuf);
+void sni_icon_pixmap_set(StatusNotifierItem *sni, cairo_surface_t *surface);
 void sni_overlay_icon_name_set(StatusNotifierItem *sni, const gchar *overlay_icon_name);
-void sni_overlay_icon_pixmap_set(StatusNotifierItem *sni, const GdkPixbuf *pixbuf);
+void sni_overlay_icon_pixmap_set(StatusNotifierItem *sni, cairo_surface_t *surface);
 void sni_attention_icon_name_set(StatusNotifierItem *sni, const gchar *attention_icon_name);
-void sni_attention_icon_pixmap_set(StatusNotifierItem *sni, const GdkPixbuf *pixbuf);
+void sni_attention_icon_pixmap_set(StatusNotifierItem *sni, cairo_surface_t *surface);
 void sni_attention_movie_name_set(StatusNotifierItem *sni, const gchar *attention_movie_name);
 
 #endif

@@ -119,9 +119,8 @@ KnownNetwork* known_network_add(Window *window, GDBusObject *object, GDBusProxy 
     gtk_widget_set_tooltip_text(kn->name_label, "SSID");
     kn->hidden_label = new_label_gray("(Hidden)");
 
-    gtk_box_pack_start(GTK_BOX(kn->name_box), kn->name_label, TRUE, TRUE, 0);
-    gtk_box_pack_start(GTK_BOX(kn->name_box), kn->hidden_label, TRUE, TRUE, 0);
-    gtk_widget_show_all(kn->name_box);
+    gtk_box_append(GTK_BOX(kn->name_box), kn->name_label);
+    gtk_box_append(GTK_BOX(kn->name_box), kn->hidden_label);
 
     kn->security_label = gtk_label_new(NULL);
     gtk_widget_set_tooltip_text(kn->security_label, "Network security");

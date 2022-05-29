@@ -253,9 +253,8 @@ GtkWidget* label_with_spinner(const gchar *text) {
     gtk_spinner_start(GTK_SPINNER(spinner));
 
     box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
-    gtk_box_pack_start(GTK_BOX(box), spinner, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(box), gtk_label_new(text), FALSE, FALSE, 0);
-    gtk_widget_show_all(box);
+    gtk_box_append(GTK_BOX(box), spinner);
+    gtk_box_append(GTK_BOX(box), gtk_label_new(text));
 
     return box;
 }
@@ -285,12 +284,4 @@ GtkWidget* new_label_gray(const gchar *text) {
     gtk_label_set_attributes(GTK_LABEL(label), attr_list);
     pango_attr_list_unref(attr_list);
     return label;
-}
-
-void bin_empty(GtkBin *parent) {
-    GtkWidget *child;
-    child = gtk_bin_get_child(parent);
-    if (child) {
-	gtk_container_remove(GTK_CONTAINER(parent), child);
-    }
 }

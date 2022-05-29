@@ -57,51 +57,63 @@ gint8 get_signal_level(gint16 signal_strength) {
     return N_SIGNAL_THRESHOLDS;
 }
 
-void icon_load(const gchar *icon_name, const GdkRGBA *icon_color, IconLoadCallback user_callback, gpointer user_object) {
-    GtkIconInfo *icon_info;
-    IconLoadClosure *closure;
+GtkSnapshot* symbolic_icon_get_snapshot(const gchar *icon_name, const GdkRGBA *icon_color) {
+    GtkIconPaintable *icon;
+    GtkSnapshot *snapshot;
 
-    closure = g_malloc(sizeof(IconLoadClosure));
-    closure->callback = user_callback;
-    closure->object = user_object;
-
-    icon_info = gtk_icon_theme_lookup_icon(
-	gtk_icon_theme_get_default(),
+    icon = gtk_icon_theme_lookup_icon(
+	gtk_icon_theme_get_for_display(gdk_display_get_default()),
 	icon_name,
+	NULL,
 	32,
+	1,
+	GTK_TEXT_DIR_NONE,
 	GTK_ICON_LOOKUP_FORCE_SYMBOLIC
     );
 
-    gtk_icon_info_load_symbolic_async(
-	icon_info,
+    snapshot = gtk_snapshot_new();
+
+    gtk_symbolic_paintable_snapshot_symbolic(
+	GTK_SYMBOLIC_PAINTABLE(icon),
+	GDK_SNAPSHOT(snapshot),
+	32.0,
+	32.0,
 	icon_color,
-	NULL, NULL, NULL, NULL,
-	(GAsyncReadyCallback) icon_load_finish,
-	closure
+	1
     );
+
+    g_object_unref(icon);
+    return snapshot;
 }
 
-void icon_load_finish(GtkIconInfo *icon_info, GAsyncResult *res, IconLoadClosure *closure) {
-    GdkPixbuf *pixbuf;
-    gboolean was_symbolic;
-    GError *err;
+void symbolic_icon_set_image(const gchar *icon_name, const GdkRGBA *icon_color, GtkWidget *image) {
+    GtkSnapshot *snapshot;
+    GdkPaintable *paintable;
 
-    err = NULL;
-    pixbuf = gtk_icon_info_load_symbolic_finish(icon_info, res, &was_symbolic, &err);
+    snapshot = symbolic_icon_get_snapshot(icon_name, icon_color);
 
-    g_object_unref(icon_info);
+    paintable = gtk_snapshot_free_to_paintable(snapshot, NULL);
+    gtk_image_set_from_paintable(GTK_IMAGE(image), paintable);
+    g_object_unref(paintable);
+}
 
-    if (err != NULL) {
-	g_printerr("Error loading icon data: %s\n", err->message);
-	g_error_free(err);
+cairo_surface_t* symbolic_icon_get_surface(const gchar *icon_name, const GdkRGBA *icon_color) {
+    GtkSnapshot *snapshot;
+    cairo_surface_t *surface;
+
+    snapshot = symbolic_icon_get_snapshot(icon_name, icon_color);
+    surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 32, 32);
+
+    {
+	cairo_t *cr;
+	GskRenderNode *node;
+
+	cr = cairo_create(surface);
+	node = gtk_snapshot_free_to_node(snapshot);
+	gsk_render_node_draw(node, cr);
+	//gsk_render_node_unref(node);
+	cairo_destroy(cr);
     }
 
-    if (!was_symbolic) {
-	g_printerr("Failed to find symbolic icon; using non-symbolic icon instead\n");
-    }
-
-    closure->callback(closure->object, pixbuf);
-
-    g_object_unref(pixbuf);
-    g_free(closure);
+    return surface;
 }

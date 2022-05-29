@@ -21,8 +21,7 @@
 
 void device_show(GtkToggleButton *button, Device *device) {
     if (gtk_toggle_button_get_active(button)) {
-	bin_empty(GTK_BIN(device->window->main));
-	gtk_container_add(GTK_CONTAINER(device->window->main), device->master);
+	gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(device->window->main), device->master);
     }
 }
 
@@ -127,10 +126,12 @@ Device* device_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 	name_var = g_dbus_proxy_get_cached_property(proxy, "Name");
 	name = g_variant_get_string(name_var, NULL);
 
-	device->button = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(window->known_network_button), name);
+	device->button = gtk_toggle_button_new_with_label(name);
 	g_object_ref_sink(device->button);
-	gtk_toggle_button_set_mode(GTK_TOGGLE_BUTTON(device->button), FALSE);
-	gtk_widget_show(device->button);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(device->button), FALSE);
+	gtk_toggle_button_set_group(GTK_TOGGLE_BUTTON(device->button), GTK_TOGGLE_BUTTON(window->known_network_button));
+	gtk_widget_set_hexpand(device->button, TRUE);
 	g_signal_connect(device->button, "toggled", G_CALLBACK(device_show), (gpointer) device);
 
 	g_variant_unref(name_var);
@@ -157,10 +158,9 @@ Device* device_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     device->master = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     g_object_ref_sink(device->master);
 
-
     device->table = gtk_grid_new();
-    gtk_box_pack_start(GTK_BOX(device->master), device->table, TRUE, TRUE, 0);
-    gtk_box_pack_start(GTK_BOX(device->master), gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), FALSE, FALSE, 0);
+    gtk_box_append(GTK_BOX(device->master), device->table);
+    gtk_box_append(GTK_BOX(device->master), gtk_separator_new(GTK_ORIENTATION_HORIZONTAL));
 
     gtk_widget_set_margin_start(device->table, 5);
     gtk_widget_set_margin_end(device->table, 5);
@@ -208,8 +208,6 @@ Device* device_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 	gtk_grid_set_row_spacing(GTK_GRID(device->table), 3);
 	gtk_grid_set_column_spacing(GTK_GRID(device->table), 3);
     }
-
-    gtk_widget_show_all(device->master);
 
     device->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(device_set), (gpointer) device);
     device_set(device);

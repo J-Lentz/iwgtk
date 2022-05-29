@@ -488,40 +488,41 @@ void sni_emit_signal(StatusNotifierItem *sni, const gchar *signal_name, GVariant
     }
 }
 
-gboolean sni_abstract_icon_pixmap_set(GVariant **sni_icon_pixmap, const GdkPixbuf *pixbuf) {
+gboolean sni_abstract_icon_pixmap_set(GVariant **sni_icon_pixmap, cairo_surface_t *surface) {
     GVariant *tuple[3];
 
-    // Verify that the GdkPixbuf meets our assumptions about its format
-    if (gdk_pixbuf_get_bits_per_sample(pixbuf) != 8 || gdk_pixbuf_get_n_channels(pixbuf) != 4) {
-	g_printerr("Could not update indicator icon: Invalid GdkPixbuf format\n");
+    if (cairo_image_surface_get_format(surface) != CAIRO_FORMAT_ARGB32) {
+	g_printerr("Could not set indicator icon: Invalid Cairo surface format\n");
+	cairo_surface_destroy(surface);
 	return FALSE;
     }
 
     {
-	const guint8 *img_rgba;
-	guint8 *img_argb;
-	gint32 img_width, img_height;
-	gsize img_nbytes;
+	unsigned char *argb;
+	gint32 width, height;
+	gsize n;
 
-	img_rgba = gdk_pixbuf_read_pixels(pixbuf);
+	argb = cairo_image_surface_get_data(surface);
+	width = cairo_image_surface_get_width(surface);
+	height = cairo_image_surface_get_height(surface);
+	n = width*height;
 
-	img_width = gdk_pixbuf_get_width(pixbuf);
-	img_height = gdk_pixbuf_get_height(pixbuf);
-	img_nbytes = img_width*img_height*4;
+	cairo_surface_flush(surface);
 
-	img_argb = g_malloc(img_nbytes);
-	for (int i = 0; i < img_nbytes; i += 4) {
-	    img_argb[i+0] = img_rgba[i+3];
-	    img_argb[i+1] = img_rgba[i+0];
-	    img_argb[i+2] = img_rgba[i+1];
-	    img_argb[i+3] = img_rgba[i+2];
+	if (G_BYTE_ORDER == G_LITTLE_ENDIAN) {
+	    guint32 *argb32;
+
+	    argb32 = (guint32 *) argb;
+	    for (int i = 0; i < n; i ++) {
+		argb32[i] = g_htonl(argb32[i]);
+	    }
 	}
 
-	tuple[0] = g_variant_new_int32(img_width);
-	tuple[1] = g_variant_new_int32(img_height);
-	tuple[2] = g_variant_new_fixed_array(G_VARIANT_TYPE_BYTE, img_argb, img_nbytes, 1);
+	tuple[0] = g_variant_new_int32(width);
+	tuple[1] = g_variant_new_int32(height);
+	tuple[2] = g_variant_new_fixed_array(G_VARIANT_TYPE_BYTE, argb, 4*n, 1);
 
-	g_free(img_argb);
+	cairo_surface_destroy(surface);
     }
 
     {
@@ -584,8 +585,8 @@ void sni_icon_name_set(StatusNotifierItem *sni, const gchar *icon_name) {
     sni_emit_signal(sni, "NewIcon", NULL);
 }
 
-void sni_icon_pixmap_set(StatusNotifierItem *sni, const GdkPixbuf *pixbuf) {
-    if (sni_abstract_icon_pixmap_set(&sni->icon_pixmap, pixbuf)) {
+void sni_icon_pixmap_set(StatusNotifierItem *sni, cairo_surface_t *surface) {
+    if (sni_abstract_icon_pixmap_set(&sni->icon_pixmap, surface)) {
 	sni_emit_signal(sni, "NewIcon", NULL);
     }
 }
@@ -600,8 +601,8 @@ void sni_overlay_icon_name_set(StatusNotifierItem *sni, const gchar *overlay_ico
     sni_emit_signal(sni, "NewOverlayIcon", NULL);
 }
 
-void sni_overlay_icon_pixmap_set(StatusNotifierItem *sni, const GdkPixbuf *pixbuf) {
-    if (sni_abstract_icon_pixmap_set(&sni->overlay_icon_pixmap, pixbuf)) {
+void sni_overlay_icon_pixmap_set(StatusNotifierItem *sni, cairo_surface_t *surface) {
+    if (sni_abstract_icon_pixmap_set(&sni->overlay_icon_pixmap, surface)) {
 	sni_emit_signal(sni, "NewOverlayIcon", NULL);
     }
 }
@@ -616,8 +617,8 @@ void sni_attention_icon_name_set(StatusNotifierItem *sni, const gchar *attention
     sni_emit_signal(sni, "NewAttentionIcon", NULL);
 }
 
-void sni_attention_icon_pixmap_set(StatusNotifierItem *sni, const GdkPixbuf *pixbuf) {
-    if (sni_abstract_icon_pixmap_set(&sni->attention_icon_pixmap, pixbuf)) {
+void sni_attention_icon_pixmap_set(StatusNotifierItem *sni, cairo_surface_t *surface) {
+    if (sni_abstract_icon_pixmap_set(&sni->attention_icon_pixmap, surface)) {
 	sni_emit_signal(sni, "NewAttentionIcon", NULL);
     }
 }

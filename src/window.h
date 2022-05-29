@@ -64,7 +64,7 @@ struct Window_s {
     GtkWidget *window;
 
     GtkWidget *master;
-    GtkWidget *header;
+    GtkWidget *adapter_hbox;
     GtkWidget *main;
 
     GtkWidget *known_network_button;
@@ -96,7 +96,7 @@ extern CoupleMethods couple_methods[];
 
 typedef void (*ObjectIterFunction) (GDBusObjectManager *manager, GDBusObject *object, GDBusProxy *proxy, Window *window);
 
-void window_new();
+void window_launch();
 void window_set();
 void window_rm(Window *window);
 void known_network_table_show(GtkToggleButton *button, Window *window);

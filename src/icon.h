@@ -38,13 +38,6 @@
 
 #define N_SIGNAL_THRESHOLDS 4
 
-typedef void (*IconLoadCallback) (gpointer object, const GdkPixbuf *pixbuf);
-
-typedef struct {
-    IconLoadCallback callback;
-    gpointer object;
-} IconLoadClosure;
-
 extern const gint16 signal_thresholds[];
 extern const gchar* station_icons[];
 
@@ -56,7 +49,9 @@ extern const GdkRGBA color_gray;
 extern const GdkRGBA *color_status[];
 
 gint8 get_signal_level(gint16 signal_strength);
-void icon_load(const gchar *icon_name, const GdkRGBA *icon_color, IconLoadCallback user_callback, gpointer user_object);
-void icon_load_finish(GtkIconInfo *icon_info, GAsyncResult *res, IconLoadClosure *closure);
+
+GtkSnapshot* symbolic_icon_get_snapshot(const gchar *icon_name, const GdkRGBA *icon_color);
+void symbolic_icon_set_image(const gchar *icon_name, const GdkRGBA *icon_color, GtkWidget *image);
+cairo_surface_t* symbolic_icon_get_surface(const gchar *icon_name, const GdkRGBA *icon_color);
 
 #endif

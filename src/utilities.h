@@ -45,6 +45,5 @@ void grid_column_set_alignment(GtkWidget *grid, int col, GtkAlign align);
 GtkWidget* label_with_spinner(const gchar *text);
 GtkWidget* new_label_bold(const gchar *text);
 GtkWidget* new_label_gray(const gchar *text);
-void bin_empty(GtkBin *parent);
 
 #endif

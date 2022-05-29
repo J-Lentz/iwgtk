@@ -164,7 +164,7 @@ void network_set(Network *network) {
 	const gchar *icon_name;
 
 	icon_name = station_icons[network->level];
-	icon_load(icon_name, color_status[network_status], (IconLoadCallback) gtk_image_set_from_pixbuf, network->status_icon);
+	symbolic_icon_set_image(icon_name, color_status[network_status], network->status_icon);
     }
 }
 

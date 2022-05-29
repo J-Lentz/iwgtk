@@ -62,8 +62,6 @@ void diagnostic_callback(GDBusProxy *proxy, GAsyncResult *res, GtkWidget *table)
 
 	g_variant_iter_free(iter);
 	g_variant_unref(data);
-
-	gtk_widget_show_all(table);
     }
     else {
 	g_printerr("Error retrieving station diagnostics: %s\n", err->message);
@@ -71,9 +69,9 @@ void diagnostic_callback(GDBusProxy *proxy, GAsyncResult *res, GtkWidget *table)
     }
 }
 
-gboolean diagnostic_key_press_callback(GtkWidget *window, GdkEventKey *event) {
-    if (event->keyval == GDK_KEY_Escape) {
-	gtk_widget_destroy(window);
+gboolean diagnostic_key_press(GtkEventControllerKey *controller, guint keyval, guint keycode, GdkModifierType state, GtkWindow *window) {
+    if (keyval == GDK_KEY_Escape) {
+	gtk_window_destroy(window);
 	return TRUE;
     }
     return FALSE;
@@ -83,7 +81,7 @@ void diagnostic_show(StationDiagnostic *diagnostic) {
     GtkWidget *window;
     GtkWidget *table;
 
-    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    window = gtk_window_new();
 
     {
 	GVariant *device_name_var;
@@ -101,9 +99,13 @@ void diagnostic_show(StationDiagnostic *diagnostic) {
     }
 
     table = gtk_grid_new();
-    gtk_container_add(GTK_CONTAINER(window), table);
+    gtk_window_set_child(GTK_WINDOW(window), table);
     gtk_grid_set_column_spacing(GTK_GRID(table), 10);
-    gtk_container_set_border_width(GTK_CONTAINER(table), 10);
+
+    gtk_widget_set_margin_start(table, 5);
+    gtk_widget_set_margin_end(table, 5);
+    gtk_widget_set_margin_top(table, 5);
+    gtk_widget_set_margin_bottom(table, 5);
 
     g_dbus_proxy_call(
 	diagnostic->proxy,
@@ -129,8 +131,15 @@ void diagnostic_show(StationDiagnostic *diagnostic) {
 	gtk_grid_attach(GTK_GRID(table), value,    1, 0, 1, 1);
     }
 
-    g_signal_connect(window, "key-press-event", G_CALLBACK(diagnostic_key_press_callback), NULL);
-    gtk_widget_show_all(window);
+    {
+	GtkEventController *controller;
+
+	controller = gtk_event_controller_key_new();
+	g_signal_connect(controller, "key-pressed", G_CALLBACK(diagnostic_key_press), window);
+	gtk_widget_add_controller(window, controller);
+    }
+
+    gtk_widget_show(window);
 }
 
 StationDiagnostic* diagnostic_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
@@ -159,9 +168,8 @@ void bind_device_diagnostic(Device *device, StationDiagnostic *diagnostic) {
 
     gtk_grid_attach(GTK_GRID(device->table), diagnostic->button, 3, 1, 1, 1);
     gtk_widget_set_halign(diagnostic->button, GTK_ALIGN_START);
-    gtk_widget_show_all(diagnostic->button);
 }
 
 void unbind_device_diagnostic(Device *device, StationDiagnostic *diagnostic) {
-    gtk_container_remove(GTK_CONTAINER(device->table), diagnostic->button);
+    gtk_grid_remove(GTK_GRID(device->table), diagnostic->button);
 }

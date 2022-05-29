@@ -40,6 +40,5 @@ Adapter* adapter_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
 void adapter_remove(Window *window, Adapter *adapter);
 void bind_adapter_device(Adapter *adapter, Device *device);
 void unbind_adapter_device(Adapter *adapter, Device *device);
-guint adapter_list_position(GDBusProxy *proxy1, ObjectList *list);
 
 #endif
