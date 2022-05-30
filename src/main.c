@@ -47,16 +47,13 @@ static const GDBusErrorEntry iwd_error_codes[] = {
     {IWD_ERROR_AGENT_CANCELED,        "net.connman.iwd.Agent.Error.Canceled"}
 };
 
-const ErrorMessage detailed_errors_standard[] = {
+const ErrorMessage detailed_errors_generic[] = {
     {IWD_ERROR_BUSY,                  "Busy"},
     {IWD_ERROR_FAILED,                "Operation failed"},
     {IWD_ERROR_INVALID_FORMAT,        "Invalid network parameters"},
     {IWD_ERROR_IN_PROGRESS,           "Already in progress"},
     {IWD_ERROR_ABORTED,               "Canceled"},
     {IWD_ERROR_INVALID_FORMAT,        "Invalid format"},
-    {IWD_ERROR_WSC_SESSION_OVERLAP,   "Multiple access points found"},
-    {IWD_ERROR_WSC_TIME_EXPIRED,      "No AP found in PIN mode"},
-    {IWD_ERROR_WSC_WALK_TIME_EXPIRED, "No AP found in push-button mode"},
     {0, NULL}
 };
 

@@ -22,13 +22,13 @@
 static const CallbackMessages ap_start_messages = {
     "AP started",
     "AP start-up failed",
-    detailed_errors_standard
+    NULL
 };
 
 static const CallbackMessages ap_stop_messages = {
     "AP stopped",
     "Error stopping AP",
-    detailed_errors_standard
+    NULL
 };
 
 void ap_dialog_launch(AP *ap) {

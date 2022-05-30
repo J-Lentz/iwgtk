@@ -19,10 +19,18 @@
 
 #include "iwgtk.h"
 
+const ErrorMessage detailed_errors_wps[] = {
+    {IWD_ERROR_INVALID_FORMAT,        "Invalid PIN"},
+    {IWD_ERROR_WSC_SESSION_OVERLAP,   "Multiple access points found"},
+    {IWD_ERROR_WSC_TIME_EXPIRED,      "No AP found in PIN mode"},
+    {IWD_ERROR_WSC_WALK_TIME_EXPIRED, "No AP found in push-button mode"},
+    {0, NULL}
+};
+
 static const CallbackMessages wps_messages = {
     "WPS connection successful",
     "WPS connection failed",
-    detailed_errors_standard
+    detailed_errors_wps
 };
 
 void wps_callback(GDBusProxy *proxy, GAsyncResult *res, WPS *wps) {

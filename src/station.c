@@ -19,12 +19,6 @@
 
 #include "iwgtk.h"
 
-static const CallbackMessages scan_messages = {
-    NULL,
-    "Error scanning",
-    detailed_errors_standard
-};
-
 void scan_button_clicked(GtkButton *button, Station *station) {
     g_dbus_proxy_call(
 	station->proxy,
@@ -33,8 +27,8 @@ void scan_button_clicked(GtkButton *button, Station *station) {
 	G_DBUS_CALL_FLAGS_NONE,
 	-1,
 	NULL,
-	(GAsyncReadyCallback) validation_callback,
-	(gpointer) &scan_messages);
+	(GAsyncReadyCallback) validation_callback_log,
+	(gpointer) "Error scanning: %s\n");
 }
 
 void scan_button_update(GDBusProxy *proxy, GVariant *properties, gchar **invalidated_properties, Station *station) {

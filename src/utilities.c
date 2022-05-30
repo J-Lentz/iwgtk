@@ -19,6 +19,16 @@
 
 #include "iwgtk.h"
 
+const gchar* detailed_error_lookup(GError *err, const ErrorMessage *error_table) {
+    for (int i = 0;; i ++) {
+	int code = error_table[i].code;
+
+	if ( (err->domain == global.iwd_error_domain && code == err->code) || code == 0) {
+	    return error_table[i].message;
+	}
+    }
+}
+
 void validation_callback(GDBusProxy *proxy, GAsyncResult *res, CallbackMessages *messages) {
     GVariant *ret;
     GError *err;
@@ -36,21 +46,15 @@ void validation_callback(GDBusProxy *proxy, GAsyncResult *res, CallbackMessages 
 	if (messages && messages->failure) {
 	    const gchar *detailed;
 
-	    detailed = NULL;
-	    if (messages->error_table) {
-		int i = 0;
-		while (TRUE) {
-		    int code = messages->error_table[i].code;
-		    if ( (err->domain == global.iwd_error_domain && code == err->code) || code == 0) {
-			detailed = messages->error_table[i].message;
-			break;
-		    }
-		    i ++;
-		}
+	    detailed = (messages->error_table ? detailed_error_lookup(err, messages->error_table) : NULL);
+
+	    if (!detailed) {
+		detailed = detailed_error_lookup(err, detailed_errors_generic);
 	    }
 
 	    if (detailed) {
 		char *message_text;
+
 		message_text = g_strconcat(messages->failure, ": ", detailed, NULL);
 		send_notification(message_text, G_NOTIFICATION_PRIORITY_NORMAL);
 		g_free(message_text);

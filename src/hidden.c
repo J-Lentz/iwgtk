@@ -22,7 +22,7 @@
 static const CallbackMessages connect_hidden_messages = {
     "Found hidden network",
     "Failed to connect to hidden network",
-    detailed_errors_standard
+    NULL
 };
 
 void hidden_ssid_dialog(Station *station) {

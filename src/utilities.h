@@ -32,6 +32,7 @@ struct FailureClosure_s {
     const gchar *property;
 };
 
+const gchar* detailed_error_lookup(GError *err, const ErrorMessage *error_table);
 void validation_callback(GDBusProxy *proxy, GAsyncResult *res, CallbackMessages *data);
 void validation_callback_log(GDBusProxy *proxy, GAsyncResult *res, const gchar *message);
 

@@ -24,16 +24,21 @@
  * Customize error messages, e.g., "Connected to network _SSID_"
  */
 
+const ErrorMessage detailed_errors_network[] = {
+    {IWD_ERROR_INVALID_FORMAT,        "Invalid passphrase"},
+    {0, NULL}
+};
+
 static const CallbackMessages connect_messages = {
     "Connected to network",
     "Connection attempt failed",
-    detailed_errors_standard
+    detailed_errors_network
 };
 
 static const CallbackMessages disconnect_messages = {
     "Disconnected from network",
     "Disconnection attempt failed",
-    detailed_errors_standard
+    detailed_errors_network
 };
 
 const gchar* get_security_type(const gchar *type_raw) {
