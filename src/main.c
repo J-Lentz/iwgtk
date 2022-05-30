@@ -48,10 +48,15 @@ static const GDBusErrorEntry iwd_error_codes[] = {
 };
 
 const ErrorMessage detailed_errors_standard[] = {
-    {IWD_ERROR_BUSY,              "Busy"},
-    {IWD_ERROR_INVALID_FORMAT,    "Invalid network parameters"},
-    {IWD_ERROR_IN_PROGRESS,       "Already in progress"},
-    {IWD_ERROR_ABORTED,           "Canceled"},
+    {IWD_ERROR_BUSY,                  "Busy"},
+    {IWD_ERROR_FAILED,                "Operation failed"},
+    {IWD_ERROR_INVALID_FORMAT,        "Invalid network parameters"},
+    {IWD_ERROR_IN_PROGRESS,           "Already in progress"},
+    {IWD_ERROR_ABORTED,               "Canceled"},
+    {IWD_ERROR_INVALID_FORMAT,        "Invalid format"},
+    {IWD_ERROR_WSC_SESSION_OVERLAP,   "Multiple access points found"},
+    {IWD_ERROR_WSC_TIME_EXPIRED,      "No AP found in PIN mode"},
+    {IWD_ERROR_WSC_WALK_TIME_EXPIRED, "No AP found in push-button mode"},
     {0, NULL}
 };
 
