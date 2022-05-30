@@ -47,16 +47,6 @@ static const GDBusErrorEntry iwd_error_codes[] = {
     {IWD_ERROR_AGENT_CANCELED,        "net.connman.iwd.Agent.Error.Canceled"}
 };
 
-const ErrorMessage detailed_errors_generic[] = {
-    {IWD_ERROR_BUSY,                  "Busy"},
-    {IWD_ERROR_FAILED,                "Operation failed"},
-    {IWD_ERROR_INVALID_FORMAT,        "Invalid network parameters"},
-    {IWD_ERROR_IN_PROGRESS,           "Already in progress"},
-    {IWD_ERROR_ABORTED,               "Operation canceled"},
-    {IWD_ERROR_INVALID_FORMAT,        "Invalid format"},
-    {0, NULL}
-};
-
 static const GOptionEntry command_options[] = {
     {
 	"indicators",

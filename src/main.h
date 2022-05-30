@@ -36,7 +36,6 @@ struct GlobalData_s {
 };
 
 extern GlobalData global;
-extern const ErrorMessage detailed_errors_generic[];
 
 void object_manager_callback(GDBusObjectManagerClient *manager, GAsyncResult *res);
 void iwd_up(GDBusConnection *connection);

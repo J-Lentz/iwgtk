@@ -19,14 +19,29 @@
 
 #include "iwgtk.h"
 
-const gchar* detailed_error_lookup(GError *err, const ErrorMessage *error_table) {
-    for (int i = 0;; i ++) {
-	int code = error_table[i].code;
+const gchar* get_error_detail(GError *err, const ErrorMessage *error_table) {
+    gint i;
 
-	if ( (err->domain == global.iwd_error_domain && code == err->code) || code == 0) {
-	    return error_table[i].message;
+    if (error_table && err->domain == global.iwd_error_domain) {
+	for (i = 0; error_table[i].code != 0; i ++) {
+	    if (err->code == error_table[i].code) {
+		return error_table[i].message;
+	    }
 	}
     }
+
+    /*
+     * Return err->message with its prefix removed. If we reach the end of the string for
+     * some reason, then just return err->message in its entirety.
+     */
+
+    for (i = 0; err->message[i] != ' '; i ++) {
+	if (err->message[i] == '\0') {
+	    return err->message;
+	}
+    }
+
+    return err->message + i + 1;
 }
 
 void method_call_notify(GDBusProxy *proxy, GAsyncResult *res, CallbackMessages *messages) {
@@ -45,24 +60,13 @@ void method_call_notify(GDBusProxy *proxy, GAsyncResult *res, CallbackMessages *
     }
     else {
 	if (messages->failure) {
-	    const gchar *detail;
+	    const gchar *err_detail;
+	    gchar *message_detailed;
 
-	    detail = (messages->error_table ? detailed_error_lookup(err, messages->error_table) : NULL);
-
-	    if (!detail) {
-		detail = detailed_error_lookup(err, detailed_errors_generic);
-	    }
-
-	    if (detail) {
-		char *message_detailed;
-
-		message_detailed = g_strconcat(messages->failure, ": ", detail, NULL);
-		send_notification(message_detailed);
-		g_free(message_detailed);
-	    }
-	    else {
-		send_notification(messages->failure);
-	    }
+	    err_detail = get_error_detail(err, messages->error_table);
+	    message_detailed = g_strconcat(messages->failure, ": ", err_detail, NULL);
+	    send_notification(message_detailed);
+	    g_free(message_detailed);
 	}
 
 	g_printerr("%s\n", err->message);
