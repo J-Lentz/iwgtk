@@ -109,7 +109,7 @@ void adhoc_dialog_submit(AdHocDialog *adhoc_dialog) {
 	G_DBUS_CALL_FLAGS_NONE,
 	-1,
 	NULL,
-	(GAsyncReadyCallback) validation_callback,
+	(GAsyncReadyCallback) method_call_notify,
 	(gpointer) &adhoc_start_messages);
 
     gtk_window_destroy(GTK_WINDOW(adhoc_dialog->window));
@@ -130,7 +130,7 @@ void adhoc_button_clicked(AdHoc *adhoc) {
 	    G_DBUS_CALL_FLAGS_NONE,
 	    -1,
 	    NULL,
-	    (GAsyncReadyCallback) validation_callback,
+	    (GAsyncReadyCallback) method_call_notify,
 	    (gpointer) &adhoc_stop_messages);
     }
     else {

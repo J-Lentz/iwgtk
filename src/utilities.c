@@ -29,7 +29,7 @@ const gchar* detailed_error_lookup(GError *err, const ErrorMessage *error_table)
     }
 }
 
-void validation_callback(GDBusProxy *proxy, GAsyncResult *res, CallbackMessages *messages) {
+void method_call_notify(GDBusProxy *proxy, GAsyncResult *res, CallbackMessages *messages) {
     GVariant *ret;
     GError *err;
 
@@ -69,7 +69,7 @@ void validation_callback(GDBusProxy *proxy, GAsyncResult *res, CallbackMessages 
     }
 }
 
-void validation_callback_log(GDBusProxy *proxy, GAsyncResult *res, const gchar *message) {
+void method_call_log(GDBusProxy *proxy, GAsyncResult *res, const gchar *message) {
     GVariant *ret;
     GError *err;
 

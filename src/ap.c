@@ -80,7 +80,7 @@ void ap_dialog_submit(APDialog *dialog) {
 	G_DBUS_CALL_FLAGS_NONE,
 	-1,
 	NULL,
-	(GAsyncReadyCallback) validation_callback,
+	(GAsyncReadyCallback) method_call_notify,
 	(gpointer) &ap_start_messages);
 
     gtk_window_destroy(GTK_WINDOW(dialog->window));
@@ -101,7 +101,7 @@ void ap_button_clicked(AP *ap) {
 	    G_DBUS_CALL_FLAGS_NONE,
 	    -1,
 	    NULL,
-	    (GAsyncReadyCallback) validation_callback,
+	    (GAsyncReadyCallback) method_call_notify,
 	    (gpointer) &ap_stop_messages);
     }
     else {

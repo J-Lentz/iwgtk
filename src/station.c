@@ -27,7 +27,7 @@ void scan_button_clicked(GtkButton *button, Station *station) {
 	G_DBUS_CALL_FLAGS_NONE,
 	-1,
 	NULL,
-	(GAsyncReadyCallback) validation_callback_log,
+	(GAsyncReadyCallback) method_call_log,
 	(gpointer) "Error scanning: %s\n");
 }
 

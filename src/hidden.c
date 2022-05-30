@@ -68,7 +68,7 @@ void hidden_ssid_submit(HiddenNetworkDialog *dialog) {
 	G_DBUS_CALL_FLAGS_NONE,
 	-1,
 	NULL,
-	(GAsyncReadyCallback) validation_callback,
+	(GAsyncReadyCallback) method_call_notify,
 	(gpointer) &connect_hidden_messages);
 
     gtk_window_destroy(GTK_WINDOW(dialog->window));

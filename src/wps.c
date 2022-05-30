@@ -37,7 +37,7 @@ void wps_callback(GDBusProxy *proxy, GAsyncResult *res, WPS *wps) {
     gtk_widget_show(wps->connect);
     gtk_widget_hide(wps->cancel);
 
-    validation_callback(proxy, res, (gpointer) &wps_messages);
+    method_call_notify(proxy, res, (gpointer) &wps_messages);
 }
 
 void wps_connect_pin_dialog(WPS *wps) {
@@ -103,7 +103,7 @@ void wps_cancel(WPS *wps) {
 	G_DBUS_CALL_FLAGS_NONE,
 	-1,
 	NULL,
-	(GAsyncReadyCallback) validation_callback_log,
+	(GAsyncReadyCallback) method_call_log,
 	(gpointer) "Error canceling WPS connection: %s\n");
 
     gtk_widget_show(wps->connect);

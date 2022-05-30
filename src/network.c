@@ -68,7 +68,7 @@ void connect_button_clicked(GtkButton *button, GDBusProxy *network_proxy) {
 	G_DBUS_CALL_FLAGS_NONE,
 	-1,
 	NULL,
-	(GAsyncReadyCallback) validation_callback,
+	(GAsyncReadyCallback) method_call_notify,
 	(gpointer) &connect_messages);
 }
 
@@ -80,7 +80,7 @@ void disconnect_button_clicked(GtkButton *button, GDBusProxy *station_proxy) {
 	G_DBUS_CALL_FLAGS_NONE,
 	-1,
 	NULL,
-	(GAsyncReadyCallback) validation_callback,
+	(GAsyncReadyCallback) method_call_notify,
 	(gpointer) &disconnect_messages);
 }
 

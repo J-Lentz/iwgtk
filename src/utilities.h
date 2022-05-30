@@ -33,8 +33,8 @@ struct FailureClosure_s {
 };
 
 const gchar* detailed_error_lookup(GError *err, const ErrorMessage *error_table);
-void validation_callback(GDBusProxy *proxy, GAsyncResult *res, CallbackMessages *data);
-void validation_callback_log(GDBusProxy *proxy, GAsyncResult *res, const gchar *message);
+void method_call_notify(GDBusProxy *proxy, GAsyncResult *res, CallbackMessages *data);
+void method_call_log(GDBusProxy *proxy, GAsyncResult *res, const gchar *message);
 
 gboolean adapter_sort(GDBusProxy *proxy0, GDBusProxy *proxy1);
 gboolean device_sort(GDBusProxy *proxy0, GDBusProxy *proxy1);

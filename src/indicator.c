@@ -146,7 +146,7 @@ void indicator_station_init_signal_agent(Indicator *indicator, GDBusProxy *stati
 	G_DBUS_CALL_FLAGS_NONE,
 	-1,
 	NULL,
-	(GAsyncReadyCallback) validation_callback_log,
+	(GAsyncReadyCallback) method_call_log,
 	"Failed to register signal level agent: %s\n");
 }
 
