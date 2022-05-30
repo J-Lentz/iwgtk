@@ -19,26 +19,10 @@
 
 #include "iwgtk.h"
 
-/*
- * TODO
- * Customize error messages, e.g., "Connected to network _SSID_"
- */
-
 const ErrorMessage detailed_errors_network[] = {
-    {IWD_ERROR_INVALID_FORMAT,        "Invalid passphrase"},
+    {IWD_ERROR_FAILED,         "Incorrect passphrase"},
+    {IWD_ERROR_INVALID_FORMAT, "Invalid passphrase"},
     {0, NULL}
-};
-
-static const CallbackMessages connect_messages = {
-    "Connected to network",
-    "Connection attempt failed",
-    detailed_errors_network
-};
-
-static const CallbackMessages disconnect_messages = {
-    "Disconnected from network",
-    "Disconnection attempt failed",
-    detailed_errors_network
 };
 
 const gchar* get_security_type(const gchar *type_raw) {
@@ -61,6 +45,25 @@ const gchar* get_security_type(const gchar *type_raw) {
 }
 
 void connect_button_clicked(GtkButton *button, GDBusProxy *network_proxy) {
+    CallbackMessages *messages;
+
+    messages = g_malloc(sizeof(CallbackMessages));
+    messages->error_table = detailed_errors_network;
+    messages->free = TRUE;
+
+    {
+	GVariant *ssid_var;
+	const gchar *ssid;
+
+	ssid_var = g_dbus_proxy_get_cached_property(network_proxy, "Name");
+	ssid = g_variant_get_string(ssid_var, NULL);
+
+	messages->success = g_strdup_printf("Connected to %s", ssid);
+	messages->failure = g_strdup_printf("Failed to connect to %s", ssid);
+
+	g_variant_unref(ssid_var);
+    }
+
     g_dbus_proxy_call(
 	network_proxy,
 	"Connect",
@@ -69,19 +72,38 @@ void connect_button_clicked(GtkButton *button, GDBusProxy *network_proxy) {
 	-1,
 	NULL,
 	(GAsyncReadyCallback) method_call_notify,
-	(gpointer) &connect_messages);
+	(gpointer) messages);
 }
 
-void disconnect_button_clicked(GtkButton *button, GDBusProxy *station_proxy) {
+void disconnect_button_clicked(GtkButton *button, Network *network) {
+    CallbackMessages *messages;
+
+    messages = g_malloc(sizeof(CallbackMessages));
+    messages->error_table = NULL;
+    messages->free = TRUE;
+
+    {
+	GVariant *ssid_var;
+	const gchar *ssid;
+
+	ssid_var = g_dbus_proxy_get_cached_property(network->proxy, "Name");
+	ssid = g_variant_get_string(ssid_var, NULL);
+
+	messages->success = g_strdup_printf("Disconnected from %s", ssid);
+	messages->failure = g_strdup_printf("Failed to disconnect from %s", ssid);
+
+	g_variant_unref(ssid_var);
+    }
+
     g_dbus_proxy_call(
-	station_proxy,
+	network->station->proxy,
 	"Disconnect",
 	NULL,
 	G_DBUS_CALL_FLAGS_NONE,
 	-1,
 	NULL,
 	(GAsyncReadyCallback) method_call_notify,
-	(gpointer) &disconnect_messages);
+	(gpointer) messages);
 }
 
 void network_set(Network *network) {
@@ -139,7 +161,7 @@ void network_set(Network *network) {
 
 	    gtk_button_set_label(button, "Disconnect");
 	    gtk_widget_set_tooltip_text(network->connect_button, "Disconnect from network");
-	    network->button_handler_id = g_signal_connect(button, "clicked", G_CALLBACK(disconnect_button_clicked), (gpointer) network->station->proxy);
+	    network->button_handler_id = g_signal_connect(button, "clicked", G_CALLBACK(disconnect_button_clicked), (gpointer) network);
 	}
 	else {
 	    GVariant *known_network_var;

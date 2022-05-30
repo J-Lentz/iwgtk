@@ -22,13 +22,15 @@
 static const CallbackMessages adhoc_start_messages = {
     "Ad-hoc node started",
     "Failed to start ad-hoc node",
-    NULL
+    NULL,
+    FALSE
 };
 
 static const CallbackMessages adhoc_stop_messages = {
     "Ad-hoc node stopped",
     "Failed to stop ad-hoc node",
-    NULL
+    NULL,
+    FALSE
 };
 
 void psk_toggle_changed(GtkCheckButton *psk_toggle, AdHocDialog *adhoc_dialog) {

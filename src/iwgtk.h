@@ -86,8 +86,6 @@ struct ErrorMessage_s {
  * If no message is desired on success/failure, set success_message and/or
  * failure_message to NULL.
  *
- * If no messages are desired at all, set the entire CallbackMessages pointer to NULL.
- *
  * The last entry in error_table must have error code 0.
  * If no message is desired in this case, its message should be NULL.
  */
@@ -96,6 +94,7 @@ struct CallbackMessages_s {
     const gchar *success;
     const gchar *failure;
     const ErrorMessage *error_table;
+    gboolean free;
 };
 
 #include "sni.h"

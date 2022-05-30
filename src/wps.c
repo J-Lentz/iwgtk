@@ -30,7 +30,8 @@ const ErrorMessage detailed_errors_wps[] = {
 static const CallbackMessages wps_messages = {
     "WPS connection successful",
     "WPS connection failed",
-    detailed_errors_wps
+    detailed_errors_wps,
+    FALSE
 };
 
 void wps_callback(GDBusProxy *proxy, GAsyncResult *res, WPS *wps) {

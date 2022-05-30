@@ -38,26 +38,27 @@ void method_call_notify(GDBusProxy *proxy, GAsyncResult *res, CallbackMessages *
 
     if (ret) {
 	g_variant_unref(ret);
-	if (messages && messages->success) {
+
+	if (messages->success) {
 	    send_notification(messages->success);
 	}
     }
     else {
-	if (messages && messages->failure) {
-	    const gchar *detailed;
+	if (messages->failure) {
+	    const gchar *detail;
 
-	    detailed = (messages->error_table ? detailed_error_lookup(err, messages->error_table) : NULL);
+	    detail = (messages->error_table ? detailed_error_lookup(err, messages->error_table) : NULL);
 
-	    if (!detailed) {
-		detailed = detailed_error_lookup(err, detailed_errors_generic);
+	    if (!detail) {
+		detail = detailed_error_lookup(err, detailed_errors_generic);
 	    }
 
-	    if (detailed) {
-		char *message_text;
+	    if (detail) {
+		char *message_detailed;
 
-		message_text = g_strconcat(messages->failure, ": ", detailed, NULL);
-		send_notification(message_text);
-		g_free(message_text);
+		message_detailed = g_strconcat(messages->failure, ": ", detail, NULL);
+		send_notification(message_detailed);
+		g_free(message_detailed);
 	    }
 	    else {
 		send_notification(messages->failure);
@@ -66,6 +67,12 @@ void method_call_notify(GDBusProxy *proxy, GAsyncResult *res, CallbackMessages *
 
 	g_printerr("%s\n", err->message);
 	g_error_free(err);
+    }
+
+    if (messages->free) {
+	g_free((void *) messages->success);
+	g_free((void *) messages->failure);
+	g_free((void *) messages);
     }
 }
 

@@ -5,7 +5,6 @@ Context menus for indicator icons
 Notifications and error messages:
  * Review all notification/error messages and make them more consistent.
  * Allow users to select which types of messages they'd like to see.
- * Display the SSID of the network in the "connected" and "disconnected" messages.
 
 Modify UI so that widgets don't move around and change sizes when the following actions
 are performed:
