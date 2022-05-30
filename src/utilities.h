@@ -41,7 +41,7 @@ gboolean device_sort(GDBusProxy *proxy0, GDBusProxy *proxy1);
 void set_remote_property_callback(GDBusProxy *proxy, GAsyncResult *res, FailureClosure *failure);
 void set_remote_property(GDBusProxy *proxy, const gchar *property, GVariant *value, SetFunction failure_callback, gpointer failure_data);
 GVariant* lookup_property(GVariant *dictionary, const gchar *property);
-void send_notification(const gchar *text, GNotificationPriority priority);
+void send_notification(const gchar *text);
 void grid_column_set_alignment(GtkWidget *grid, int col, GtkAlign align);
 GtkWidget* label_with_spinner(const gchar *text);
 GtkWidget* new_label_bold(const gchar *text);

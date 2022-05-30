@@ -39,7 +39,7 @@ void method_call_notify(GDBusProxy *proxy, GAsyncResult *res, CallbackMessages *
     if (ret) {
 	g_variant_unref(ret);
 	if (messages && messages->success) {
-	    send_notification(messages->success, G_NOTIFICATION_PRIORITY_NORMAL);
+	    send_notification(messages->success);
 	}
     }
     else {
@@ -56,11 +56,11 @@ void method_call_notify(GDBusProxy *proxy, GAsyncResult *res, CallbackMessages *
 		char *message_text;
 
 		message_text = g_strconcat(messages->failure, ": ", detailed, NULL);
-		send_notification(message_text, G_NOTIFICATION_PRIORITY_NORMAL);
+		send_notification(message_text);
 		g_free(message_text);
 	    }
 	    else {
-		send_notification(messages->failure, G_NOTIFICATION_PRIORITY_NORMAL);
+		send_notification(messages->failure);
 	    }
 	}
 
@@ -228,13 +228,13 @@ GVariant* lookup_property(GVariant *dictionary, const gchar *property) {
     return NULL;
 }
 
-void send_notification(const gchar *text, GNotificationPriority priority) {
+void send_notification(const gchar *text) {
     if (!global.notifications_disable) {
 	GNotification *notification;
 
 	notification = g_notification_new("iwgtk");
 	g_notification_set_body(notification, text);
-	g_notification_set_priority(notification, priority);
+	g_notification_set_priority(notification, G_NOTIFICATION_PRIORITY_NORMAL);
 	g_application_send_notification(G_APPLICATION(global.application), NULL, notification);
     }
 }

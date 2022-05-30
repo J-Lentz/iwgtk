@@ -149,7 +149,7 @@ void agent_method_call_handler(GDBusConnection *connection, const gchar *sender,
 
 	g_variant_get(parameters, "(s)", &reason);
 	message = g_strconcat("Connection attempt canceled: ", reason, NULL);
-	send_notification(message, G_NOTIFICATION_PRIORITY_NORMAL);
+	send_notification(message);
 	g_free(message);
 	g_dbus_method_invocation_return_value(invocation, NULL);
     }
