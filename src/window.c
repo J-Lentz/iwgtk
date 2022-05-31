@@ -350,8 +350,7 @@ void interface_rm(GDBusObjectManager *manager, GDBusObject *object, GDBusProxy *
 			    *indicator = (*indicator)->next;
 			    indicator_rm(rm);
 			}
-
-			if (proxy == (*indicator)->proxy) {
+			else if (proxy == (*indicator)->proxy) {
 			    // The indicator's mode has changed, or it has been powered down
 
 			    g_signal_handler_disconnect(proxy, (*indicator)->update_mode_handler);
