@@ -92,8 +92,6 @@ Indicator* indicator_new(GDBusProxy *device_proxy) {
 
     indicator_set_device(indicator);
 
-    g_application_hold(G_APPLICATION(global.application));
-
     return indicator;
 }
 
@@ -112,7 +110,6 @@ void indicator_rm(Indicator *indicator) {
     }
 
     g_free(indicator);
-    g_application_release(G_APPLICATION(global.application));
 }
 
 void indicator_station_init_signal_agent(Indicator *indicator, GDBusProxy *station_proxy) {

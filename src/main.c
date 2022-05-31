@@ -104,7 +104,6 @@ void object_manager_callback(GDBusObjectManagerClient *manager, GAsyncResult *re
     }
 
     if (global.indicators_enable) {
-	g_application_release(G_APPLICATION(global.application));
 	add_all_dbus_objects(NULL);
     }
 
