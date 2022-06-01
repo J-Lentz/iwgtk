@@ -1,0 +1,11 @@
+[Unit]
+Description=iwgtk
+Documentation=man:iwgtk(1)
+Wants=iwd.service
+
+[Service]
+ExecStart=iwgtk -i
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

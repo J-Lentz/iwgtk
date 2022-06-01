@@ -7,8 +7,15 @@ useful in a system where iwd is used as a standalone network management daemon
 ![Screenshot](screenshot/station.png)
 
 ## Usage
-* Launch application window: `iwgtk`
-* Run in the background with indicator icons: `iwgtk -i`
+Launch the application window: `iwgtk`
+
+Launch the indicator daemon: `iwgtk -i`
+
+A systemd unit file to start the indicator daemon is provided. To start the
+indicator daemon every time you log in, run:
+```
+systemctl --user enable iwgtk.service --now
+```
 
 ## Dependencies
 * iwd

@@ -11,6 +11,7 @@ datadir=$(datarootdir)
 mandir=$(datarootdir)/man
 man1dir=$(mandir)/man1
 desktopdir=$(datadir)/applications
+systemddir=$(prefix)/lib/systemd/user
 svg_icon_dir=$(datadir)/icons/hicolor/scalable
 
 srcdir=src
@@ -37,6 +38,8 @@ install : iwgtk iwgtk.1.gz
 	install iwgtk $(DESTDIR)$(bindir)
 	install -d $(DESTDIR)$(desktopdir)
 	install iwgtk.desktop $(DESTDIR)$(desktopdir)
+	install -d $(DESTDIR)$(systemddir)
+	install iwgtk.service $(DESTDIR)$(systemddir)
 	install -d $(DESTDIR)$(man1dir)
 	install iwgtk.1.gz $(DESTDIR)$(man1dir)
 	install -d $(DESTDIR)$(svg_icon_dir)/apps
@@ -45,6 +48,7 @@ install : iwgtk iwgtk.1.gz
 uninstall :
 	rm $(DESTDIR)$(bindir)/iwgtk
 	rm $(DESTDIR)$(desktopdir)/iwgtk.desktop
+	rm $(DESTDIR)$(systemddir)/iwgtk.service
 	rm $(DESTDIR)$(man1dir)/iwgtk.1.gz
 	rm $(DESTDIR)$(svg_icon_dir)/apps/iwgtk.svg
 
