@@ -22,6 +22,9 @@
 
 typedef struct GlobalData_s GlobalData;
 
+#define WINDOW_LAUNCH_PENDING (1 << 0)
+#define IWD_DOWN (1 << 1)
+
 struct GlobalData_s {
     GtkApplication *application;
     GDBusObjectManager *manager;
@@ -30,9 +33,9 @@ struct GlobalData_s {
     Window *window;
     Indicator *indicators;
 
-    // Command line flags
     gboolean indicators_enable;
     gboolean notifications_disable;
+    guint8 state;
 };
 
 extern GlobalData global;
@@ -43,6 +46,6 @@ void iwd_down(GDBusConnection *connection);
 void startup(GtkApplication *app);
 gint handle_local_options(GApplication *application, GVariantDict *options);
 gint command_line(GApplication *application, GApplicationCommandLine *command_line);
-void iwgtk_quit();
+void shutdown();
 
 #endif

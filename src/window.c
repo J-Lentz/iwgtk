@@ -40,42 +40,35 @@ CoupleMethods couple_methods[] = {
 };
 
 void window_launch() {
-    if (global.window != NULL) {
+    Window *window;
+
+    if (global.window) {
 	gtk_window_present(GTK_WINDOW(global.window->window));
 	return;
     }
 
-    global.window = g_malloc(sizeof(Window));
-
-    memset(global.window->objects, 0, sizeof(void *) * n_object_types);
-    memset(global.window->couples, 0, sizeof(void *) * n_couple_types);
-
-    global.window->window = gtk_application_window_new(global.application);
-    gtk_window_set_title(GTK_WINDOW(global.window->window), "iwgtk");
-    gtk_window_set_default_size(GTK_WINDOW(global.window->window), 450, 600);
-    gtk_window_set_icon_name(GTK_WINDOW(global.window->window), "iwgtk");
-
-    window_set();
-    gtk_widget_show(global.window->window);
-}
-
-void window_set() {
-    Window *window;
-
-    window = global.window;
-
     if (!global.manager) {
-	GtkWidget *label;
+	if (global.state & IWD_DOWN) {
+	    g_printerr("Could not launch iwgtk window: iwd is not running\n");
+	}
+	else {
+	    global.state |= WINDOW_LAUNCH_PENDING;
+	    g_application_hold(G_APPLICATION(global.application));
+	}
 
-	/*
-	 * TODO:
-	 * Replace this with a more informative message.
-	 */
-
-	label = gtk_label_new("iwd is not running");
-	gtk_window_set_child(GTK_WINDOW(window->window), label);
 	return;
     }
+
+    window = g_malloc(sizeof(Window));
+    global.window = window;
+
+    memset(window->objects, 0, sizeof(void *) * n_object_types);
+    memset(window->couples, 0, sizeof(void *) * n_couple_types);
+
+    window->window = gtk_application_window_new(global.application);
+    gtk_window_set_title(GTK_WINDOW(window->window), "iwgtk");
+    gtk_window_set_default_size(GTK_WINDOW(window->window), 450, 600);
+    gtk_window_set_icon_name(GTK_WINDOW(window->window), "iwgtk");
 
     window->master = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     g_object_ref_sink(window->master);
@@ -106,11 +99,11 @@ void window_set() {
 	gtk_box_append(GTK_BOX(header), known_network_button_vbox);
 
 	{
-	    GtkWidget *quit_button;
+	    GtkWidget *close_button;
 
-	    quit_button = gtk_button_new_with_label("Quit");
-	    g_signal_connect(quit_button, "clicked", G_CALLBACK(iwgtk_quit), NULL);
-	    gtk_box_append(GTK_BOX(known_network_button_vbox), quit_button);
+	    close_button = gtk_button_new_with_label("Close");
+	    g_signal_connect_swapped(close_button, "clicked", G_CALLBACK(gtk_window_destroy), window->window);
+	    gtk_box_append(GTK_BOX(known_network_button_vbox), close_button);
 	}
 
 	gtk_box_append(GTK_BOX(known_network_button_vbox), window->known_network_button);
@@ -136,12 +129,11 @@ void window_set() {
 
     add_all_dbus_objects(window);
     g_signal_connect_swapped(window->window, "destroy", G_CALLBACK(window_rm), window);
+    gtk_widget_show(window->window);
 }
 
 void window_rm(Window *window) {
-    int i;
-
-    for (i = 0; i < n_object_types; i ++) {
+    for (int i = 0; i < n_object_types; i ++) {
 	while (window->objects[i] != NULL) {
 	    object_methods[i].rm(window, window->objects[i]->data);
 

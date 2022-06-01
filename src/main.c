@@ -95,12 +95,14 @@ void object_manager_callback(GDBusObjectManagerClient *manager, GAsyncResult *re
 	if (!global.manager) {
 	    g_printerr("Error creating GDBusObjectManager: %s\n", err->message);
 	    g_error_free(err);
-	    exit(1);
+	    return;
 	}
     }
 
-    if (global.window != NULL) {
-	window_set();
+    if (global.state & WINDOW_LAUNCH_PENDING) {
+	global.state &= ~WINDOW_LAUNCH_PENDING;
+	g_application_release(G_APPLICATION(global.application));
+	window_launch();
     }
 
     if (global.indicators_enable) {
@@ -121,6 +123,8 @@ void object_manager_callback(GDBusObjectManagerClient *manager, GAsyncResult *re
 }
 
 void iwd_up(GDBusConnection *connection) {
+    global.state &= ~IWD_DOWN;
+
     g_dbus_object_manager_client_new(
 	connection,
 	G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
@@ -136,13 +140,23 @@ void iwd_up(GDBusConnection *connection) {
 }
 
 void iwd_down(GDBusConnection *connection) {
+    global.state |= IWD_DOWN;
+    send_notification("iwd is down");
+
     if (global.manager != NULL) {
 	g_object_unref(global.manager);
 	global.manager = NULL;
     }
 
     if (global.window != NULL) {
-	window_set();
+	gtk_window_destroy(GTK_WINDOW(global.window->window));
+	g_printerr("Destroying iwgtk window: iwd has stopped\n");
+    }
+
+    if (global.state & WINDOW_LAUNCH_PENDING) {
+	global.state &= ~WINDOW_LAUNCH_PENDING;
+	g_application_release(G_APPLICATION(global.application));
+	g_printerr("Could not launch iwgtk window: iwd is not running\n");
     }
 }
 
@@ -198,7 +212,7 @@ gint command_line(GApplication *application, GApplicationCommandLine *command_li
     return 0;
 }
 
-void iwgtk_quit() {
+void shutdown() {
     if (global.window != NULL) {
 	gtk_window_destroy(GTK_WINDOW(global.window->window));
     }
@@ -221,7 +235,7 @@ int main (int argc, char **argv) {
     g_signal_connect(global.application, "startup", G_CALLBACK(startup), NULL);
     g_signal_connect(global.application, "handle-local-options", G_CALLBACK(handle_local_options), NULL);
     g_signal_connect(global.application, "command-line", G_CALLBACK(command_line), NULL);
-    g_signal_connect(global.application, "activate", G_CALLBACK(window_launch), NULL);
+    g_signal_connect(global.application, "shutdown", G_CALLBACK(shutdown), NULL);
 
     {
 	int status;
