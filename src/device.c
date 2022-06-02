@@ -190,6 +190,7 @@ Device* device_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 	gtk_widget_set_margin_end(device->mode_box, 10);
 
 	gtk_widget_set_halign(device->mac_label, GTK_ALIGN_CENTER);
+	gtk_widget_set_size_request(device->mac_label, 145, 34);
 
 	gtk_widget_set_halign(up_label, GTK_ALIGN_END);
 	gtk_widget_set_halign(mode_label, GTK_ALIGN_END);

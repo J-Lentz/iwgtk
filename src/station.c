@@ -122,6 +122,7 @@ Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     station->state = STATION_DISCONNECTED;
 
     station->scan_button = scan_button_new(station);
+    gtk_widget_set_size_request(station->scan_button, 110, -1);
 
     station->network_table = NULL;
     station_network_table_build(station);

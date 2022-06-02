@@ -171,6 +171,10 @@ WPS* wps_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 	gtk_box_append(GTK_BOX(wps->hbox), wps->cancel);
     }
 
+    gtk_widget_set_hexpand(wps->connect, TRUE);
+    gtk_widget_set_hexpand(wps->cancel, TRUE);
+    gtk_widget_set_hexpand(wps->hbox, FALSE);
+
     couple_register(window, DEVICE_WPS, 1, wps, object);
     return wps;
 }

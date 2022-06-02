@@ -229,6 +229,7 @@ void station_add_network(Station *station, GDBusProxy *network_proxy, gint16 sig
     gtk_widget_set_halign(network->connect_button, GTK_ALIGN_FILL);
 
     gtk_widget_set_hexpand(network->ssid_label, TRUE);
+    gtk_widget_set_size_request(network->connect_button, 107, -1);
 
     network_set(network);
     network->handler_update = g_signal_connect_swapped(network_proxy, "g-properties-changed", G_CALLBACK(network_set), (gpointer) network);
