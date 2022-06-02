@@ -4,7 +4,7 @@ iwd, with supported functionality similar to that of iwctl. It is particularly
 useful in a system where iwd is used as a standalone network management daemon
 (i.e., without NetworkManager).
 
-![Screenshot](screenshot/station.png)
+![Screenshot](screenshot/iwgtk-station-mode.png)
 
 ## Usage
 Launch the application window: `iwgtk`
