@@ -105,7 +105,7 @@ void object_manager_callback(GDBusObjectManagerClient *manager, GAsyncResult *re
 	window_launch();
     }
 
-    if (global.indicators_enable) {
+    if (global.state & INDICATOR_DAEMON) {
 	add_all_dbus_objects(NULL);
     }
 
@@ -194,15 +194,15 @@ gint command_line(GApplication *application, GApplicationCommandLine *command_li
     options = g_application_command_line_get_options_dict(command_line);
 
     if (g_variant_dict_contains(options, "notifications")) {
-	global.notifications_disable = FALSE;
+	global.state &= ~NOTIFICATIONS_DISABLE;
     }
 
     if (g_variant_dict_contains(options, "no-notifications")) {
-	global.notifications_disable = TRUE;
+	global.state |= NOTIFICATIONS_DISABLE;
     }
 
     if (g_variant_dict_contains(options, "indicators")) {
-	global.indicators_enable = TRUE;
+	global.state |= INDICATOR_DAEMON;
 	g_application_hold(application);
     }
     else {

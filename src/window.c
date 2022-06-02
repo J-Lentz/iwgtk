@@ -228,7 +228,7 @@ void interface_add(GDBusObjectManager *manager, GDBusObject *object, GDBusProxy 
 		 * (1) due to a new object/interface being added (window=NULL, manager!=NULL)
 		 * (2) right after the manager is initialized (window=NULL, manager=NULL
 		 */
-		if (global.indicators_enable) {
+		if (global.state & INDICATOR_DAEMON) {
 		    Indicator **indicator;
 
 		    indicator = &global.indicators;
@@ -322,7 +322,7 @@ void interface_rm(GDBusObjectManager *manager, GDBusObject *object, GDBusProxy *
 		}
 	    }
 
-	    if (global.indicators_enable) {
+	    if (global.state & INDICATOR_DAEMON) {
 		Indicator **indicator;
 
 		indicator = &global.indicators;

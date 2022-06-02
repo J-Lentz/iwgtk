@@ -24,17 +24,15 @@ typedef struct GlobalData_s GlobalData;
 
 #define WINDOW_LAUNCH_PENDING (1 << 0)
 #define IWD_DOWN (1 << 1)
+#define INDICATOR_DAEMON (1 << 2)
+#define NOTIFICATIONS_DISABLE (1 << 3)
 
 struct GlobalData_s {
     GtkApplication *application;
     GDBusObjectManager *manager;
     GQuark iwd_error_domain;
-
     Window *window;
     Indicator *indicators;
-
-    gboolean indicators_enable;
-    gboolean notifications_disable;
     guint8 state;
 };
 

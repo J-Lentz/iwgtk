@@ -240,7 +240,7 @@ GVariant* lookup_property(GVariant *dictionary, const gchar *property) {
 }
 
 void send_notification(const gchar *text) {
-    if (!global.notifications_disable) {
+    if (~global.state & NOTIFICATIONS_DISABLE) {
 	GNotification *notification;
 
 	notification = g_notification_new("iwgtk");
