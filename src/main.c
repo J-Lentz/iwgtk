@@ -143,14 +143,14 @@ void iwd_down(GDBusConnection *connection) {
     global.state |= IWD_DOWN;
     send_notification("iwd is down");
 
-    if (global.manager != NULL) {
-	g_object_unref(global.manager);
-	global.manager = NULL;
-    }
-
     if (global.window != NULL) {
 	gtk_window_destroy(GTK_WINDOW(global.window->window));
 	g_printerr("Destroying iwgtk window: iwd has stopped\n");
+    }
+
+    if (global.manager != NULL) {
+	g_object_unref(global.manager);
+	global.manager = NULL;
     }
 
     if (global.state & WINDOW_LAUNCH_PENDING) {
