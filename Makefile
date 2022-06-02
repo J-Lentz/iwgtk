@@ -30,20 +30,20 @@ iwgtk : $(objects)
 %.o : $(srcdir)/%.c $(headers)
 	$(CC) -c $(CCINCS) $(CFLAGS) -o $@ $<
 
-iwgtk.1.gz : iwgtk.1
-	gzip -k $<
+iwgtk.1.gz : misc/iwgtk.1
+	gzip -c $< >$@
 
 install : iwgtk iwgtk.1.gz
 	install -d $(DESTDIR)$(bindir)
 	install iwgtk $(DESTDIR)$(bindir)
 	install -d $(DESTDIR)$(desktopdir)
-	install iwgtk.desktop $(DESTDIR)$(desktopdir)
+	install misc/iwgtk.desktop $(DESTDIR)$(desktopdir)
 	install -d $(DESTDIR)$(systemddir)
-	install iwgtk.service $(DESTDIR)$(systemddir)
+	install misc/iwgtk.service $(DESTDIR)$(systemddir)
 	install -d $(DESTDIR)$(man1dir)
 	install iwgtk.1.gz $(DESTDIR)$(man1dir)
 	install -d $(DESTDIR)$(svg_icon_dir)/apps
-	install icons/iwgtk.svg $(DESTDIR)$(svg_icon_dir)/apps
+	install misc/iwgtk.svg $(DESTDIR)$(svg_icon_dir)/apps
 
 uninstall :
 	rm $(DESTDIR)$(bindir)/iwgtk
