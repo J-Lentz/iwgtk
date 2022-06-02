@@ -205,7 +205,7 @@ void station_add_network(Station *station, GDBusProxy *network_proxy, gint16 sig
     network->level = get_signal_level(signal_strength);
     network->button_handler_id = 0;
 
-    network->status_icon = gtk_image_new();
+    network->status_icon = gtk_picture_new();
     network->ssid_label = gtk_label_new(NULL);
     network->security_label = gtk_label_new(NULL);
     network->connect_button = gtk_button_new();

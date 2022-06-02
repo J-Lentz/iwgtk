@@ -93,7 +93,7 @@ void symbolic_icon_set_image(const gchar *icon_name, const GdkRGBA *icon_color, 
     snapshot = symbolic_icon_get_snapshot(icon_name, icon_color);
 
     paintable = gtk_snapshot_free_to_paintable(snapshot, NULL);
-    gtk_image_set_from_paintable(GTK_IMAGE(image), paintable);
+    gtk_picture_set_paintable(GTK_PICTURE(image), paintable);
     g_object_unref(paintable);
 }
 
