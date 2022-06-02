@@ -117,6 +117,7 @@ Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 
     station = g_malloc(sizeof(Station));
     station->proxy = proxy;
+    station->device = NULL;
     station->n_networks = 0;
     station->network_connected = NULL;
     station->state = STATION_DISCONNECTED;
