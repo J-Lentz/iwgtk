@@ -44,6 +44,5 @@ void iwd_down(GDBusConnection *connection);
 void startup(GtkApplication *app);
 gint handle_local_options(GApplication *application, GVariantDict *options);
 gint command_line(GApplication *application, GApplicationCommandLine *command_line);
-void shutdown();
 
 #endif
