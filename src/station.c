@@ -88,7 +88,6 @@ GtkWidget* scan_button_new(Station *station) {
 
 void station_set(Station *station) {
     GVariant *state_var;
-    GVariant *connected_network_var;
     const gchar *state;
 
     state_var = g_dbus_proxy_get_cached_property(station->proxy, "State");

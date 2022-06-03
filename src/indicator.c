@@ -182,7 +182,7 @@ void indicator_set_station(Indicator *indicator) {
 
     if (!strcmp(state, "connected")) {
 	indicator->status = INDICATOR_STATION_CONNECTED;
-	sni_title_set(indicator->sni, "Connected to wifi network");
+	indicator_set_station_connected_title(indicator, "Connected to %s");
 
 	if (indicator->level <= N_SIGNAL_THRESHOLDS) {
 	    indicator_set_station_connected(indicator);
@@ -190,7 +190,7 @@ void indicator_set_station(Indicator *indicator) {
     }
     else if (!strcmp(state, "connecting")) {
 	indicator->status = INDICATOR_STATION_CONNECTING;
-	sni_title_set(indicator->sni, "Connecting to wifi network");
+	indicator_set_station_connected_title(indicator, "Connecting to %s");
 
 	if (indicator->level <= N_SIGNAL_THRESHOLDS) {
 	    indicator_set_station_connected(indicator);
@@ -222,6 +222,78 @@ void indicator_set_station_connected(Indicator *indicator) {
 
     sni_icon_pixmap_set(indicator->sni,
 	    symbolic_icon_get_surface(station_icons[indicator->level], color));
+}
+
+void indicator_set_station_connected_title(Indicator *indicator, const gchar *title_template) {
+    GVariant *connected_network_var;
+
+    connected_network_var = g_dbus_proxy_get_cached_property(indicator->proxy, "ConnectedNetwork");
+
+    if (connected_network_var) {
+	const gchar *connected_network;
+	GDBusProxy *network_proxy;
+
+	connected_network = g_variant_get_string(connected_network_var, NULL);
+	network_proxy = G_DBUS_PROXY(g_dbus_object_manager_get_interface(global.manager, connected_network, IWD_IFACE_NETWORK));
+
+	if (network_proxy) {
+	    sni_network_set_title(indicator->sni, network_proxy, title_template);
+	    g_object_unref(network_proxy);
+	    g_variant_unref(connected_network_var);
+	}
+	else {
+	    SNITitleDelayed *data;
+
+	    data = g_malloc(sizeof(SNITitleDelayed));
+	    data->sni = indicator->sni;
+	    data->title_template = title_template;
+	    data->connected_network_var = connected_network_var;
+	    data->handler = g_signal_connect(global.manager, "object-added", G_CALLBACK(sni_set_title_delayed), data);
+	}
+    }
+    else {
+	g_printerr("Error: ConnectedNetwork property was expected, but not found\n");
+    }
+}
+
+void sni_network_set_title(StatusNotifierItem *sni, GDBusProxy *network_proxy, const gchar *title_template) {
+    GVariant *ssid_var;
+    const gchar *ssid;
+    gchar *title;
+
+    ssid_var = g_dbus_proxy_get_cached_property(network_proxy, "Name");
+    ssid = g_variant_get_string(ssid_var, NULL);
+
+    title = g_strdup_printf(title_template, ssid);
+    sni_title_set(sni, title);
+    g_free(title);
+
+    g_variant_unref(ssid_var);
+}
+
+void sni_set_title_delayed(GDBusObjectManager *manager, GDBusObject *object, SNITitleDelayed *data) {
+    const gchar *network_path;
+    GDBusProxy *network_proxy;
+
+    network_path = g_variant_get_string(data->connected_network_var, NULL);
+
+    if (strcmp(g_dbus_object_get_object_path(object), network_path)) {
+	return;
+    }
+
+    network_proxy = G_DBUS_PROXY(g_dbus_object_get_interface(object, IWD_IFACE_NETWORK));
+
+    if (network_proxy) {
+	sni_network_set_title(data->sni, network_proxy, data->title_template);
+	g_object_unref(network_proxy);
+    }
+    else {
+	g_printerr("Error: Failed to find interface of type " IWD_IFACE_NETWORK " on object %s\n", network_path);
+    }
+
+    g_signal_handler_disconnect(manager, data->handler);
+    g_variant_unref(data->connected_network_var);
+    g_free(data);
 }
 
 void indicator_set_ap(Indicator *indicator) {

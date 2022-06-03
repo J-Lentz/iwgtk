@@ -28,6 +28,7 @@ typedef enum {
 
 typedef struct Indicator_s Indicator;
 typedef struct StatusNotifierItem_s StatusNotifierItem;
+typedef struct SNITitleDelayed_s SNITitleDelayed;
 
 struct Indicator_s {
     GDBusProxy *proxy;
@@ -47,6 +48,13 @@ struct Indicator_s {
     Indicator *next;
 };
 
+struct SNITitleDelayed_s {
+    StatusNotifierItem *sni;
+    const gchar *title_template;
+    GVariant *connected_network_var;
+    gulong handler;
+};
+
 typedef void (*IndicatorSetter) (Indicator *indicator);
 
 Indicator* indicator_new(GDBusProxy *device_proxy);
@@ -56,6 +64,9 @@ void indicator_station_init_signal_agent(Indicator *indicator, GDBusProxy *stati
 void indicator_set_device(Indicator *indicator);
 void indicator_set_station(Indicator *indicator);
 void indicator_set_station_connected(Indicator *indicator);
+void indicator_set_station_connected_title(Indicator *indicator, const gchar *title_template);
+void sni_network_set_title(StatusNotifierItem *sni, GDBusProxy *network_proxy, const gchar *title_template);
+void sni_set_title_delayed(GDBusObjectManager *manager, GDBusObject *object, SNITitleDelayed *data);
 void indicator_set_ap(Indicator *indicator);
 void indicator_set_adhoc(Indicator *indicator);
 
