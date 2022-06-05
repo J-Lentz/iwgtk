@@ -11,14 +11,14 @@ Launch the application window: `iwgtk`
 
 Launch the indicator daemon: `iwgtk -i`
 
-A systemd unit file to start the indicator daemon is provided. To start the
-indicator daemon every time you log in, run:
+A systemd unit file to start the indicator daemon is provided. To start and
+enable the indicator daemon using systemd, run:
 ```
 systemctl --user enable iwgtk.service --now
 ```
 
 ## Dependencies
-* iwd
+* iwd >=1.28
 * gtk4
 * adwaita-icon-theme (or an equivalent icon package)
 
@@ -33,7 +33,7 @@ make clean
 
 To install to /usr instead of /usr/local use:
 ```
-sudo make prefix=/usr install
+sudo make PREFIX=/usr install
 ```
 
 ## Troubleshooting
@@ -53,13 +53,14 @@ The following trays only support XEmbed, and require a compatibility layer:
 * AwesomeWM
 * i3bar
 
-### iwgtk and iwctl only work with superuser privileges (iwd >=1.23)
+### iwgtk and iwctl only work with superuser privileges
 As of iwd 1.23, membership in either the `netdev` or `wheel` group is required
 to control iwd:
 ```
 # usermod -a -G netdev YOUR_USER_ACCOUNT
 ```
-If no `netdev` group exists on your system, then you'll need to create it first:
+If no `netdev` group exists on your system, then you'll need to create it prior
+to running the above `usermod` command:
 ```
 # groupadd netdev
 ```

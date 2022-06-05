@@ -23,7 +23,7 @@
 #include <gtk/gtk.h>
 #include <gio/gio.h>
 
-#define VERSION_STRING "iwgtk 0.4"
+#define VERSION_STRING "iwgtk 0.5"
 #define APPLICATION_ID "org.twosheds.iwgtk"
 
 #define IWD_BUS_NAME "net.connman.iwd"
