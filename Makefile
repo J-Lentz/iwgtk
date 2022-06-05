@@ -1,18 +1,16 @@
 CC?=gcc
+PREFIX?=/usr/local
+
 CCINCS=`pkg-config --cflags gtk4`
 LDLIBS=`pkg-config --libs gtk4`
 
-prefix=$(PREFIX)
-prefix?=/usr/local
-exec_prefix=$(prefix)
-bindir=$(exec_prefix)/bin
-datarootdir=$(prefix)/share
-datadir=$(datarootdir)
-mandir=$(datarootdir)/man
-man1dir=$(mandir)/man1
+bindir=$(PREFIX)/bin
+datadir=$(PREFIX)/share
+unitdir=$(PREFIX)/lib/systemd/user
+
+man1dir=$(datadir)/man/man1
 desktopdir=$(datadir)/applications
-systemddir=$(prefix)/lib/systemd/user
-svg_icon_dir=$(datadir)/icons/hicolor/scalable
+icondir=$(datadir)/icons/hicolor/scalable/apps
 
 srcdir=src
 
@@ -38,19 +36,19 @@ install : iwgtk iwgtk.1.gz
 	install iwgtk $(DESTDIR)$(bindir)
 	install -d $(DESTDIR)$(desktopdir)
 	install misc/iwgtk.desktop $(DESTDIR)$(desktopdir)
-	install -d $(DESTDIR)$(systemddir)
-	install misc/iwgtk.service $(DESTDIR)$(systemddir)
+	install -d $(DESTDIR)$(unitdir)
+	install misc/iwgtk.service $(DESTDIR)$(unitdir)
 	install -d $(DESTDIR)$(man1dir)
 	install iwgtk.1.gz $(DESTDIR)$(man1dir)
-	install -d $(DESTDIR)$(svg_icon_dir)/apps
-	install misc/iwgtk.svg $(DESTDIR)$(svg_icon_dir)/apps
+	install -d $(DESTDIR)$(icondir)
+	install misc/iwgtk.svg $(DESTDIR)$(icondir)
 
 uninstall :
 	rm $(DESTDIR)$(bindir)/iwgtk
 	rm $(DESTDIR)$(desktopdir)/iwgtk.desktop
-	rm $(DESTDIR)$(systemddir)/iwgtk.service
+	rm $(DESTDIR)$(unitdir)/iwgtk.service
 	rm $(DESTDIR)$(man1dir)/iwgtk.1.gz
-	rm $(DESTDIR)$(svg_icon_dir)/apps/iwgtk.svg
+	rm $(DESTDIR)$(icondir)/iwgtk.svg
 
 clean :
 	rm -f iwgtk *.o iwgtk.1.gz
