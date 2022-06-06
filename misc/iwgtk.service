@@ -2,10 +2,12 @@
 Description=iwgtk
 Documentation=man:iwgtk(1)
 Wants=iwd.service
+PartOf=graphical-session.target
+After=graphical-session.target
 
 [Service]
 ExecStart=iwgtk -i
 Restart=on-failure
 
 [Install]
-WantedBy=default.target
+WantedBy=graphical-session.target

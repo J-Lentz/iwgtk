@@ -11,8 +11,10 @@ Launch the application window: `iwgtk`
 
 Launch the indicator daemon: `iwgtk -i`
 
-A systemd unit file to start the indicator daemon is provided. To start and
-enable the indicator daemon using systemd, run:
+A systemd unit file to start the indicator daemon is provided. If your distro
+uses systemd and your desktop environment supports systemd's
+`graphical-session.target` unit, you can start and enable iwgtk's indicator
+daemon with the following command:
 ```
 systemctl --user enable iwgtk.service --now
 ```
