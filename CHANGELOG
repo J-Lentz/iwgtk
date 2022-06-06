@@ -1,6 +1,23 @@
-## Next release
-* Use GTK icons rather than supplying our own
-* Added support for iwd's StationDiagnostic API
+## 0.5
+ * Ported application to GTK4
+ * Indicator icons provide signal strength information via iwd's
+   SignalLevelAgent API
+ * Indicator icons for disabled adapters/devices
+ * Uses adwaita-icon-theme icons instead of supplying our own
+ * Continue running indicator daemon if iwd goes down or if all devices are
+   removed
+ * Do not launch additional windows if one is already open
+ * Do not launch window if iwd is down
+ * More stable UI (widgets no longer move around when changing mode, etc)
+ * Show distinct connect buttons for hidden networks
+ * Provide ability to hide passwords when entering them
+ * Tooltips for various UI elements
+ * More descriptive indicator icon tooltips
+ * Display network SSID in "connected" and "disconnected" messages.
+ * Includes systemd unit file
+ * Station diagnostics via iwd's StationDiagnostic API
+ * Removed option for numerical signal strength display
+ * Changed application ID to org.twosheds.iwgtk
 
 ## 0.4
  * Added application icon
@@ -16,7 +33,8 @@
 
 ## 0.2
  * Added support for displaying and connecting to hidden networks
- * Added a yellow icon for the "connecting" state, to distinguish it from the "connected" state
+ * Added a yellow icon for the "connecting" state, to distinguish it from the
+   "connected" state
  * Updated Makefile to respect standard variable names (DESTDIR, prefix, etc)
  * Added iwgtk.desktop file
  * Added man page
