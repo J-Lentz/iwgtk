@@ -11,13 +11,17 @@ Launch the application window: `iwgtk`
 
 Launch the indicator daemon: `iwgtk -i`
 
-A systemd unit file to start the indicator daemon is provided. If your distro
-uses systemd and your desktop environment supports systemd's
-`graphical-session.target` unit, you can start and enable iwgtk's indicator
-daemon with the following command:
-```
-systemctl --user enable iwgtk.service --now
-```
+### Autostarting
+The most common use case for iwgtk is to start the indicator daemon every time
+you log into your desktop. If your desktop environment supports the XDG
+autostart standard, this should happen automatically due to the
+`iwgtk-indicator.desktop` file which is placed in `/etc/xdg/autostart/` during
+installation.
+
+A systemd unit file to start the indicator daemon is also provided. If your
+distro uses systemd and your desktop environment supports systemd's
+`graphical-session.target` unit, then iwgtk can be started at the beginning of
+every desktop session by enabling the `iwgtk.service` unit.
 
 ## Dependencies
 * iwd >=1.28

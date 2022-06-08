@@ -7,7 +7,7 @@ LDLIBS=`pkg-config --libs gtk4`
 bindir=$(PREFIX)/bin
 datadir=$(PREFIX)/share
 unitdir=$(PREFIX)/lib/systemd/user
-
+autostartdir=/etc/xdg/autostart
 man1dir=$(datadir)/man/man1
 desktopdir=$(datadir)/applications
 icondir=$(datadir)/icons/hicolor/scalable/apps
@@ -36,6 +36,8 @@ install : iwgtk iwgtk.1.gz
 	install iwgtk $(DESTDIR)$(bindir)
 	install -d $(DESTDIR)$(desktopdir)
 	install misc/iwgtk.desktop $(DESTDIR)$(desktopdir)
+	install -d $(DESTDIR)$(autostartdir)
+	install misc/iwgtk-indicator.desktop $(DESTDIR)$(autostartdir)
 	install -d $(DESTDIR)$(unitdir)
 	install misc/iwgtk.service $(DESTDIR)$(unitdir)
 	install -d $(DESTDIR)$(man1dir)
@@ -46,6 +48,7 @@ install : iwgtk iwgtk.1.gz
 uninstall :
 	rm $(DESTDIR)$(bindir)/iwgtk
 	rm $(DESTDIR)$(desktopdir)/iwgtk.desktop
+	rm $(DESTDIR)$(autostartdir)/iwgtk-indicator.desktop
 	rm $(DESTDIR)$(unitdir)/iwgtk.service
 	rm $(DESTDIR)$(man1dir)/iwgtk.1.gz
 	rm $(DESTDIR)$(icondir)/iwgtk.svg
