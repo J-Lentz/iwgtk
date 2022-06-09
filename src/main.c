@@ -202,8 +202,17 @@ gint command_line(GApplication *application, GApplicationCommandLine *command_li
     }
 
     if (g_variant_dict_contains(options, "indicators")) {
-	global.state |= INDICATOR_DAEMON;
-	g_application_hold(application);
+	if (global.state & INDICATOR_DAEMON) {
+	    g_printerr("Cannot start indicator daemon: Indicator daemon is already running\n");
+	}
+	else {
+	    global.state |= INDICATOR_DAEMON;
+	    g_application_hold(application);
+
+	    if (global.manager) {
+		add_all_dbus_objects(NULL);
+	    }
+	}
     }
     else {
 	window_launch();
