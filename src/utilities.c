@@ -247,6 +247,7 @@ void send_notification(const gchar *text) {
 	g_notification_set_body(notification, text);
 	g_notification_set_priority(notification, G_NOTIFICATION_PRIORITY_NORMAL);
 	g_application_send_notification(G_APPLICATION(global.application), NULL, notification);
+	g_object_unref(notification);
     }
 }
 
