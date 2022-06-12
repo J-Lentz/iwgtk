@@ -19,7 +19,130 @@
 
 #include "iwgtk.h"
 
-void scan_button_clicked(GtkButton *button, Station *station) {
+void station_set(Station *station) {
+    GVariant *scanning_var;
+    gboolean scanning;
+
+    scanning_var = g_dbus_proxy_get_cached_property(station->proxy, "Scanning");
+    scanning = g_variant_get_boolean(scanning_var);
+
+    gtk_widget_set_sensitive(station->scan_button, !scanning);
+    gtk_button_set_child(GTK_BUTTON(station->scan_button),
+	    scanning ? station->scan_widget_scanning : station->scan_widget_idle);
+
+    if (scanning) {
+	station->state = STATION_SCANNING;
+	station->network_connected = NULL;
+
+	network_table_clear(station->network_table);
+
+	if (station->n_networks != 0) {
+	    for (int i = 0; i < station->n_networks; i ++) {
+		network_remove(station->networks + i);
+	    }
+
+	    station->n_networks = 0;
+	    g_free(station->networks);
+	}
+    }
+    else {
+	if (station->state == STATION_SCANNING) {
+	    // A scan has just completed
+	    station_network_table_build(station);
+	}
+
+	{
+	    GVariant *state_var;
+	    const gchar *state;
+
+	    state_var = g_dbus_proxy_get_cached_property(station->proxy, "State");
+	    state = g_variant_get_string(state_var, NULL);
+
+	    if (strcmp(state, "connected") == 0) {
+		station->state = STATION_CONNECTED;
+	    }
+	    else if (strcmp(state, "connecting") == 0) {
+		station->state = STATION_CONNECTING;
+	    }
+	    else {
+		station->state = STATION_DISCONNECTED;
+		station->network_connected = NULL;
+	    }
+
+	    g_variant_unref(state_var);
+	}
+
+	if (station->network_connected) {
+	    network_set(station->network_connected);
+	}
+    }
+
+    g_variant_unref(scanning_var);
+}
+
+Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
+    Station *station;
+
+    station = g_malloc(sizeof(Station));
+    station->proxy = proxy;
+    station->state = STATION_SCANNING;
+    station->n_networks = 0;
+    station->network_connected = NULL;
+
+    station->scan_button = gtk_button_new();
+    g_object_ref_sink(station->scan_button);
+    g_signal_connect_swapped(station->scan_button, "clicked", G_CALLBACK(send_scan_request), (gpointer) station);
+
+    station->scan_widget_idle = gtk_label_new("Scan");
+    g_object_ref_sink(station->scan_widget_idle);
+
+    station->scan_widget_scanning = label_with_spinner("Scanning");
+    g_object_ref_sink(station->scan_widget_scanning);
+
+    station->network_table = gtk_grid_new();
+    g_object_ref_sink(station->network_table);
+
+    gtk_widget_set_size_request(station->scan_button, 110, -1);
+    gtk_widget_set_halign(station->scan_button, GTK_ALIGN_FILL);
+
+    gtk_grid_set_column_spacing(GTK_GRID(station->network_table), 10);
+    gtk_grid_set_row_spacing(GTK_GRID(station->network_table), 10);
+
+    gtk_widget_set_margin_start(station->network_table, 5);
+    gtk_widget_set_margin_end(station->network_table, 5);
+    gtk_widget_set_margin_bottom(station->network_table, 5);
+
+    couple_register(window, DEVICE_STATION, 1, station, object);
+
+    station->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(station_set), (gpointer) station);
+    station_set(station);
+
+    return station;
+}
+
+void station_remove(Window *window, Station *station) {
+    g_object_unref(station->scan_button);
+    g_object_unref(station->scan_widget_idle);
+    g_object_unref(station->scan_widget_scanning);
+    g_object_unref(station->network_table);
+
+    couple_unregister(window, DEVICE_STATION, 1, station);
+
+    g_signal_handler_disconnect(station->proxy, station->handler_update);
+    g_free(station);
+}
+
+void bind_device_station(Device *device, Station *station) {
+    gtk_grid_attach(GTK_GRID(device->table), station->scan_button, 3, 0, 1, 1);
+    gtk_box_append(GTK_BOX(device->master), station->network_table);
+}
+
+void unbind_device_station(Device *device, Station *station) {
+    gtk_grid_remove(GTK_GRID(device->table), station->scan_button);
+    gtk_box_remove(GTK_BOX(device->master), station->network_table);
+}
+
+void send_scan_request(Station *station) {
     g_dbus_proxy_call(
 	station->proxy,
 	"Scan",
@@ -31,136 +154,6 @@ void scan_button_clicked(GtkButton *button, Station *station) {
 	(gpointer) "Error scanning: %s\n");
 }
 
-void scan_button_update(GDBusProxy *proxy, GVariant *properties, gchar **invalidated_properties, Station *station) {
-    GVariant *scanning_var;
-
-    scanning_var = lookup_property(properties, "Scanning");
-    if (scanning_var) {
-	gboolean scanning;
-	scanning = g_variant_get_boolean(scanning_var);
-	scan_button_set_child(station, scanning);
-
-	if (!scanning) {
-	    /*
-	     * The "Scanning" property has just changed from true to false.
-	     * Therefore, a scan has been completed and the network table must be updated.
-	     */
-
-	    station_network_table_build(station);
-	}
-
-	g_variant_unref(scanning_var);
-    }
-}
-
-void scan_button_set_child(Station *station, gboolean scanning) {
-    gtk_widget_set_sensitive(station->scan_button, !scanning);
-    gtk_button_set_child(GTK_BUTTON(station->scan_button),
-	    scanning ? station->scan_widget_scanning : station->scan_widget_idle);
-}
-
-GtkWidget* scan_button_new(Station *station) {
-    GtkWidget *spinner;
-
-    station->scan_button = gtk_button_new();
-    station->scan_widget_idle = gtk_label_new("Scan");
-    gtk_widget_show(station->scan_widget_idle);
-    g_object_ref(station->scan_widget_idle);
-
-    station->scan_widget_scanning = label_with_spinner("Scanning");
-    g_object_ref(station->scan_widget_scanning);
-
-    {
-	GVariant *scanning_var;
-	gboolean scanning;
-
-	scanning_var = g_dbus_proxy_get_cached_property(station->proxy, "Scanning");
-	scanning = g_variant_get_boolean(scanning_var);
-	scan_button_set_child(station, scanning);
-	g_variant_unref(scanning_var);
-    }
-
-    station->handler_scan = g_signal_connect(station->proxy, "g-properties-changed", G_CALLBACK(scan_button_update), (gpointer) station);
-    g_signal_connect(station->scan_button, "clicked", G_CALLBACK(scan_button_clicked), (gpointer) station);
-
-    return station->scan_button;
-}
-
-void station_set(Station *station) {
-    GVariant *state_var;
-    const gchar *state;
-
-    state_var = g_dbus_proxy_get_cached_property(station->proxy, "State");
-    state = g_variant_get_string(state_var, NULL);
-
-    if (strcmp(state, "connected") == 0) {
-	station->state = STATION_CONNECTED;
-    }
-    else if (strcmp(state, "connecting") == 0) {
-	station->state = STATION_CONNECTING;
-    }
-    else {
-	station->state = STATION_DISCONNECTED;
-	station->network_connected = NULL;
-    }
-
-    g_variant_unref(state_var);
-
-    if (station->network_connected) {
-	network_set(station->network_connected);
-    }
-}
-
-Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
-    Station *station;
-
-    station = g_malloc(sizeof(Station));
-    station->proxy = proxy;
-    station->device = NULL;
-    station->n_networks = 0;
-    station->network_connected = NULL;
-    station->state = STATION_DISCONNECTED;
-
-    station->scan_button = scan_button_new(station);
-    gtk_widget_set_size_request(station->scan_button, 110, -1);
-
-    station->network_table = NULL;
-    station_network_table_build(station);
-
-    station->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(station_set), (gpointer) station);
-
-    couple_register(window, DEVICE_STATION, 1, station, object);
-    return station;
-}
-
-void station_remove(Window *window, Station *station) {
-    g_object_unref(station->scan_widget_idle);
-    g_object_unref(station->scan_widget_scanning);
-    g_object_unref(station->network_table);
-
-    couple_unregister(window, DEVICE_STATION, 1, station);
-
-    g_signal_handler_disconnect(station->proxy, station->handler_update);
-    g_signal_handler_disconnect(station->proxy, station->handler_scan);
-    g_free(station);
-}
-
-void bind_device_station(Device *device, Station *station) {
-    station->device = device;
-
-    gtk_grid_attach(GTK_GRID(device->table), station->scan_button, 3, 0, 1, 1);
-    gtk_widget_set_halign(station->scan_button, GTK_ALIGN_FILL);
-    gtk_box_append(GTK_BOX(device->master), station->network_table);
-
-    station_set(station);
-}
-
-void unbind_device_station(Device *device, Station *station) {
-    station->device = NULL;
-    gtk_grid_remove(GTK_GRID(device->table), station->scan_button);
-    gtk_box_remove(GTK_BOX(device->master), station->network_table);
-}
-
 void insert_separator(Station *station, gint position) {
     GtkWidget *separator;
 
@@ -168,37 +161,15 @@ void insert_separator(Station *station, gint position) {
     gtk_grid_attach(GTK_GRID(station->network_table), separator, 0, position, 5, 1);
 }
 
+void network_table_clear(GtkWidget *table) {
+    GtkWidget *child;
+
+    while (child = gtk_widget_get_first_child(table)) {
+	gtk_grid_remove(GTK_GRID(table), child);
+    }
+}
+
 void station_network_table_build(Station *station) {
-    // Remove existing network table
-    if (station->network_table) {
-	if (station->device) {
-	    gtk_box_remove(GTK_BOX(station->device->master), station->network_table);
-	}
-
-	for (int i = 0; i < station->n_networks; i ++) {
-	    network_remove(station->networks + i);
-	}
-
-	station->n_networks = 0;
-	station->network_connected = NULL;
-
-	g_object_unref(station->network_table);
-	g_free(station->networks);
-    }
-
-    station->network_table = gtk_grid_new();
-    g_object_ref_sink(station->network_table);
-    gtk_grid_set_column_spacing(GTK_GRID(station->network_table), 10);
-    gtk_grid_set_row_spacing(GTK_GRID(station->network_table), 10);
-
-    gtk_widget_set_margin_start(station->network_table, 5);
-    gtk_widget_set_margin_end(station->network_table, 5);
-    gtk_widget_set_margin_bottom(station->network_table, 5);
-
-    if (station->device) {
-	gtk_box_append(GTK_BOX(station->device->master), station->network_table);
-    }
-
     g_dbus_proxy_call(
 	station->proxy,
 	"GetOrderedNetworks",
@@ -240,6 +211,7 @@ void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *statio
 	    else {
 		g_printerr("Error: Network '%s' not found\n", network_path);
 	    }
+
 	    g_free(network_path);
 	}
 
@@ -282,6 +254,7 @@ void get_hidden_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station 
 
 	i = 0;
 	g_variant_get(ordered_networks, "(a(sns))", &iter);
+
 	while (g_variant_iter_next(iter, "(sns)", &address, &signal_strength, &type)) {
 	    i ++;
 	    station_add_hidden_network(station, address, type, signal_strength, station->n_networks + i);

@@ -27,13 +27,14 @@ typedef struct Network_s Network;
 typedef enum {
     STATION_CONNECTED,
     STATION_CONNECTING,
-    STATION_DISCONNECTED
+    STATION_DISCONNECTED,
+    STATION_SCANNING
 } StationState;
 
 struct Station_s {
     GDBusProxy *proxy;
-    Device *device;
     StationState state;
+    gulong handler_update;
 
     // Networks
     gsize n_networks;
@@ -41,27 +42,21 @@ struct Station_s {
     Network *network_connected;
 
     // Widgets
-    GtkWidget *network_table;
     GtkWidget *scan_button;
     GtkWidget *scan_widget_idle;
     GtkWidget *scan_widget_scanning;
-
-    // Handlers
-    gulong handler_update;
-    gulong handler_scan;
+    GtkWidget *network_table;
 };
 
-void scan_button_clicked(GtkButton *button, Station *station);
-void network_remove_callback(GtkWidget *network, GtkWidget *network_table);
-void scan_button_update(GDBusProxy *proxy, GVariant *properties, gchar **invalidated_properties, Station *station);
-void scan_button_set_child(Station *station, gboolean scanning);
-GtkWidget* scan_button_new(Station *station);
 void station_set(Station *station);
 Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
 void station_remove(Window *window, Station *station);
 void bind_device_station(Device *device, Station *station);
 void unbind_device_station(Device *device, Station *station);
+
+void send_scan_request(Station *station);
 void insert_separator(Station *station, gint position);
+void network_table_clear(GtkWidget *table);
 void station_network_table_build(Station *station);
 void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *station);
 void get_hidden_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *station);
