@@ -21,7 +21,7 @@
 
 static int n_known_networks = 0;
 
-void forget_button_clicked(GDBusProxy *proxy) {
+void known_network_forget(GDBusProxy *proxy) {
     g_dbus_proxy_call(
 	proxy,
 	"Forget",
@@ -109,77 +109,77 @@ void known_network_set(KnownNetwork *kn) {
 
 KnownNetwork* known_network_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     KnownNetwork *kn;
+    GtkWidget *name_box, *autoconnect_switch, *forget_button;
 
     kn = g_malloc(sizeof(KnownNetwork));
     kn->proxy = proxy;
 
-    kn->name_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-
     kn->name_label = gtk_label_new(NULL);
+    g_object_ref_sink(kn->name_label);
     gtk_widget_set_tooltip_text(kn->name_label, "SSID");
-    kn->hidden_label = new_label_gray("(Hidden)");
 
-    gtk_box_append(GTK_BOX(kn->name_box), kn->name_label);
-    gtk_box_append(GTK_BOX(kn->name_box), kn->hidden_label);
+    kn->hidden_label = new_label_gray("(Hidden)");
+    g_object_ref_sink(kn->hidden_label);
+
+    name_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_box_append(GTK_BOX(name_box), kn->name_label);
+    gtk_box_append(GTK_BOX(name_box), kn->hidden_label);
 
     kn->security_label = gtk_label_new(NULL);
+    g_object_ref_sink(kn->security_label);
     gtk_widget_set_tooltip_text(kn->security_label, "Network security");
-    gtk_widget_show(kn->security_label);
 
-    kn->autoconnect_switch = switch_new(proxy, "AutoConnect");
-    gtk_widget_set_tooltip_text(kn->autoconnect_switch, "Automatically connect to this network");
+    autoconnect_switch = switch_new(proxy, "AutoConnect");
+    gtk_widget_set_tooltip_text(autoconnect_switch, "Automatically connect to this network");
 
-    kn->forget_button = gtk_button_new_with_label("Forget");
-    gtk_widget_set_tooltip_text(kn->forget_button, "Forget this network");
-    g_signal_connect_swapped(kn->forget_button, "clicked", G_CALLBACK(forget_button_clicked), (gpointer) proxy);
-    gtk_widget_show(kn->forget_button);
+    forget_button = gtk_button_new_with_label("Forget");
+    g_signal_connect_swapped(forget_button, "clicked", G_CALLBACK(known_network_forget), proxy);
+    gtk_widget_set_tooltip_text(forget_button, "Forget this network");
 
     kn->last_connection_label = gtk_label_new(NULL);
+    g_object_ref_sink(kn->last_connection_label);
     gtk_widget_set_tooltip_text(kn->last_connection_label, "Last connection to this network");
-    gtk_widget_show(kn->last_connection_label);
 
-    kn->index = n_known_networks;
-    n_known_networks ++;
+    gtk_widget_set_hexpand(name_box, TRUE);
 
-    gtk_grid_attach(GTK_GRID(window->known_network_table), kn->name_box,              0, kn->index, 1, 1);
-    gtk_grid_attach(GTK_GRID(window->known_network_table), kn->security_label,        1, kn->index, 1, 1);
-    gtk_grid_attach(GTK_GRID(window->known_network_table), kn->autoconnect_switch,    2, kn->index, 1, 1);
-    gtk_grid_attach(GTK_GRID(window->known_network_table), kn->forget_button,         3, kn->index, 1, 1);
-    gtk_grid_attach(GTK_GRID(window->known_network_table), kn->last_connection_label, 4, kn->index, 1, 1);
-
-    gtk_widget_set_hexpand(kn->name_box, TRUE);
-
-    gtk_widget_set_halign(kn->name_box,              GTK_ALIGN_START);
+    gtk_widget_set_halign(name_box,                  GTK_ALIGN_START);
     gtk_widget_set_halign(kn->name_label,            GTK_ALIGN_START);
     gtk_widget_set_halign(kn->hidden_label,          GTK_ALIGN_START);
 
     gtk_widget_set_halign(kn->security_label,        GTK_ALIGN_START);
-    gtk_widget_set_halign(kn->autoconnect_switch,    GTK_ALIGN_START);
-    gtk_widget_set_halign(kn->forget_button,         GTK_ALIGN_START);
+    gtk_widget_set_halign(autoconnect_switch,        GTK_ALIGN_START);
+    gtk_widget_set_halign(forget_button,             GTK_ALIGN_START);
     gtk_widget_set_halign(kn->last_connection_label, GTK_ALIGN_START);
 
+    gtk_grid_attach(GTK_GRID(window->known_network_table), name_box,                  0, n_known_networks, 1, 1);
+    gtk_grid_attach(GTK_GRID(window->known_network_table), kn->security_label,        1, n_known_networks, 1, 1);
+    gtk_grid_attach(GTK_GRID(window->known_network_table), autoconnect_switch,        2, n_known_networks, 1, 1);
+    gtk_grid_attach(GTK_GRID(window->known_network_table), forget_button,             3, n_known_networks, 1, 1);
+    gtk_grid_attach(GTK_GRID(window->known_network_table), kn->last_connection_label, 4, n_known_networks, 1, 1);
+
+    kn->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(known_network_set), kn);
     known_network_set(kn);
-    kn->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(known_network_set), (gpointer) kn);
+
+    n_known_networks ++;
 
     return kn;
 }
 
-void known_network_remove(Window *window, KnownNetwork *known_network) {
-    gtk_grid_remove_row(GTK_GRID(window->known_network_table), known_network->index);
-    n_known_networks --;
+void known_network_remove(Window *window, KnownNetwork *kn) {
+    g_signal_handler_disconnect(kn->proxy, kn->handler_update);
 
     {
-	ObjectList *kn_list = window->objects[OBJECT_KNOWN_NETWORK];
-	while (kn_list != NULL) {
-	    KnownNetwork *kn;
-	    kn = (KnownNetwork *) kn_list->data;
-	    if (kn->index > known_network->index) {
-		kn->index --;
-	    }
-	    kn_list = kn_list->next;
-	}
+	int n;
+
+	gtk_grid_query_child(GTK_GRID(window->known_network_table), kn->security_label, NULL, &n, NULL, NULL);
+	gtk_grid_remove_row(GTK_GRID(window->known_network_table), n);
     }
 
-    g_signal_handler_disconnect(known_network->proxy, known_network->handler_update);
-    g_free(known_network);
+    g_object_unref(kn->name_label);
+    g_object_unref(kn->hidden_label);
+    g_object_unref(kn->security_label);
+    g_object_unref(kn->last_connection_label);
+    g_free(kn);
+
+    n_known_networks --;
 }

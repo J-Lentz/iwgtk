@@ -24,23 +24,16 @@ typedef struct KnownNetwork_s KnownNetwork;
 
 struct KnownNetwork_s {
     GDBusProxy *proxy;
-    guint index;
+    gulong handler_update;
 
     // Widgets
-    GtkWidget *name_box;
     GtkWidget *name_label;
     GtkWidget *hidden_label;
-
     GtkWidget *security_label;
-    GtkWidget *autoconnect_switch;
-    GtkWidget *forget_button;
     GtkWidget *last_connection_label;
-
-    // Handlers
-    gulong handler_update;
 };
 
-void forget_button_clicked(GDBusProxy *proxy);
+void known_network_forget(GDBusProxy *proxy);
 KnownNetwork* known_network_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
 void known_network_remove(Window *window, KnownNetwork *known_network);
 
