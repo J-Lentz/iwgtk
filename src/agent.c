@@ -100,7 +100,7 @@ void agent_register(GDBusProxy *proxy) {
 	    IWGTK_PATH_AGENT,
 	    &agent_interface_info,
 	    &agent_interface_vtable,
-	    (gpointer) agent,
+	    agent,
 	    (GDestroyNotify) agent_remove,
 	    &err);
 
@@ -117,7 +117,7 @@ void agent_register(GDBusProxy *proxy) {
 	-1,
 	NULL,
 	(GAsyncReadyCallback) method_call_log,
-	(gpointer) "Error registering agent: %s\n");
+	"Error registering agent: %s\n");
 }
 
 void agent_remove(Agent *agent) {

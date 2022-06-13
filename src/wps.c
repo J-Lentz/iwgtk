@@ -38,7 +38,7 @@ void wps_callback(GDBusProxy *proxy, GAsyncResult *res, WPS *wps) {
     gtk_widget_show(wps->connect);
     gtk_widget_hide(wps->cancel);
 
-    method_call_notify(proxy, res, (gpointer) &wps_messages);
+    method_call_notify(proxy, res, (CallbackMessages *) &wps_messages);
 }
 
 void wps_connect_pin_dialog(WPS *wps) {
@@ -88,7 +88,7 @@ void wps_pin_dialog_submit(WPSDialog *wps_dialog) {
 	G_MAXINT,
 	NULL,
 	(GAsyncReadyCallback) wps_callback,
-	(gpointer) wps_dialog->wps);
+	wps_dialog->wps);
 
     gtk_widget_show(wps_dialog->wps->cancel);
     gtk_widget_hide(wps_dialog->wps->connect);
@@ -105,7 +105,7 @@ void wps_cancel(WPS *wps) {
 	-1,
 	NULL,
 	(GAsyncReadyCallback) method_call_log,
-	(gpointer) "Error canceling WPS connection: %s\n");
+	"Error canceling WPS connection: %s\n");
 
     gtk_widget_show(wps->connect);
     gtk_widget_hide(wps->cancel);
@@ -120,7 +120,7 @@ void wps_connect_pushbutton(WPS *wps) {
 	G_MAXINT,
 	NULL,
 	(GAsyncReadyCallback) wps_callback,
-	(gpointer) wps);
+	wps);
 
     gtk_widget_show(wps->cancel);
     gtk_widget_hide(wps->connect);
@@ -142,8 +142,8 @@ WPS* wps_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 	pushbutton = gtk_button_new_with_label("Push button");
 	pin = gtk_button_new_with_label("PIN");
 
-	g_signal_connect_swapped(pushbutton, "clicked", G_CALLBACK(wps_connect_pushbutton), (gpointer) wps);
-	g_signal_connect_swapped(pin, "clicked", G_CALLBACK(wps_connect_pin_dialog), (gpointer) wps);
+	g_signal_connect_swapped(pushbutton, "clicked", G_CALLBACK(wps_connect_pushbutton), wps);
+	g_signal_connect_swapped(pin, "clicked", G_CALLBACK(wps_connect_pin_dialog), wps);
 
 	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 	gtk_box_append(GTK_BOX(vbox), pushbutton);
@@ -155,12 +155,12 @@ WPS* wps_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     }
 
     wps->connect = gtk_button_new_with_label("Connect via WPS");
-    g_signal_connect_swapped(wps->connect, "clicked", G_CALLBACK(gtk_widget_show), (gpointer) wps->menu);
+    g_signal_connect_swapped(wps->connect, "clicked", G_CALLBACK(gtk_widget_show), wps->menu);
     gtk_widget_set_parent(wps->menu, wps->connect);
 
     wps->cancel = gtk_button_new();
     gtk_button_set_child(GTK_BUTTON(wps->cancel), label_with_spinner("Cancel"));
-    g_signal_connect_swapped(wps->cancel, "clicked", G_CALLBACK(wps_cancel), (gpointer) wps);
+    g_signal_connect_swapped(wps->cancel, "clicked", G_CALLBACK(wps_cancel), wps);
 
     gtk_widget_hide(wps->cancel);
 

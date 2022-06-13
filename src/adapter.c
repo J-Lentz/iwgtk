@@ -84,7 +84,7 @@ Adapter* adapter_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     gtk_box_append(GTK_BOX(row1), adapter->power_switch);
     gtk_widget_set_tooltip_text(GTK_WIDGET(adapter->power_switch), "RF kill switch");
 
-    adapter->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(adapter_set), (gpointer) adapter);
+    adapter->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(adapter_set), adapter);
     adapter_set(adapter);
 
     couple_register(window, ADAPTER_DEVICE, 0, adapter, object);

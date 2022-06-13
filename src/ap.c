@@ -159,7 +159,7 @@ AP* ap_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 
     ap->button = gtk_button_new_with_label(NULL);
     g_object_ref_sink(ap->button);
-    g_signal_connect_swapped(ap->button, "clicked", G_CALLBACK(ap_button_clicked), (gpointer) ap);
+    g_signal_connect_swapped(ap->button, "clicked", G_CALLBACK(ap_button_clicked), ap);
 
     ap->ssid = gtk_label_new(NULL);
     g_object_ref_sink(ap->ssid);
@@ -168,7 +168,7 @@ AP* ap_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 
     couple_register(window, DEVICE_AP, 1, ap, object);
 
-    ap->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(ap_set), (gpointer) ap);
+    ap->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(ap_set), ap);
 
     return ap;
 }

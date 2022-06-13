@@ -60,10 +60,10 @@ GtkWidget* switch_new(GDBusProxy *proxy, const gchar *property) {
 
     gtk_switch_set_active(GTK_SWITCH(switch_data->widget), state);
 
-    switch_data->handler = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(switch_set), (gpointer) switch_data);
+    switch_data->handler = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(switch_set), switch_data);
 
-    g_signal_connect(switch_data->widget, "state-set", G_CALLBACK(switch_handler), (gpointer) switch_data);
-    g_signal_connect(switch_data->widget, "destroy", G_CALLBACK(switch_rm), (gpointer) switch_data);
+    g_signal_connect(switch_data->widget, "state-set", G_CALLBACK(switch_handler), switch_data);
+    g_signal_connect(switch_data->widget, "destroy", G_CALLBACK(switch_rm), switch_data);
 
     gtk_widget_set_halign(switch_data->widget, GTK_ALIGN_CENTER);
     gtk_widget_set_valign(switch_data->widget, GTK_ALIGN_CENTER);

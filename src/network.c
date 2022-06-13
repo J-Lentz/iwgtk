@@ -72,7 +72,7 @@ void connect_button_clicked(GtkButton *button, GDBusProxy *network_proxy) {
 	-1,
 	NULL,
 	(GAsyncReadyCallback) method_call_notify,
-	(gpointer) messages);
+	messages);
 }
 
 void disconnect_button_clicked(GtkButton *button, Network *network) {
@@ -103,7 +103,7 @@ void disconnect_button_clicked(GtkButton *button, Network *network) {
 	-1,
 	NULL,
 	(GAsyncReadyCallback) method_call_notify,
-	(gpointer) messages);
+	messages);
 }
 
 void network_set(Network *network) {
@@ -161,7 +161,7 @@ void network_set(Network *network) {
 
 	    gtk_button_set_label(button, "Disconnect");
 	    gtk_widget_set_tooltip_text(network->connect_button, "Disconnect from network");
-	    network->button_handler_id = g_signal_connect(button, "clicked", G_CALLBACK(disconnect_button_clicked), (gpointer) network);
+	    network->button_handler_id = g_signal_connect(button, "clicked", G_CALLBACK(disconnect_button_clicked), network);
 	}
 	else {
 	    GVariant *known_network_var;
@@ -183,7 +183,7 @@ void network_set(Network *network) {
 
 	    gtk_button_set_label(button, "Connect");
 	    gtk_widget_set_tooltip_text(network->connect_button, "Connect to network");
-	    network->button_handler_id = g_signal_connect(button, "clicked", G_CALLBACK(connect_button_clicked), (gpointer) network->proxy);
+	    network->button_handler_id = g_signal_connect(button, "clicked", G_CALLBACK(connect_button_clicked), network->proxy);
 	}
     }
 
@@ -232,7 +232,7 @@ void station_add_network(Station *station, GDBusProxy *network_proxy, gint16 sig
     gtk_widget_set_size_request(network->connect_button, 107, -1);
 
     network_set(network);
-    network->handler_update = g_signal_connect_swapped(network_proxy, "g-properties-changed", G_CALLBACK(network_set), (gpointer) network);
+    network->handler_update = g_signal_connect_swapped(network_proxy, "g-properties-changed", G_CALLBACK(network_set), network);
 }
 
 void network_remove(Network *network) {

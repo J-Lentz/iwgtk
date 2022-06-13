@@ -115,7 +115,7 @@ void diagnostic_show(StationDiagnostic *diagnostic) {
 	-1,
 	NULL,
 	(GAsyncReadyCallback) diagnostic_callback,
-	(gpointer) table);
+	table);
 
     {
 	GtkWidget *property;
@@ -151,7 +151,7 @@ StationDiagnostic* diagnostic_add(Window *window, GDBusObject *object, GDBusProx
     diagnostic->button = gtk_button_new_with_label("Diagnostics");
     g_object_ref_sink(diagnostic->button);
 
-    g_signal_connect_swapped(diagnostic->button, "clicked", G_CALLBACK(diagnostic_show), (gpointer) diagnostic);
+    g_signal_connect_swapped(diagnostic->button, "clicked", G_CALLBACK(diagnostic_show), diagnostic);
     couple_register(window, DEVICE_DIAGNOSTIC, 1, diagnostic, object);
 
     return diagnostic;

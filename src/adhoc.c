@@ -61,7 +61,7 @@ void adhoc_dialog_launch(AdHoc *adhoc) {
 
     adhoc_dialog->psk_toggle = gtk_check_button_new();
     gtk_check_button_set_active(GTK_CHECK_BUTTON(adhoc_dialog->psk_toggle), TRUE);
-    g_signal_connect(adhoc_dialog->psk_toggle, "toggled", G_CALLBACK(psk_toggle_changed), (gpointer) adhoc_dialog);
+    g_signal_connect(adhoc_dialog->psk_toggle, "toggled", G_CALLBACK(psk_toggle_changed), adhoc_dialog);
 
     gtk_grid_attach(GTK_GRID(table), gtk_label_new("SSID: "),     0, 0, 1, 1);
     gtk_grid_attach(GTK_GRID(table), adhoc_dialog->ssid,          2, 0, 1, 1);
@@ -224,7 +224,7 @@ AdHoc* adhoc_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 
     adhoc->button = gtk_button_new_with_label(NULL);
     g_object_ref_sink(adhoc->button);
-    g_signal_connect_swapped(adhoc->button, "clicked", G_CALLBACK(adhoc_button_clicked), (gpointer) adhoc);
+    g_signal_connect_swapped(adhoc->button, "clicked", G_CALLBACK(adhoc_button_clicked), adhoc);
 
     adhoc->n_peers = gtk_label_new(NULL);
     g_object_ref_sink(adhoc->n_peers);
@@ -236,7 +236,7 @@ AdHoc* adhoc_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 
     couple_register(window, DEVICE_ADHOC, 1, adhoc, object);
 
-    adhoc->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(adhoc_set), (gpointer) adhoc);
+    adhoc->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(adhoc_set), adhoc);
 
     return adhoc;
 }

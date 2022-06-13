@@ -91,7 +91,7 @@ Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 
     station->scan_button = gtk_button_new();
     g_object_ref_sink(station->scan_button);
-    g_signal_connect_swapped(station->scan_button, "clicked", G_CALLBACK(send_scan_request), (gpointer) station);
+    g_signal_connect_swapped(station->scan_button, "clicked", G_CALLBACK(send_scan_request), station);
 
     station->scan_widget_idle = gtk_label_new("Scan");
     g_object_ref_sink(station->scan_widget_idle);
@@ -114,7 +114,7 @@ Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 
     couple_register(window, DEVICE_STATION, 1, station, object);
 
-    station->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(station_set), (gpointer) station);
+    station->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(station_set), station);
     station_set(station);
 
     return station;
@@ -151,7 +151,7 @@ void send_scan_request(Station *station) {
 	-1,
 	NULL,
 	(GAsyncReadyCallback) method_call_log,
-	(gpointer) "Error scanning: %s\n");
+	"Error scanning: %s\n");
 }
 
 void insert_separator(Station *station, gint position) {
@@ -178,7 +178,7 @@ void station_network_table_build(Station *station) {
 	-1,
 	NULL,
 	(GAsyncReadyCallback) get_networks_callback,
-	(gpointer) station);
+	station);
 }
 
 void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *station) {
@@ -235,7 +235,7 @@ void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *statio
 	-1,
 	NULL,
 	(GAsyncReadyCallback) get_hidden_networks_callback,
-	(gpointer) station);
+	station);
 }
 
 void get_hidden_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *station) {

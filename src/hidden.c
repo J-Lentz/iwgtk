@@ -99,7 +99,7 @@ void station_add_hidden_network(Station *station, const gchar *address, const gc
     gtk_widget_set_tooltip_text(security_label, "Network security");
     gtk_widget_set_tooltip_text(connect_button, "Connect to hidden network");
 
-    g_signal_connect_swapped(connect_button, "clicked", G_CALLBACK(hidden_ssid_dialog), (gpointer) station);
+    g_signal_connect_swapped(connect_button, "clicked", G_CALLBACK(hidden_ssid_dialog), station);
 
     gtk_grid_attach(GTK_GRID(station->network_table), status_icon,    0, index, 1, 1);
     gtk_grid_attach(GTK_GRID(station->network_table), address_label,  1, index, 1, 1);

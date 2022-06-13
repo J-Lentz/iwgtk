@@ -132,7 +132,7 @@ Device* device_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(device->button), FALSE);
 	gtk_toggle_button_set_group(GTK_TOGGLE_BUTTON(device->button), GTK_TOGGLE_BUTTON(window->known_network_button));
 	gtk_widget_set_hexpand(device->button, TRUE);
-	g_signal_connect(device->button, "toggled", G_CALLBACK(device_show), (gpointer) device);
+	g_signal_connect(device->button, "toggled", G_CALLBACK(device_show), device);
 
 	g_variant_unref(name_var);
     }
@@ -210,10 +210,10 @@ Device* device_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 	gtk_grid_set_column_spacing(GTK_GRID(device->table), 3);
     }
 
-    device->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(device_set), (gpointer) device);
+    device->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(device_set), device);
     device_set(device);
 
-    g_signal_connect(device->mode_box, "changed", G_CALLBACK(mode_box_changed), (gpointer) device);
+    g_signal_connect(device->mode_box, "changed", G_CALLBACK(mode_box_changed), device);
 
     couple_register(window, DEVICE_STATION,    0, device, object);
     couple_register(window, DEVICE_AP,         0, device, object);

@@ -30,7 +30,7 @@ void known_network_forget(GDBusProxy *proxy) {
 	-1,
 	NULL,
 	(GAsyncReadyCallback) method_call_log,
-	(gpointer) "Error forgetting network: %s\n");
+	"Error forgetting network: %s\n");
 }
 
 void known_network_set(KnownNetwork *kn) {

@@ -212,7 +212,7 @@ void set_remote_property(GDBusProxy *proxy, const gchar *property, GVariant *val
 	    -1,
 	    NULL,
 	    (GAsyncReadyCallback) set_remote_property_callback,
-	    (gpointer) failure_closure);
+	    failure_closure);
     }
     else {
 	g_variant_unref(value);
