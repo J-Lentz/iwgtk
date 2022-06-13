@@ -35,15 +35,15 @@ install : iwgtk iwgtk.1.gz
 	install -d $(DESTDIR)$(bindir)
 	install iwgtk $(DESTDIR)$(bindir)
 	install -d $(DESTDIR)$(desktopdir)
-	install misc/iwgtk.desktop $(DESTDIR)$(desktopdir)
+	install -m 644 misc/iwgtk.desktop $(DESTDIR)$(desktopdir)
 	install -d $(DESTDIR)$(autostartdir)
-	install misc/iwgtk-indicator.desktop $(DESTDIR)$(autostartdir)
+	install -m 644 misc/iwgtk-indicator.desktop $(DESTDIR)$(autostartdir)
 	install -d $(DESTDIR)$(unitdir)
-	install misc/iwgtk.service $(DESTDIR)$(unitdir)
+	install -m 644 misc/iwgtk.service $(DESTDIR)$(unitdir)
 	install -d $(DESTDIR)$(man1dir)
-	install iwgtk.1.gz $(DESTDIR)$(man1dir)
+	install -m 644 iwgtk.1.gz $(DESTDIR)$(man1dir)
 	install -d $(DESTDIR)$(icondir)
-	install misc/iwgtk.svg $(DESTDIR)$(icondir)
+	install -m 644 misc/iwgtk.svg $(DESTDIR)$(icondir)
 
 uninstall :
 	rm $(DESTDIR)$(bindir)/iwgtk
