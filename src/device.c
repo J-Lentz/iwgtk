@@ -161,6 +161,7 @@ Device* device_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     gtk_box_append(GTK_BOX(device->master), device->table);
     gtk_box_append(GTK_BOX(device->master), gtk_separator_new(GTK_ORIENTATION_HORIZONTAL));
 
+    gtk_widget_set_size_request(device->table, 423, -1);
     gtk_widget_set_halign(device->table, GTK_ALIGN_CENTER);
 
     device->mac_label = gtk_label_new(NULL);
