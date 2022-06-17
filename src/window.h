@@ -38,7 +38,7 @@ typedef enum {
     DEVICE_STATION,
     DEVICE_AP,
     DEVICE_ADHOC,
-    DEVICE_WPS,
+    STATION_WPS,
     DEVICE_DIAGNOSTIC
 } CoupleType;
 

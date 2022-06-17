@@ -221,7 +221,6 @@ Device* device_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     couple_register(window, DEVICE_STATION,    0, device, object);
     couple_register(window, DEVICE_AP,         0, device, object);
     couple_register(window, DEVICE_ADHOC,      0, device, object);
-    couple_register(window, DEVICE_WPS,        0, device, object);
     couple_register(window, DEVICE_DIAGNOSTIC, 0, device, object);
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(device->button), TRUE);
@@ -261,7 +260,6 @@ void device_remove(Window *window, Device *device) {
     couple_unregister(window, DEVICE_STATION,    0, device);
     couple_unregister(window, DEVICE_AP,         0, device);
     couple_unregister(window, DEVICE_ADHOC,      0, device);
-    couple_unregister(window, DEVICE_WPS,        0, device);
     couple_unregister(window, DEVICE_DIAGNOSTIC, 0, device);
 
     couple_unregister(window, ADAPTER_DEVICE, 1, device);

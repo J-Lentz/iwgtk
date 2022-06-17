@@ -25,12 +25,11 @@ typedef struct WPSDialog_s WPSDialog;
 
 struct WPS_s {
     GDBusProxy *proxy;
+    Station *station;
 
-    // Widgets
-    GtkWidget *connect;
-    GtkWidget *cancel;
-    GtkWidget *menu;
-    GtkWidget *hbox;
+    GtkWidget *label;
+    GtkWidget *pushbutton;
+    GtkWidget *pin;
 };
 
 struct WPSDialog_s {
@@ -39,6 +38,7 @@ struct WPSDialog_s {
     GtkWidget *pin;
 };
 
+void wps_set_button_cancel(WPS *wps);
 void wps_callback(GDBusProxy *proxy, GAsyncResult *res, WPS *wps);
 void wps_connect_pin_dialog(WPS *wps);
 void wps_pin_dialog_submit(WPSDialog *wps_dialog);
@@ -47,7 +47,7 @@ void wps_cancel(WPS *wps);
 void wps_connect_pushbutton(WPS *wps);
 WPS* wps_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
 void wps_remove(Window *window, WPS *wps);
-void bind_device_wps(Device *device, WPS *wps);
-void unbind_device_wps(Device *device, WPS *wps);
+void bind_station_wps(Station *station, WPS *wps);
+void unbind_station_wps(Station *station, WPS *wps);
 
 #endif

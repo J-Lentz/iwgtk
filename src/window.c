@@ -35,7 +35,7 @@ CoupleMethods couple_methods[] = {
     {(BindFunction) bind_device_station,    (UnbindFunction) unbind_device_station},
     {(BindFunction) bind_device_ap,         (UnbindFunction) unbind_device_ap},
     {(BindFunction) bind_device_adhoc,      (UnbindFunction) unbind_device_adhoc},
-    {(BindFunction) bind_device_wps,        (UnbindFunction) unbind_device_wps},
+    {(BindFunction) bind_station_wps,       (UnbindFunction) unbind_station_wps},
     {(BindFunction) bind_device_diagnostic, (UnbindFunction) unbind_device_diagnostic}
 };
 

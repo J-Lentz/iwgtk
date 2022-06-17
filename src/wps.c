@@ -34,10 +34,17 @@ static const CallbackMessages wps_messages = {
     FALSE
 };
 
-void wps_callback(GDBusProxy *proxy, GAsyncResult *res, WPS *wps) {
-    gtk_widget_show(wps->connect);
-    gtk_widget_hide(wps->cancel);
+void wps_set_button_cancel(WPS *wps) {
+    Station *station;
 
+    station = wps->station;
+    g_signal_handler_disconnect(station->provision_button, station->handler_provision);
+    gtk_button_set_child(GTK_BUTTON(station->provision_button), label_with_spinner("Cancel"));
+    station->handler_provision = g_signal_connect_swapped(station->provision_button, "clicked", G_CALLBACK(wps_cancel), wps);
+}
+
+void wps_callback(GDBusProxy *proxy, GAsyncResult *res, WPS *wps) {
+    station_provision_button_set(wps->station);
     method_call_notify(proxy, res, (CallbackMessages *) &wps_messages);
 }
 
@@ -90,9 +97,7 @@ void wps_pin_dialog_submit(WPSDialog *wps_dialog) {
 	(GAsyncReadyCallback) wps_callback,
 	wps_dialog->wps);
 
-    gtk_widget_show(wps_dialog->wps->cancel);
-    gtk_widget_hide(wps_dialog->wps->connect);
-
+    wps_set_button_cancel(wps_dialog->wps);
     gtk_window_destroy(GTK_WINDOW(wps_dialog->window));
 }
 
@@ -107,8 +112,7 @@ void wps_cancel(WPS *wps) {
 	(GAsyncReadyCallback) method_call_log,
 	"Error canceling WPS connection: %s\n");
 
-    gtk_widget_show(wps->connect);
-    gtk_widget_hide(wps->cancel);
+    station_provision_button_set(wps->station);
 }
 
 void wps_connect_pushbutton(WPS *wps) {
@@ -122,8 +126,7 @@ void wps_connect_pushbutton(WPS *wps) {
 	(GAsyncReadyCallback) wps_callback,
 	wps);
 
-    gtk_widget_show(wps->cancel);
-    gtk_widget_hide(wps->connect);
+    wps_set_button_cancel(wps);
 }
 
 WPS* wps_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
@@ -134,64 +137,42 @@ WPS* wps_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     wps = g_malloc(sizeof(WPS));
     wps->proxy = proxy;
 
-    {
-	GtkWidget *pushbutton;
-	GtkWidget *pin;
-	GtkWidget *vbox;
+    wps->label = new_label_bold("WPS");
+    g_object_ref_sink(wps->label);
 
-	pushbutton = gtk_button_new_with_label("Push button");
-	pin = gtk_button_new_with_label("PIN");
+    wps->pushbutton = gtk_button_new_with_label("Push button");
+    g_object_ref_sink(wps->pushbutton);
 
-	g_signal_connect_swapped(pushbutton, "clicked", G_CALLBACK(wps_connect_pushbutton), wps);
-	g_signal_connect_swapped(pin, "clicked", G_CALLBACK(wps_connect_pin_dialog), wps);
+    wps->pin = gtk_button_new_with_label("PIN");
+    g_object_ref_sink(wps->pin);
 
-	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-	gtk_box_append(GTK_BOX(vbox), pushbutton);
-	gtk_box_append(GTK_BOX(vbox), pin);
+    g_signal_connect_swapped(wps->pushbutton, "clicked", G_CALLBACK(wps_connect_pushbutton), wps);
+    g_signal_connect_swapped(wps->pin, "clicked", G_CALLBACK(wps_connect_pin_dialog), wps);
 
-	wps->menu = gtk_popover_new();
-	gtk_popover_set_child(GTK_POPOVER(wps->menu), vbox);
-	gtk_popover_set_has_arrow(GTK_POPOVER(wps->menu), FALSE);
-    }
-
-    wps->connect = gtk_button_new_with_label("Connect via WPS");
-    g_signal_connect_swapped(wps->connect, "clicked", G_CALLBACK(gtk_widget_show), wps->menu);
-    gtk_widget_set_parent(wps->menu, wps->connect);
-
-    wps->cancel = gtk_button_new();
-    gtk_button_set_child(GTK_BUTTON(wps->cancel), label_with_spinner("Cancel"));
-    g_signal_connect_swapped(wps->cancel, "clicked", G_CALLBACK(wps_cancel), wps);
-
-    gtk_widget_hide(wps->cancel);
-
-    {
-	wps->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-	g_object_ref_sink(wps->hbox);
-	gtk_box_append(GTK_BOX(wps->hbox), wps->connect);
-	gtk_box_append(GTK_BOX(wps->hbox), wps->cancel);
-    }
-
-    gtk_widget_set_hexpand(wps->connect, TRUE);
-    gtk_widget_set_hexpand(wps->cancel, TRUE);
-    gtk_widget_set_hexpand(wps->hbox, FALSE);
-
-    couple_register(window, DEVICE_WPS, 1, wps, object);
+    couple_register(window, STATION_WPS, 1, wps, object);
     return wps;
 }
 
 void wps_remove(Window *window, WPS *wps) {
-    gtk_widget_unparent(wps->menu);
-    couple_unregister(window, DEVICE_WPS, 1, wps);
-    g_object_unref(wps->hbox);
+    couple_unregister(window, STATION_WPS, 1, wps);
+
+    g_object_unref(wps->label);
+    g_object_unref(wps->pushbutton);
+    g_object_unref(wps->pin);
+
     g_free(wps);
 }
 
-void bind_device_wps(Device *device, WPS *wps) {
-    gtk_grid_attach(GTK_GRID(device->table), wps->hbox, 0, 1, 1, 1);
-    gtk_widget_set_halign(wps->hbox, GTK_ALIGN_FILL);
-    gtk_widget_set_valign(wps->hbox, GTK_ALIGN_CENTER);
+void bind_station_wps(Station *station, WPS *wps) {
+    wps->station = station;
+
+    gtk_box_append(GTK_BOX(station->provision_vbox), wps->label);
+    gtk_box_append(GTK_BOX(station->provision_vbox), wps->pushbutton);
+    gtk_box_append(GTK_BOX(station->provision_vbox), wps->pin);
 }
 
-void unbind_device_wps(Device *device, WPS *wps) {
-    gtk_grid_remove(GTK_GRID(device->table), wps->hbox);
+void unbind_station_wps(Station *station, WPS *wps) {
+    gtk_box_remove(GTK_BOX(station->provision_vbox), wps->label);
+    gtk_box_remove(GTK_BOX(station->provision_vbox), wps->pushbutton);
+    gtk_box_remove(GTK_BOX(station->provision_vbox), wps->pin);
 }
