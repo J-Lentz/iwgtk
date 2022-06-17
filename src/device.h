@@ -25,7 +25,6 @@ typedef struct Window_s Window;
 
 struct Device_s {
     GDBusProxy *proxy;
-    Window *window;
 
     // Button for the tab switcher
     GtkWidget *button;

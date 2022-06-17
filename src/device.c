@@ -21,7 +21,7 @@
 
 void device_show(GtkToggleButton *button, Device *device) {
     if (gtk_toggle_button_get_active(button)) {
-	gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(device->window->main), device->master);
+	gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(global.window->main), device->master);
     }
 }
 
@@ -117,7 +117,6 @@ Device* device_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 
     device = g_malloc(sizeof(Device));
     device->proxy = proxy;
-    device->window = window;
 
     {
 	GVariant *name_var;
