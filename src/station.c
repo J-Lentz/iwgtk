@@ -170,7 +170,7 @@ void station_remove(Window *window, Station *station) {
 
 void bind_device_station(Device *device, Station *station) {
     gtk_grid_attach(GTK_GRID(device->table), station->scan_button,      3, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(device->table), station->provision_button, 0, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(device->table), station->provision_button, 3, 1, 1, 1);
     gtk_box_append(GTK_BOX(device->master), station->network_table);
 }
 
