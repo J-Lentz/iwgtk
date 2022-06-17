@@ -152,12 +152,15 @@ Device* device_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 	adapter_proxy = G_DBUS_PROXY(g_dbus_object_get_interface(adapter_object, IWD_IFACE_ADAPTER));
 	device->mode_box = mode_box_new(adapter_proxy);
 	g_object_unref(adapter_proxy);
+	g_object_ref_sink(device->mode_box);
     }
 
     device->master = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     g_object_ref_sink(device->master);
 
     device->table = gtk_grid_new();
+    g_object_ref_sink(device->table);
+
     gtk_box_append(GTK_BOX(device->master), device->table);
     gtk_box_append(GTK_BOX(device->master), gtk_separator_new(GTK_ORIENTATION_HORIZONTAL));
 
@@ -165,6 +168,7 @@ Device* device_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     gtk_widget_set_halign(device->table, GTK_ALIGN_CENTER);
 
     device->mac_label = gtk_label_new(NULL);
+    g_object_ref_sink(device->mac_label);
     gtk_widget_set_tooltip_text(GTK_WIDGET(device->mac_label), "MAC address");
 
     {
@@ -262,8 +266,11 @@ void device_remove(Window *window, Device *device) {
 
     couple_unregister(window, ADAPTER_DEVICE, 1, device);
 
-    g_object_unref(device->master);
     g_object_unref(device->button);
+    g_object_unref(device->mode_box);
+    g_object_unref(device->master);
+    g_object_unref(device->table);
+    g_object_unref(device->mac_label);
 
     g_signal_handler_disconnect(device->proxy, device->handler_update);
     g_free(device);
