@@ -139,6 +139,7 @@ WPS* wps_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 
     wps->label = new_label_bold("WPS");
     g_object_ref_sink(wps->label);
+    gtk_widget_set_margin_top(wps->label, 10);
 
     wps->pushbutton = gtk_button_new_with_label("Push button");
     g_object_ref_sink(wps->pushbutton);

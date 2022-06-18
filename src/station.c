@@ -111,6 +111,15 @@ Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     station->provision_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     g_object_ref_sink(station->provision_vbox);
 
+    {
+	GtkWidget *hidden_connect;
+
+	hidden_connect = gtk_button_new_with_label("Hidden network");
+	gtk_widget_set_tooltip_text(hidden_connect, "Connect to a hidden network");
+	g_signal_connect_swapped(hidden_connect, "clicked", G_CALLBACK(hidden_ssid_dialog), station);
+	gtk_box_append(GTK_BOX(station->provision_vbox), hidden_connect);
+    }
+
     station->provision_menu = gtk_popover_new();
     g_object_ref_sink(station->provision_menu);
 
