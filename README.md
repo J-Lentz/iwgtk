@@ -24,8 +24,8 @@ distro uses systemd and your desktop environment supports systemd's
 every desktop session by enabling the `iwgtk.service` unit.
 
 ## Dependencies
-* iwd >=1.28
-* gtk4
+* iwd (>=1.28)
+* gtk4 (>= 4.6)
 * libqrencode
 * adwaita-icon-theme (or an equivalent icon package)
 
