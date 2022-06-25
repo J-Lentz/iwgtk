@@ -77,7 +77,22 @@ void station_set(Station *station) {
 	}
     }
 
+    if (station->dpp) {
+	station_dpp_set(station);
+    }
+
     g_variant_unref(scanning_var);
+}
+
+void station_dpp_set(Station *station) {
+    if (station->state == STATION_CONNECTED) {
+	gtk_widget_hide(station->dpp->start_enrollee);
+	gtk_widget_show(station->dpp->start_configurator);
+    }
+    else {
+	gtk_widget_show(station->dpp->start_enrollee);
+	gtk_widget_hide(station->dpp->start_configurator);
+    }
 }
 
 void station_provision_button_set(Station *station) {
@@ -94,6 +109,7 @@ Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 
     station = g_malloc(sizeof(Station));
     station->proxy = proxy;
+    station->dpp = NULL;
     station->state = STATION_SCANNING;
     station->n_networks = 0;
     station->network_connected = NULL;
@@ -148,6 +164,7 @@ Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     gtk_widget_set_margin_bottom(station->network_table, 5);
 
     couple_register(window, DEVICE_STATION, 1, station, object);
+    couple_register(window, STATION_DPP,    0, station, object);
     couple_register(window, STATION_WPS,    0, station, object);
 
     station->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(station_set), station);
@@ -160,6 +177,7 @@ void station_remove(Window *window, Station *station) {
     g_signal_handler_disconnect(station->proxy, station->handler_update);
 
     couple_unregister(window, DEVICE_STATION, 1, station);
+    couple_unregister(window, STATION_DPP,    0, station);
     couple_unregister(window, STATION_WPS,    0, station);
 
     gtk_widget_unparent(station->provision_menu);

@@ -23,6 +23,7 @@
 typedef struct Station_s Station;
 typedef struct Device_s Device;
 typedef struct Network_s Network;
+typedef struct DPP_s DPP;
 
 typedef enum {
     STATION_CONNECTED,
@@ -33,6 +34,7 @@ typedef enum {
 
 struct Station_s {
     GDBusProxy *proxy;
+    DPP *dpp;
     StationState state;
     gulong handler_update;
     gulong handler_provision;
@@ -55,6 +57,7 @@ struct Station_s {
 };
 
 void station_set(Station *station);
+void station_dpp_set(Station *station);
 void station_provision_button_set(Station *station);
 Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
 void station_remove(Window *window, Station *station);

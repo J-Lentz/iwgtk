@@ -20,7 +20,7 @@
 #ifndef _WINDOW_H
 #define _WINDOW_H
 
-#define n_object_types 8
+#define n_object_types 9
 typedef enum {
     OBJECT_KNOWN_NETWORK,
     OBJECT_ADAPTER,
@@ -28,16 +28,18 @@ typedef enum {
     OBJECT_STATION,
     OBJECT_ACCESS_POINT,
     OBJECT_ADHOC,
+    OBJECT_DPP,
     OBJECT_WPS,
     OBJECT_DIAGNOSTIC
 } ObjectType;
 
-#define n_couple_types 6
+#define n_couple_types 7
 typedef enum {
     ADAPTER_DEVICE,
     DEVICE_STATION,
     DEVICE_AP,
     DEVICE_ADHOC,
+    STATION_DPP,
     STATION_WPS,
     DEVICE_DIAGNOSTIC
 } CoupleType;

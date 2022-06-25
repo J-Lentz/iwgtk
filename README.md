@@ -26,6 +26,7 @@ every desktop session by enabling the `iwgtk.service` unit.
 ## Dependencies
 * iwd >=1.28
 * gtk4
+* libqrencode
 * adwaita-icon-theme (or an equivalent icon package)
 
 ## Installation

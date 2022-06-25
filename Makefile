@@ -1,8 +1,8 @@
 CC?=gcc
 PREFIX?=/usr/local
 
-CCINCS=`pkg-config --cflags gtk4`
-LDLIBS=`pkg-config --libs gtk4`
+CCINCS=`pkg-config --cflags gtk4 libqrencode`
+LDLIBS=`pkg-config --libs gtk4 libqrencode`
 
 bindir=$(PREFIX)/bin
 datadir=$(PREFIX)/share
@@ -14,7 +14,7 @@ icondir=$(datadir)/icons/hicolor/scalable/apps
 
 srcdir=src
 
-files=sni main window indicator dialog adapter device station wps diagnostic ap adhoc utilities icon switch known_network network hidden agent
+files=sni main window indicator dialog adapter device station dpp wps diagnostic ap adhoc utilities icon switch known_network network hidden agent
 icons=icons/*.svg
 
 headers=$(patsubst %,$(srcdir)/%.h,$(files) iwgtk)

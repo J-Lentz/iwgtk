@@ -26,6 +26,7 @@ ObjectMethods object_methods[] = {
     {IWD_IFACE_STATION,       (ConstructorFunction) station_add,       (DestructorFunction) station_remove},
     {IWD_IFACE_AP,            (ConstructorFunction) ap_add,            (DestructorFunction) ap_remove},
     {IWD_IFACE_AD_HOC,        (ConstructorFunction) adhoc_add,         (DestructorFunction) adhoc_remove},
+    {IWD_IFACE_DPP,           (ConstructorFunction) dpp_add,           (DestructorFunction) dpp_remove},
     {IWD_IFACE_WPS,           (ConstructorFunction) wps_add,           (DestructorFunction) wps_remove},
     {IWD_IFACE_DIAGNOSTIC,    (ConstructorFunction) diagnostic_add,    (DestructorFunction) diagnostic_remove}
 };
@@ -35,6 +36,7 @@ CoupleMethods couple_methods[] = {
     {(BindFunction) bind_device_station,    (UnbindFunction) unbind_device_station},
     {(BindFunction) bind_device_ap,         (UnbindFunction) unbind_device_ap},
     {(BindFunction) bind_device_adhoc,      (UnbindFunction) unbind_device_adhoc},
+    {(BindFunction) bind_station_dpp,       (UnbindFunction) unbind_station_dpp},
     {(BindFunction) bind_station_wps,       (UnbindFunction) unbind_station_wps},
     {(BindFunction) bind_device_diagnostic, (UnbindFunction) unbind_device_diagnostic}
 };
