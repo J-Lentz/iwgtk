@@ -20,6 +20,8 @@
 #ifndef _IWGTK_STATION_H
 #define _IWGTK_STATION_H
 
+#define PROVISION_MENU_WIDTH 200
+
 typedef struct Station_s Station;
 typedef struct Device_s Device;
 typedef struct Network_s Network;

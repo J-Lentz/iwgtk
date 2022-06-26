@@ -29,11 +29,11 @@ typedef enum {
 
 struct DPP_s {
     GDBusProxy *proxy;
+    gulong handler;
     DPPMode mode;
 
     GtkWidget *label;
-    GtkWidget *start_enrollee;
-    GtkWidget *start_configurator;
+    GtkWidget *button;
 };
 
 void qrcode_draw(GtkDrawingArea *area, cairo_t *cr, int width, int height, cairo_surface_t *qr_surface);

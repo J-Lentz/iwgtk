@@ -165,7 +165,13 @@ void dpp_window_launch(GDBusProxy *proxy, GAsyncResult *res, DPP *dpp) {
     }
 }
 
+/*
+ * We have no ability to see whether DPP is already started, so issue Stop method calls
+ * before starting to avoid InProgress errors.
+ */
+
 void dpp_start_enrollee(DPP *dpp) {
+    dpp_stop(dpp);
     dpp->mode = DPP_MODE_ENROLLEE;
 
     g_dbus_proxy_call(
@@ -180,6 +186,7 @@ void dpp_start_enrollee(DPP *dpp) {
 }
 
 void dpp_start_configurator(DPP *dpp) {
+    dpp_stop(dpp);
     dpp->mode = DPP_MODE_CONFIGURATOR;
 
     g_dbus_proxy_call(
@@ -210,19 +217,14 @@ DPP* dpp_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 
     dpp = g_malloc(sizeof(DPP));
     dpp->proxy = proxy;
+    dpp->handler = 0;
 
     dpp->label = new_label_bold("DPP");
     g_object_ref_sink(dpp->label);
     gtk_widget_set_margin_top(dpp->label, 10);
 
-    dpp->start_enrollee = gtk_button_new_with_label("Get credentials");
-    g_object_ref_sink(dpp->start_enrollee);
-
-    dpp->start_configurator = gtk_button_new_with_label("Share credentials");
-    g_object_ref_sink(dpp->start_configurator);
-
-    g_signal_connect_swapped(dpp->start_enrollee, "clicked", G_CALLBACK(dpp_start_enrollee), dpp);
-    g_signal_connect_swapped(dpp->start_configurator, "clicked", G_CALLBACK(dpp_start_configurator), dpp);
+    dpp->button = gtk_button_new();
+    g_object_ref_sink(dpp->button);
 
     couple_register(window, STATION_DPP, 1, dpp, object);
     return dpp;
@@ -232,8 +234,7 @@ void dpp_remove(Window *window, DPP *dpp) {
     couple_unregister(window, STATION_DPP, 1, dpp);
 
     g_object_unref(dpp->label);
-    g_object_unref(dpp->start_enrollee);
-    g_object_unref(dpp->start_configurator);
+    g_object_unref(dpp->button);
     g_free(dpp);
 }
 
@@ -245,8 +246,7 @@ void bind_station_dpp(Station *station, DPP *dpp) {
 	GtkWidget *hidden;
 
 	hidden = gtk_widget_get_first_child(station->provision_vbox);
-	gtk_box_insert_child_after(GTK_BOX(station->provision_vbox), dpp->start_configurator, hidden);
-	gtk_box_insert_child_after(GTK_BOX(station->provision_vbox), dpp->start_enrollee, hidden);
+	gtk_box_insert_child_after(GTK_BOX(station->provision_vbox), dpp->button, hidden);
 	gtk_box_insert_child_after(GTK_BOX(station->provision_vbox), dpp->label, hidden);
     }
 }
@@ -254,6 +254,5 @@ void bind_station_dpp(Station *station, DPP *dpp) {
 void unbind_station_dpp(Station *station, DPP *dpp) {
     station->dpp = NULL;
     gtk_box_remove(GTK_BOX(station->provision_vbox), dpp->label);
-    gtk_box_remove(GTK_BOX(station->provision_vbox), dpp->start_enrollee);
-    gtk_box_remove(GTK_BOX(station->provision_vbox), dpp->start_configurator);
+    gtk_box_remove(GTK_BOX(station->provision_vbox), dpp->button);
 }

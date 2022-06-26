@@ -85,13 +85,17 @@ void station_set(Station *station) {
 }
 
 void station_dpp_set(Station *station) {
+    if (station->dpp->handler != 0) {
+	g_signal_handler_disconnect(station->dpp->button, station->dpp->handler);
+    }
+
     if (station->state == STATION_CONNECTED) {
-	gtk_widget_hide(station->dpp->start_enrollee);
-	gtk_widget_show(station->dpp->start_configurator);
+	gtk_button_set_label(GTK_BUTTON(station->dpp->button), "Share credentials");
+	station->dpp->handler = g_signal_connect_swapped(station->dpp->button, "clicked", G_CALLBACK(dpp_start_configurator), station->dpp);
     }
     else {
-	gtk_widget_show(station->dpp->start_enrollee);
-	gtk_widget_hide(station->dpp->start_configurator);
+	gtk_button_set_label(GTK_BUTTON(station->dpp->button), "Get credentials");
+	station->dpp->handler = g_signal_connect_swapped(station->dpp->button, "clicked", G_CALLBACK(dpp_start_enrollee), station->dpp);
     }
 }
 
@@ -132,6 +136,8 @@ Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 
 	hidden_connect = gtk_button_new_with_label("Hidden network");
 	gtk_widget_set_tooltip_text(hidden_connect, "Connect to a hidden network");
+	gtk_widget_set_size_request(hidden_connect, PROVISION_MENU_WIDTH, -1);
+
 	g_signal_connect_swapped(hidden_connect, "clicked", G_CALLBACK(hidden_ssid_dialog), station);
 	gtk_box_append(GTK_BOX(station->provision_vbox), hidden_connect);
     }
