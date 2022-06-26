@@ -20,8 +20,6 @@
 #include "iwgtk.h"
 #include <qrencode.h>
 
-#define QR_CODE_SIZE 250
-
 void qrcode_draw(GtkDrawingArea *area, cairo_t *cr, int width, int height, cairo_surface_t *qr_surface) {
     cairo_pattern_t *qr_pattern;
 
@@ -82,16 +80,18 @@ GtkWidget* qrcode_widget_new(const gchar *uri) {
 
     {
 	GtkWidget *area;
+	int qr_code_size;
 
 	area = gtk_drawing_area_new();
+	qr_code_size = PROVISION_MENU_WIDTH * width / (width + 8);
 
-	gtk_drawing_area_set_content_width(GTK_DRAWING_AREA(area), QR_CODE_SIZE);
-	gtk_drawing_area_set_content_height(GTK_DRAWING_AREA(area), QR_CODE_SIZE);
+	gtk_drawing_area_set_content_width(GTK_DRAWING_AREA(area), qr_code_size);
+	gtk_drawing_area_set_content_height(GTK_DRAWING_AREA(area), qr_code_size);
 
 	{
 	    int margin;
 
-	    margin = 4 * QR_CODE_SIZE / width;
+	    margin = PROVISION_MENU_WIDTH * 4 / (width + 8);
 
 	    gtk_widget_set_margin_start(area, margin);
 	    gtk_widget_set_margin_end(area, margin);
@@ -105,7 +105,7 @@ GtkWidget* qrcode_widget_new(const gchar *uri) {
     }
 }
 
-void dpp_window_launch(GDBusProxy *proxy, GAsyncResult *res, DPP *dpp) {
+void dpp_qrcode_add(GDBusProxy *proxy, GAsyncResult *res, DPP *dpp) {
     GVariant *ret;
     GError *err;
 
@@ -113,51 +113,32 @@ void dpp_window_launch(GDBusProxy *proxy, GAsyncResult *res, DPP *dpp) {
     ret = g_dbus_proxy_call_finish(proxy, res, &err);
 
     if (ret) {
-	const gchar *uri;
-
-	g_variant_get(ret, "(s)", &uri);
-
 	{
-	    GtkWidget *window;
-	    GtkWidget *vbox;
-	    GtkWidget *close;
-	    GtkWidget *qrcode;
+	    const gchar *uri;
 
-	    window = gtk_window_new();
-	    gtk_window_set_icon_name(GTK_WINDOW(window), "iwgtk");
-
-	    vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-	    gtk_window_set_child(GTK_WINDOW(window), vbox);
-
-	    {
-		const gchar *title;
-
-		if (dpp->mode == DPP_MODE_ENROLLEE) {
-		    title = "Get network credentials";
-		}
-		else {
-		    title = "Share network credentials";
-		}
-
-		gtk_window_set_title(GTK_WINDOW(window), title);
-	    }
-
-	    qrcode = qrcode_widget_new(uri);
-	    gtk_box_append(GTK_BOX(vbox), qrcode);
-	    g_signal_connect_swapped(window, "destroy", G_CALLBACK(dpp_stop), dpp);
-	    gtk_widget_set_hexpand(qrcode, FALSE);
-	    gtk_widget_set_halign(qrcode, GTK_ALIGN_CENTER);
-
-	    close = gtk_button_new_with_label("Close");
-	    gtk_box_append(GTK_BOX(vbox), close);
-	    g_signal_connect_swapped(close, "clicked", G_CALLBACK(gtk_window_destroy), window);
-	    gtk_widget_set_hexpand(close, FALSE);
-	    gtk_widget_set_halign(close, GTK_ALIGN_CENTER);
-
-	    gtk_widget_show(window);
+	    g_variant_get(ret, "(s)", &uri);
+	    dpp->qrcode = qrcode_widget_new(uri);
+	    g_variant_unref(ret);
 	}
 
-	g_variant_unref(ret);
+	gtk_widget_set_hexpand(dpp->qrcode, FALSE);
+	gtk_widget_set_halign(dpp->qrcode, GTK_ALIGN_CENTER);
+
+	{
+	    const gchar *tooltip;
+
+	    if (dpp->mode == DPP_MODE_ENROLLEE) {
+		tooltip = "Get network credentials";
+	    }
+	    else {
+		tooltip = "Share network credentials";
+	    }
+
+	    gtk_widget_set_tooltip_text(dpp->qrcode, tooltip);
+	}
+
+	dpp_set(dpp);
+	gtk_box_insert_child_after(GTK_BOX(dpp->station->provision_vbox), dpp->qrcode, dpp->button);
     }
     else {
 	g_printerr("DPP enrollment failed: %s\n", err->message);
@@ -181,7 +162,7 @@ void dpp_start_enrollee(DPP *dpp) {
 	G_DBUS_CALL_FLAGS_NONE,
 	-1,
 	NULL,
-	(GAsyncReadyCallback) dpp_window_launch,
+	(GAsyncReadyCallback) dpp_qrcode_add,
 	dpp);
 }
 
@@ -196,11 +177,17 @@ void dpp_start_configurator(DPP *dpp) {
 	G_DBUS_CALL_FLAGS_NONE,
 	-1,
 	NULL,
-	(GAsyncReadyCallback) dpp_window_launch,
+	(GAsyncReadyCallback) dpp_qrcode_add,
 	dpp);
 }
 
 void dpp_stop(DPP *dpp) {
+    if (dpp->qrcode) {
+	gtk_box_remove(GTK_BOX(dpp->station->provision_vbox), dpp->qrcode);
+	dpp->qrcode = NULL;
+	dpp_set(dpp);
+    }
+
     g_dbus_proxy_call(
 	dpp->proxy,
 	"Stop",
@@ -212,12 +199,32 @@ void dpp_stop(DPP *dpp) {
 	"Error canceling DPP enrollment: %s\n");
 }
 
+void dpp_set(DPP *dpp) {
+    if (dpp->handler != 0) {
+	g_signal_handler_disconnect(dpp->button, dpp->handler);
+    }
+
+    if (dpp->qrcode != NULL) {
+	gtk_button_set_label(GTK_BUTTON(dpp->button), "Stop");
+	dpp->handler = g_signal_connect_swapped(dpp->button, "clicked", G_CALLBACK(dpp_stop), dpp);
+    }
+    else if (dpp->station->state == STATION_CONNECTED) {
+	gtk_button_set_label(GTK_BUTTON(dpp->button), "Share credentials");
+	dpp->handler = g_signal_connect_swapped(dpp->button, "clicked", G_CALLBACK(dpp_start_configurator), dpp);
+    }
+    else {
+	gtk_button_set_label(GTK_BUTTON(dpp->button), "Get credentials");
+	dpp->handler = g_signal_connect_swapped(dpp->button, "clicked", G_CALLBACK(dpp_start_enrollee), dpp);
+    }
+}
+
 DPP* dpp_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     DPP *dpp;
 
     dpp = g_malloc(sizeof(DPP));
     dpp->proxy = proxy;
     dpp->handler = 0;
+    dpp->qrcode = NULL;
 
     dpp->label = new_label_bold("DPP");
     g_object_ref_sink(dpp->label);
@@ -240,7 +247,9 @@ void dpp_remove(Window *window, DPP *dpp) {
 
 void bind_station_dpp(Station *station, DPP *dpp) {
     station->dpp = dpp;
-    station_dpp_set(station);
+    dpp->station = station;
+
+    dpp_set(dpp);
 
     {
 	GtkWidget *hidden;
@@ -253,6 +262,12 @@ void bind_station_dpp(Station *station, DPP *dpp) {
 
 void unbind_station_dpp(Station *station, DPP *dpp) {
     station->dpp = NULL;
+
+    if (dpp->qrcode) {
+	gtk_box_remove(GTK_BOX(station->provision_vbox), dpp->qrcode);
+	dpp->qrcode = NULL;
+    }
+
     gtk_box_remove(GTK_BOX(station->provision_vbox), dpp->label);
     gtk_box_remove(GTK_BOX(station->provision_vbox), dpp->button);
 }

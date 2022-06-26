@@ -78,25 +78,10 @@ void station_set(Station *station) {
     }
 
     if (station->dpp) {
-	station_dpp_set(station);
+	dpp_set(station->dpp);
     }
 
     g_variant_unref(scanning_var);
-}
-
-void station_dpp_set(Station *station) {
-    if (station->dpp->handler != 0) {
-	g_signal_handler_disconnect(station->dpp->button, station->dpp->handler);
-    }
-
-    if (station->state == STATION_CONNECTED) {
-	gtk_button_set_label(GTK_BUTTON(station->dpp->button), "Share credentials");
-	station->dpp->handler = g_signal_connect_swapped(station->dpp->button, "clicked", G_CALLBACK(dpp_start_configurator), station->dpp);
-    }
-    else {
-	gtk_button_set_label(GTK_BUTTON(station->dpp->button), "Get credentials");
-	station->dpp->handler = g_signal_connect_swapped(station->dpp->button, "clicked", G_CALLBACK(dpp_start_enrollee), station->dpp);
-    }
 }
 
 void station_provision_button_set(Station *station) {

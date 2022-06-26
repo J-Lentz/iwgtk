@@ -29,21 +29,24 @@ typedef enum {
 
 struct DPP_s {
     GDBusProxy *proxy;
+    Station *station;
     gulong handler;
     DPPMode mode;
 
     GtkWidget *label;
     GtkWidget *button;
+    GtkWidget *qrcode;
 };
 
 void qrcode_draw(GtkDrawingArea *area, cairo_t *cr, int width, int height, cairo_surface_t *qr_surface);
 GtkWidget* qrcode_widget_new(const gchar *uri);
-void dpp_window_launch(GDBusProxy *proxy, GAsyncResult *res, DPP *dpp);
+void dpp_qrcode_add(GDBusProxy *proxy, GAsyncResult *res, DPP *dpp);
 
 void dpp_start_enrollee(DPP *dpp);
 void dpp_start_configurator(DPP *dpp);
 void dpp_stop(DPP *dpp);
 
+void dpp_set(DPP *dpp);
 DPP* dpp_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
 void dpp_remove(Window *window, DPP *dpp);
 void bind_station_dpp(Station *station, DPP *dpp);

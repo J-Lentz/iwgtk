@@ -20,7 +20,7 @@
 #ifndef _IWGTK_STATION_H
 #define _IWGTK_STATION_H
 
-#define PROVISION_MENU_WIDTH 200
+#define PROVISION_MENU_WIDTH 180
 
 typedef struct Station_s Station;
 typedef struct Device_s Device;
@@ -59,7 +59,6 @@ struct Station_s {
 };
 
 void station_set(Station *station);
-void station_dpp_set(Station *station);
 void station_provision_button_set(Station *station);
 Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
 void station_remove(Window *window, Station *station);
