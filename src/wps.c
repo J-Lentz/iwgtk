@@ -34,17 +34,43 @@ static const CallbackMessages wps_messages = {
     FALSE
 };
 
-void wps_set_button_cancel(WPS *wps) {
-    Station *station;
+void wps_set_pushbutton(WPS *wps) {
+    if (wps->handler_pushbutton != 0) {
+	g_signal_handler_disconnect(wps->pushbutton, wps->handler_pushbutton);
+    }
 
-    station = wps->station;
-    g_signal_handler_disconnect(station->provision_button, station->handler_provision);
-    gtk_button_set_child(GTK_BUTTON(station->provision_button), label_with_spinner("Cancel"));
-    station->handler_provision = g_signal_connect_swapped(station->provision_button, "clicked", G_CALLBACK(wps_cancel), wps);
+    gtk_button_set_label(GTK_BUTTON(wps->pushbutton), "Push button");
+    wps->handler_pushbutton = g_signal_connect_swapped(wps->pushbutton, "clicked", G_CALLBACK(wps_connect_pushbutton), wps);
 }
 
-void wps_callback(GDBusProxy *proxy, GAsyncResult *res, WPS *wps) {
-    station_provision_button_set(wps->station);
+void wps_set_pin(WPS *wps) {
+    if (wps->handler_pin != 0) {
+	g_signal_handler_disconnect(wps->pin, wps->handler_pin);
+    }
+
+    gtk_button_set_label(GTK_BUTTON(wps->pin), "PIN");
+    wps->handler_pin = g_signal_connect_swapped(wps->pin, "clicked", G_CALLBACK(wps_connect_pin_dialog), wps);
+}
+
+void wps_set_pushbutton_cancel(WPS *wps) {
+    g_signal_handler_disconnect(wps->pushbutton, wps->handler_pushbutton);
+    gtk_button_set_child(GTK_BUTTON(wps->pushbutton), label_with_spinner("Cancel"));
+    wps->handler_pushbutton = g_signal_connect_swapped(wps->pushbutton, "clicked", G_CALLBACK(wps_cancel), wps);
+}
+
+void wps_set_pin_cancel(WPS *wps) {
+    g_signal_handler_disconnect(wps->pin, wps->handler_pin);
+    gtk_button_set_child(GTK_BUTTON(wps->pin), label_with_spinner("Cancel"));
+    wps->handler_pin = g_signal_connect_swapped(wps->pin, "clicked", G_CALLBACK(wps_cancel), wps);
+}
+
+void wps_pushbutton_callback(GDBusProxy *proxy, GAsyncResult *res, WPS *wps) {
+    wps_set_pushbutton(wps);
+    method_call_notify(proxy, res, (CallbackMessages *) &wps_messages);
+}
+
+void wps_pin_callback(GDBusProxy *proxy, GAsyncResult *res, WPS *wps) {
+    wps_set_pin(wps);
     method_call_notify(proxy, res, (CallbackMessages *) &wps_messages);
 }
 
@@ -94,25 +120,11 @@ void wps_pin_dialog_submit(WPSDialog *wps_dialog) {
 	G_DBUS_CALL_FLAGS_NONE,
 	G_MAXINT,
 	NULL,
-	(GAsyncReadyCallback) wps_callback,
+	(GAsyncReadyCallback) wps_pin_callback,
 	wps_dialog->wps);
 
-    wps_set_button_cancel(wps_dialog->wps);
+    wps_set_pin_cancel(wps_dialog->wps);
     gtk_window_destroy(GTK_WINDOW(wps_dialog->window));
-}
-
-void wps_cancel(WPS *wps) {
-    g_dbus_proxy_call(
-	wps->proxy,
-	"Cancel",
-	NULL,
-	G_DBUS_CALL_FLAGS_NONE,
-	-1,
-	NULL,
-	(GAsyncReadyCallback) method_call_log,
-	"Error canceling WPS connection: %s\n");
-
-    station_provision_button_set(wps->station);
 }
 
 void wps_connect_pushbutton(WPS *wps) {
@@ -123,10 +135,29 @@ void wps_connect_pushbutton(WPS *wps) {
 	G_DBUS_CALL_FLAGS_NONE,
 	G_MAXINT,
 	NULL,
-	(GAsyncReadyCallback) wps_callback,
+	(GAsyncReadyCallback) wps_pushbutton_callback,
 	wps);
 
-    wps_set_button_cancel(wps);
+    wps_set_pushbutton_cancel(wps);
+}
+
+void wps_cancel(WPS *wps, GtkWidget *button) {
+    g_dbus_proxy_call(
+	wps->proxy,
+	"Cancel",
+	NULL,
+	G_DBUS_CALL_FLAGS_NONE,
+	-1,
+	NULL,
+	(GAsyncReadyCallback) method_call_log,
+	"Error canceling WPS connection: %s\n");
+
+    if (button == wps->pushbutton) {
+	wps_set_pushbutton(wps);
+    }
+    else {
+	wps_set_pin(wps);
+    }
 }
 
 WPS* wps_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
@@ -136,19 +167,20 @@ WPS* wps_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 
     wps = g_malloc(sizeof(WPS));
     wps->proxy = proxy;
+    wps->handler_pushbutton = 0;
+    wps->handler_pin = 0;
 
     wps->label = new_label_bold("WPS");
     g_object_ref_sink(wps->label);
     gtk_widget_set_margin_top(wps->label, 10);
 
-    wps->pushbutton = gtk_button_new_with_label("Push button");
+    wps->pushbutton = gtk_button_new();
     g_object_ref_sink(wps->pushbutton);
+    wps_set_pushbutton(wps);
 
-    wps->pin = gtk_button_new_with_label("PIN");
+    wps->pin = gtk_button_new();
     g_object_ref_sink(wps->pin);
-
-    g_signal_connect_swapped(wps->pushbutton, "clicked", G_CALLBACK(wps_connect_pushbutton), wps);
-    g_signal_connect_swapped(wps->pin, "clicked", G_CALLBACK(wps_connect_pin_dialog), wps);
+    wps_set_pin(wps);
 
     couple_register(window, STATION_WPS, 1, wps, object);
     return wps;

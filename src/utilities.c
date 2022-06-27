@@ -272,6 +272,9 @@ GtkWidget* label_with_spinner(const gchar *text) {
     gtk_box_append(GTK_BOX(box), spinner);
     gtk_box_append(GTK_BOX(box), gtk_label_new(text));
 
+    gtk_widget_set_halign(box, GTK_ALIGN_CENTER);
+    gtk_widget_set_valign(box, GTK_ALIGN_CENTER);
+
     return box;
 }
 

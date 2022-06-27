@@ -84,15 +84,6 @@ void station_set(Station *station) {
     g_variant_unref(scanning_var);
 }
 
-void station_provision_button_set(Station *station) {
-    if (station->handler_provision) {
-	g_signal_handler_disconnect(station->provision_button, station->handler_provision);
-    }
-
-    gtk_button_set_label(GTK_BUTTON(station->provision_button), "Provision");
-    station->handler_provision = g_signal_connect_swapped(station->provision_button, "clicked", G_CALLBACK(gtk_widget_show), station->provision_menu);
-}
-
 Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     Station *station;
 
@@ -133,13 +124,11 @@ Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     gtk_popover_set_has_arrow(GTK_POPOVER(station->provision_menu), FALSE);
     gtk_popover_set_child(GTK_POPOVER(station->provision_menu), station->provision_vbox);
 
-    station->provision_button = gtk_button_new();
+    station->provision_button = gtk_button_new_with_label("Provision");
     g_object_ref_sink(station->provision_button);
 
+    g_signal_connect_swapped(station->provision_button, "clicked", G_CALLBACK(gtk_widget_show), station->provision_menu);
     gtk_widget_set_parent(station->provision_menu, station->provision_button);
-
-    station->handler_provision = 0;
-    station_provision_button_set(station);
 
     station->network_table = gtk_grid_new();
     g_object_ref_sink(station->network_table);

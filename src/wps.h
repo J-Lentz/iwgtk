@@ -26,6 +26,8 @@ typedef struct WPSDialog_s WPSDialog;
 struct WPS_s {
     GDBusProxy *proxy;
     Station *station;
+    gulong handler_pushbutton;
+    gulong handler_pin;
 
     GtkWidget *label;
     GtkWidget *pushbutton;
@@ -38,13 +40,18 @@ struct WPSDialog_s {
     GtkWidget *pin;
 };
 
-void wps_set_button_cancel(WPS *wps);
-void wps_callback(GDBusProxy *proxy, GAsyncResult *res, WPS *wps);
+void wps_set_pushbutton(WPS *wps);
+void wps_set_pin(WPS *wps);
+void wps_set_pushbutton_cancel(WPS *wps);
+void wps_set_pin_cancel(WPS *wps);
+void wps_pushbutton_callback(GDBusProxy *proxy, GAsyncResult *res, WPS *wps);
+void wps_pin_callback(GDBusProxy *proxy, GAsyncResult *res, WPS *wps);
+
 void wps_connect_pin_dialog(WPS *wps);
 void wps_pin_dialog_submit(WPSDialog *wps_dialog);
-void wps_pin_dialog_cancel(WPSDialog *wps_dialog);
-void wps_cancel(WPS *wps);
 void wps_connect_pushbutton(WPS *wps);
+void wps_cancel(WPS *wps, GtkWidget *button);
+
 WPS* wps_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
 void wps_remove(Window *window, WPS *wps);
 void bind_station_wps(Station *station, WPS *wps);

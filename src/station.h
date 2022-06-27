@@ -39,7 +39,6 @@ struct Station_s {
     DPP *dpp;
     StationState state;
     gulong handler_update;
-    gulong handler_provision;
 
     // Networks
     gsize n_networks;
@@ -59,7 +58,6 @@ struct Station_s {
 };
 
 void station_set(Station *station);
-void station_provision_button_set(Station *station);
 Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
 void station_remove(Window *window, Station *station);
 void bind_device_station(Device *device, Station *station);
