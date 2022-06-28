@@ -168,6 +168,8 @@ void startup(GtkApplication *app) {
 	global.iwd_error_domain = (GQuark) error_domain_volatile;
     }
 
+    icon_theme_set();
+
     g_bus_watch_name(
 	G_BUS_TYPE_SYSTEM,
 	IWD_BUS_NAME,

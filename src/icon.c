@@ -45,6 +45,38 @@ const GdkRGBA *color_status[] = {
     &color_gray
 };
 
+void icon_theme_set() {
+    GdkDisplay *display;
+
+    const gchar* icons[] = {
+	ICON_STATION_0,
+	ICON_STATION_1,
+	ICON_STATION_2,
+	ICON_STATION_3,
+	ICON_STATION_4,
+	ICON_STATION_OFFLINE,
+	ICON_AP,
+	ICON_ADHOC,
+	ICON_DEVICE_DISABLED,
+	ICON_ADAPTER_DISABLED,
+	NULL
+    };
+
+    display = gdk_display_get_default();
+    global.theme = gtk_icon_theme_get_for_display(display);
+
+    for (int i = 0; icons[i] != NULL; i ++) {
+	if (!gtk_icon_theme_has_icon(global.theme, icons[i])) {
+	    g_printerr("Icon theme '%s' is missing icon '%s': Overriding theme to Adwaita\n",
+		    gtk_icon_theme_get_theme_name(global.theme), icons[i]);
+
+	    global.theme = gtk_icon_theme_new();
+	    gtk_icon_theme_set_theme_name(global.theme, "Adwaita");
+	    break;
+	}
+    }
+}
+
 gint8 get_signal_level(gint16 signal_strength) {
     gint8 i;
 
@@ -62,7 +94,7 @@ GtkSnapshot* symbolic_icon_get_snapshot(const gchar *icon_name, const GdkRGBA *i
     GtkSnapshot *snapshot;
 
     icon = gtk_icon_theme_lookup_icon(
-	gtk_icon_theme_get_for_display(gdk_display_get_default()),
+	global.theme,
 	icon_name,
 	NULL,
 	32,

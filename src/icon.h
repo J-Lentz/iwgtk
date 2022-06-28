@@ -48,6 +48,7 @@ extern const GdkRGBA color_gray;
 
 extern const GdkRGBA *color_status[];
 
+void icon_theme_set();
 gint8 get_signal_level(gint16 signal_strength);
 
 GtkSnapshot* symbolic_icon_get_snapshot(const gchar *icon_name, const GdkRGBA *icon_color);

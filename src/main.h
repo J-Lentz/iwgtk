@@ -29,6 +29,7 @@ typedef struct GlobalData_s GlobalData;
 
 struct GlobalData_s {
     GtkApplication *application;
+    GtkIconTheme *theme;
     GDBusObjectManager *manager;
     GQuark iwd_error_domain;
     Window *window;
