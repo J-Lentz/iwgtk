@@ -158,7 +158,7 @@ void indicator_set_device(Indicator *indicator) {
     if (!powered) {
 	sni_title_set(indicator->sni, "Wireless adapter is powered off");
 	sni_icon_pixmap_set(indicator->sni,
-		symbolic_icon_get_surface(ICON_ADAPTER_DISABLED, &color_gray));
+		symbolic_icon_get_surface(ICON_ADAPTER_DISABLED, &colors.disabled_adapter));
 	return;
     }
 
@@ -169,7 +169,7 @@ void indicator_set_device(Indicator *indicator) {
     if (!powered) {
 	sni_title_set(indicator->sni, "Wireless device is powered off");
 	sni_icon_pixmap_set(indicator->sni,
-		symbolic_icon_get_surface(ICON_DEVICE_DISABLED, &color_gray));
+		symbolic_icon_get_surface(ICON_DEVICE_DISABLED, &colors.disabled_device));
     }
 }
 
@@ -200,7 +200,7 @@ void indicator_set_station(Indicator *indicator) {
 	indicator->status = INDICATOR_STATION_DISCONNECTED;
 	sni_title_set(indicator->sni, "Not connected to any wifi network");
 	sni_icon_pixmap_set(indicator->sni,
-		symbolic_icon_get_surface(ICON_STATION_OFFLINE, &color_gray));
+		symbolic_icon_get_surface(ICON_STATION_OFFLINE, &colors.station_disconnected));
     }
 
     g_variant_unref(state_var);
@@ -210,10 +210,10 @@ void indicator_set_station_connected(Indicator *indicator) {
     const GdkRGBA *color;
 
     if (indicator->status == INDICATOR_STATION_CONNECTED) {
-	color = &color_green;
+	color = &colors.station_connected;
     }
     else if (indicator->status == INDICATOR_STATION_CONNECTING) {
-	color = &color_yellow;
+	color = &colors.station_connecting;
     }
     else {
 	g_printerr("Error: Signal level is set, but the station is neither connected nor connecting\n");
@@ -304,12 +304,12 @@ void indicator_set_ap(Indicator *indicator) {
     if (g_variant_get_boolean(started_var)) {
 	sni_title_set(indicator->sni, "AP is up");
 	sni_icon_pixmap_set(indicator->sni,
-		symbolic_icon_get_surface(ICON_AP, &color_green));
+		symbolic_icon_get_surface(ICON_AP, &colors.ap_up));
     }
     else {
 	sni_title_set(indicator->sni, "AP is down");
 	sni_icon_pixmap_set(indicator->sni,
-		symbolic_icon_get_surface(ICON_AP, &color_gray));
+		symbolic_icon_get_surface(ICON_AP, &colors.ap_down));
     }
 
     g_variant_unref(started_var);
@@ -323,12 +323,12 @@ void indicator_set_adhoc(Indicator *indicator) {
     if (g_variant_get_boolean(started_var)) {
 	sni_title_set(indicator->sni, "Ad-hoc node is up");
 	sni_icon_pixmap_set(indicator->sni,
-		symbolic_icon_get_surface(ICON_ADHOC, &color_green));
+		symbolic_icon_get_surface(ICON_ADHOC, &colors.adhoc_up));
     }
     else {
 	sni_title_set(indicator->sni, "Ad-hoc node is down");
 	sni_icon_pixmap_set(indicator->sni,
-		symbolic_icon_get_surface(ICON_ADHOC, &color_gray));
+		symbolic_icon_get_surface(ICON_ADHOC, &colors.adhoc_down));
     }
 
     g_variant_unref(started_var);

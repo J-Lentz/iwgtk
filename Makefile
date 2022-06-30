@@ -5,9 +5,10 @@ CCINCS=`pkg-config --cflags gtk4 libqrencode`
 LDLIBS=`pkg-config --libs gtk4 libqrencode`
 
 bindir=$(PREFIX)/bin
+confdir=/etc
+autostartdir=$(confdir)/xdg/autostart
 datadir=$(PREFIX)/share
 unitdir=$(PREFIX)/lib/systemd/user
-autostartdir=/etc/xdg/autostart
 man1dir=$(datadir)/man/man1
 desktopdir=$(datadir)/applications
 icondir=$(datadir)/icons/hicolor/scalable/apps
@@ -34,6 +35,8 @@ iwgtk.1.gz : misc/iwgtk.1
 install : iwgtk iwgtk.1.gz
 	install -d $(DESTDIR)$(bindir)
 	install iwgtk $(DESTDIR)$(bindir)
+	install -d $(DESTDIR)$(confdir)
+	install -m 644 misc/iwgtk.conf $(DESTDIR)$(confdir)
 	install -d $(DESTDIR)$(desktopdir)
 	install -m 644 misc/iwgtk.desktop $(DESTDIR)$(desktopdir)
 	install -d $(DESTDIR)$(autostartdir)
@@ -47,6 +50,7 @@ install : iwgtk iwgtk.1.gz
 
 uninstall :
 	rm $(DESTDIR)$(bindir)/iwgtk
+	rm $(DESTDIR)$(confdir)/iwgtk.conf
 	rm $(DESTDIR)$(desktopdir)/iwgtk.desktop
 	rm $(DESTDIR)$(autostartdir)/iwgtk-indicator.desktop
 	rm $(DESTDIR)$(unitdir)/iwgtk.service

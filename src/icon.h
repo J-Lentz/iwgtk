@@ -20,6 +20,8 @@
 #ifndef _IWGTK_ICON_H
 #define _IWGTK_ICON_H
 
+typedef struct ColorTable_s ColorTable;
+
 #define ICON_STATION_0       "network-wireless-signal-excellent-symbolic"
 #define ICON_STATION_1       "network-wireless-signal-good-symbolic"
 #define ICON_STATION_2       "network-wireless-signal-ok-symbolic"
@@ -38,13 +40,30 @@
 
 #define N_SIGNAL_THRESHOLDS 4
 
+struct ColorTable_s {
+    GdkRGBA disabled_device;
+    GdkRGBA disabled_adapter;
+
+    GdkRGBA ap_up;
+    GdkRGBA ap_down;
+
+    GdkRGBA adhoc_up;
+    GdkRGBA adhoc_down;
+
+    GdkRGBA station_connected;
+    GdkRGBA station_connecting;
+    GdkRGBA station_disconnected;
+
+    GdkRGBA network_connected;
+    GdkRGBA network_connecting;
+    GdkRGBA network_known;
+    GdkRGBA network_unknown;
+    GdkRGBA network_hidden;
+};
+
+extern ColorTable colors;
 extern const gint16 signal_thresholds[];
 extern const gchar* station_icons[];
-
-extern const GdkRGBA color_green;
-extern const GdkRGBA color_yellow;
-extern const GdkRGBA color_green_saturated;
-extern const GdkRGBA color_gray;
 
 extern const GdkRGBA *color_status[];
 

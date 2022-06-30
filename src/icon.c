@@ -19,6 +19,37 @@
 
 #include "iwgtk.h"
 
+#define FLOAT_00 0.0
+#define FLOAT_64 (float) 0x64 / (float) 0xff
+#define FLOAT_80 (float) 0x80 / (float) 0xff
+#define FLOAT_ff 1.0
+
+#define COLOR_LIME       {FLOAT_00, FLOAT_ff, FLOAT_00, 1.0}
+#define COLOR_YELLOW     {FLOAT_ff, FLOAT_ff, FLOAT_00, 1.0}
+#define COLOR_DARK_GREEN {FLOAT_00, FLOAT_64, FLOAT_00, 1.0}
+#define COLOR_GRAY       {FLOAT_80, FLOAT_80, FLOAT_80, 1.0}
+
+ColorTable colors = {
+    COLOR_GRAY,       // disabled_device
+    COLOR_GRAY,       // disabled_adapter
+
+    COLOR_LIME,       // ap_up
+    COLOR_GRAY,       // ap_down
+
+    COLOR_LIME,       // adhoc_up
+    COLOR_GRAY,       // adhoc_down
+
+    COLOR_LIME,       // station_connected
+    COLOR_YELLOW,     // station_connecting
+    COLOR_GRAY,       // station_disconnected
+
+    COLOR_LIME,       // network_connected
+    COLOR_YELLOW,     // network_connecting
+    COLOR_DARK_GREEN, // network_known
+    COLOR_GRAY,       // network_unknown
+    COLOR_GRAY        // network_hidden
+};
+
 /*
  * Signal thresholds are in dBm.
  */
@@ -33,16 +64,11 @@ const gchar* station_icons[] = {
     ICON_STATION_4
 };
 
-const GdkRGBA color_green =           {0.0, 1.0, 0.0, 1.0};
-const GdkRGBA color_yellow =          {1.0, 1.0, 0.0, 1.0};
-const GdkRGBA color_green_saturated = {0.25, 0.5, 0.25, 1.0};
-const GdkRGBA color_gray =            {0.5, 0.5, 0.5, 1.0};
-
 const GdkRGBA *color_status[] = {
-    &color_green,
-    &color_yellow,
-    &color_green_saturated,
-    &color_gray
+    &colors.network_connected,
+    &colors.network_connecting,
+    &colors.network_known,
+    &colors.network_unknown
 };
 
 void icon_theme_set() {

@@ -87,7 +87,7 @@ void station_add_hidden_network(Station *station, const gchar *address, const gc
 	const gchar *icon_name;
 
 	icon_name = station_icons[get_signal_level(signal_strength)];
-	symbolic_icon_set_image(icon_name, &color_gray, status_icon);
+	symbolic_icon_set_image(icon_name, &colors.network_hidden, status_icon);
     }
 
     address_label = gtk_label_new(address);

@@ -160,6 +160,80 @@ void iwd_down(GDBusConnection *connection) {
     }
 }
 
+static void config_set_color(GKeyFile *conf, const gchar *group, const gchar *key, GdkRGBA *color) {
+    gchar *value;
+
+    value = g_key_file_get_string(conf, group, key, NULL);
+
+    if (value) {
+	if (!gdk_rgba_parse(color, value)) {
+	    g_printerr("Configuration file contains invalid color value: %s.%s=%s\n", group, key, value);
+	}
+
+	g_free(value);
+    }
+}
+
+static void config_set_values(GKeyFile *conf) {
+    config_set_color(conf, "indicator.colors.disabled", "device", &colors.disabled_device);
+    config_set_color(conf, "indicator.colors.disabled", "adapter", &colors.disabled_adapter);
+
+    config_set_color(conf, "indicator.colors.ap", "up", &colors.ap_up);
+    config_set_color(conf, "indicator.colors.ap", "down", &colors.ap_down);
+
+    config_set_color(conf, "indicator.colors.adhoc", "up", &colors.adhoc_up);
+    config_set_color(conf, "indicator.colors.adhoc", "down", &colors.adhoc_down);
+
+    config_set_color(conf, "indicator.colors.station", "connected", &colors.station_connected);
+    config_set_color(conf, "indicator.colors.station", "connecting", &colors.station_connecting);
+    config_set_color(conf, "indicator.colors.station", "disconnected", &colors.station_disconnected);
+
+    config_set_color(conf, "network.colors", "connected", &colors.network_connected);
+    config_set_color(conf, "network.colors", "connecting", &colors.network_connecting);
+    config_set_color(conf, "network.colors", "known", &colors.network_known);
+    config_set_color(conf, "network.colors", "unknown", &colors.network_unknown);
+    config_set_color(conf, "network.colors", "hidden", &colors.network_hidden);
+}
+
+static gboolean config_read_file(const gchar *path, GKeyFile *key_file) {
+    GError *err;
+    gboolean conf_loaded;
+
+    err = NULL;
+    conf_loaded = g_key_file_load_from_file(key_file, path, G_KEY_FILE_NONE, &err);
+
+    if (err) {
+	/*
+	 * Only show parser errors (G_KEY_FILE_ERROR_*). Silently ignore "file not
+	 * found" and other OS errors (G_FILE_ERROR_*).
+	 */
+
+	if (err->domain == G_KEY_FILE_ERROR) {
+	    g_printerr("Error parsing configuration file '%s': %s\n", path, err->message);
+	}
+
+	g_error_free(err);
+    }
+
+    return conf_loaded;
+}
+
+static void config_load_attempt() {
+    GKeyFile *key_file;
+    gchar *user_conf;
+    const gchar *system_conf = "/etc/iwgtk.conf";
+
+    key_file = g_key_file_new();
+    user_conf = g_strconcat(g_get_user_config_dir(), "/iwgtk.conf", NULL);
+
+    if (config_read_file(user_conf, key_file) || config_read_file(system_conf, key_file)) {
+	config_set_values(key_file);
+    }
+
+    g_free(user_conf);
+    g_key_file_free(key_file);
+}
+
 void startup(GtkApplication *app) {
     {
 	volatile gsize error_domain_volatile;
@@ -169,6 +243,7 @@ void startup(GtkApplication *app) {
     }
 
     icon_theme_set();
+    config_load_attempt();
 
     g_bus_watch_name(
 	G_BUS_TYPE_SYSTEM,
