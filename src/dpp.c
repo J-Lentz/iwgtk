@@ -226,7 +226,7 @@ DPP* dpp_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     dpp->handler = 0;
     dpp->qrcode = NULL;
 
-    dpp->label = new_label_bold("DPP");
+    dpp->label = new_label_bold("Easy Connect");
     g_object_ref_sink(dpp->label);
     gtk_widget_set_margin_top(dpp->label, 10);
 
