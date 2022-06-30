@@ -41,8 +41,9 @@ typedef struct ColorTable_s ColorTable;
 #define N_SIGNAL_THRESHOLDS 4
 
 struct ColorTable_s {
-    GdkRGBA disabled_device;
-    GdkRGBA disabled_adapter;
+    GdkRGBA station_connected;
+    GdkRGBA station_connecting;
+    GdkRGBA station_disconnected;
 
     GdkRGBA ap_up;
     GdkRGBA ap_down;
@@ -50,9 +51,8 @@ struct ColorTable_s {
     GdkRGBA adhoc_up;
     GdkRGBA adhoc_down;
 
-    GdkRGBA station_connected;
-    GdkRGBA station_connecting;
-    GdkRGBA station_disconnected;
+    GdkRGBA disabled_device;
+    GdkRGBA disabled_adapter;
 
     GdkRGBA network_connected;
     GdkRGBA network_connecting;

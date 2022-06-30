@@ -175,8 +175,9 @@ static void config_set_color(GKeyFile *conf, const gchar *group, const gchar *ke
 }
 
 static void config_set_values(GKeyFile *conf) {
-    config_set_color(conf, "indicator.colors.disabled", "device", &colors.disabled_device);
-    config_set_color(conf, "indicator.colors.disabled", "adapter", &colors.disabled_adapter);
+    config_set_color(conf, "indicator.colors.station", "connected", &colors.station_connected);
+    config_set_color(conf, "indicator.colors.station", "connecting", &colors.station_connecting);
+    config_set_color(conf, "indicator.colors.station", "disconnected", &colors.station_disconnected);
 
     config_set_color(conf, "indicator.colors.ap", "up", &colors.ap_up);
     config_set_color(conf, "indicator.colors.ap", "down", &colors.ap_down);
@@ -184,9 +185,8 @@ static void config_set_values(GKeyFile *conf) {
     config_set_color(conf, "indicator.colors.adhoc", "up", &colors.adhoc_up);
     config_set_color(conf, "indicator.colors.adhoc", "down", &colors.adhoc_down);
 
-    config_set_color(conf, "indicator.colors.station", "connected", &colors.station_connected);
-    config_set_color(conf, "indicator.colors.station", "connecting", &colors.station_connecting);
-    config_set_color(conf, "indicator.colors.station", "disconnected", &colors.station_disconnected);
+    config_set_color(conf, "indicator.colors.disabled", "device", &colors.disabled_device);
+    config_set_color(conf, "indicator.colors.disabled", "adapter", &colors.disabled_adapter);
 
     config_set_color(conf, "network.colors", "connected", &colors.network_connected);
     config_set_color(conf, "network.colors", "connecting", &colors.network_connecting);

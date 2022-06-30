@@ -30,8 +30,9 @@
 #define COLOR_GRAY       {FLOAT_80, FLOAT_80, FLOAT_80, 1.0}
 
 ColorTable colors = {
-    COLOR_GRAY,       // disabled_device
-    COLOR_GRAY,       // disabled_adapter
+    COLOR_LIME,       // station_connected
+    COLOR_YELLOW,     // station_connecting
+    COLOR_GRAY,       // station_disconnected
 
     COLOR_LIME,       // ap_up
     COLOR_GRAY,       // ap_down
@@ -39,9 +40,8 @@ ColorTable colors = {
     COLOR_LIME,       // adhoc_up
     COLOR_GRAY,       // adhoc_down
 
-    COLOR_LIME,       // station_connected
-    COLOR_YELLOW,     // station_connecting
-    COLOR_GRAY,       // station_disconnected
+    COLOR_GRAY,       // disabled_device
+    COLOR_GRAY,       // disabled_adapter
 
     COLOR_LIME,       // network_connected
     COLOR_YELLOW,     // network_connecting
