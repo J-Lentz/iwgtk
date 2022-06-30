@@ -23,6 +23,13 @@ distro uses systemd and your desktop environment supports systemd's
 `graphical-session.target` unit, then iwgtk can be started at the beginning of
 every desktop session by enabling the `iwgtk.service` unit.
 
+### Configuration
+Icon colors can be customized by editing the application's config file. The
+system-wide config file is located at `/etc/iwgtk.conf`. This file can be copied
+to `~/.config/iwgtk.conf` if desired, in which case the system-wide config file
+will be ignored. For further instructions, please refer to the comments in
+`iwgtk.conf`.
+
 ## Dependencies
 * iwd (>=1.28)
 * gtk4 (>= 4.6)
