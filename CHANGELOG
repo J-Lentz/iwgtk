@@ -1,3 +1,12 @@
+## 0.7
+ * New dependency: libqrencode
+ * New Provision menu with initial Easy Connect (DPP) support
+ * Move WPS and hidden network connection buttons into Provision menu.
+ * New config file in which icon colors can be customized
+ * Check whether required icons are available, and override icon theme to
+   Adwaita if any are missing.
+ * Various UI tweaks
+
 ## 0.6
  * Clear available networks when a scan begins, rather than after the scan ends
  * Allow indicator daemon to be started while a window is open
