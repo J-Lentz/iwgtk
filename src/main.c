@@ -193,6 +193,10 @@ static void config_set_values(GKeyFile *conf) {
     config_set_color(conf, "network.colors", "known", &colors.network_known);
     config_set_color(conf, "network.colors", "unknown", &colors.network_unknown);
     config_set_color(conf, "network.colors", "hidden", &colors.network_hidden);
+
+    if (g_key_file_get_boolean(conf, "theme", "dark", NULL)) {
+	g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
+    }
 }
 
 static gboolean config_read_file(const gchar *path, GKeyFile *key_file) {
