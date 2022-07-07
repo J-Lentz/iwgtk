@@ -194,6 +194,11 @@ static void config_set_values(GKeyFile *conf) {
     config_set_color(conf, "network.colors", "unknown", &colors.network_unknown);
     config_set_color(conf, "network.colors", "hidden", &colors.network_hidden);
 
+    if (global.last_connection_time_fmt) {
+	g_free(global.last_connection_time_fmt);
+    }
+    global.last_connection_time_fmt = g_key_file_get_string(conf, "known-network", "last-connection-time.format", NULL);
+
     if (g_key_file_get_boolean(conf, "theme", "dark", NULL)) {
 	g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
     }

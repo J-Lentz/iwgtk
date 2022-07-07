@@ -88,12 +88,8 @@ void known_network_set(KnownNetwork *kn) {
 	    datetime_local = g_date_time_to_local(datetime_utc);
 	    g_date_time_unref(datetime_utc);
 
-	    /*
-	     * TODO:
-	     * Allow user to customize the time/date format.
-	     */
-
-	    datetime_formatted = g_date_time_format(datetime_local, "%x\n%l:%M %p");
+	    datetime_formatted = g_date_time_format(datetime_local,
+		    (global.last_connection_time_fmt ? global.last_connection_time_fmt : "%x\n%l:%M %p"));
 	    g_date_time_unref(datetime_local);
 
 	    gtk_label_set_text(GTK_LABEL(kn->last_connection_label), datetime_formatted);

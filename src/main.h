@@ -35,6 +35,7 @@ struct GlobalData_s {
     Window *window;
     Indicator *indicators;
     guint8 state;
+    gchar *last_connection_time_fmt;
 };
 
 extern GlobalData global;
