@@ -31,10 +31,15 @@ will be ignored. For further instructions, please refer to the comments in
 `iwgtk.conf`.
 
 ## Dependencies
+
+### Runtime dependencies
 * iwd (>=1.28)
 * gtk4 (>= 4.6)
 * libqrencode
 * adwaita-icon-theme (or an equivalent icon package)
+
+### Build dependencies
+* scdoc
 
 ## Installation
 To build iwgtk and install it to /usr/local, run:

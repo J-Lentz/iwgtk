@@ -29,8 +29,8 @@ iwgtk : $(objects)
 %.o : $(srcdir)/%.c $(headers)
 	$(CC) -c $(CCINCS) $(CFLAGS) -o $@ $<
 
-iwgtk.1.gz : misc/iwgtk.1
-	gzip -c $< >$@
+iwgtk.1.gz : misc/iwgtk.1.scd
+	scdoc < $< | gzip > $@
 
 install : iwgtk iwgtk.1.gz
 	install -d $(DESTDIR)$(bindir)
