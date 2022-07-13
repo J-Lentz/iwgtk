@@ -24,10 +24,11 @@ distro uses systemd and your desktop environment supports systemd's
 every desktop session by enabling the `iwgtk.service` unit.
 
 ### Configuration
-Icon colors can be customized by editing the application's config file. The
-system-wide config file is located at `/etc/iwgtk.conf`. This file can be copied
-to `~/.config/iwgtk.conf` if desired, in which case the system-wide config file
-will be ignored. For further instructions, please refer to the comments in
+Icon colors and other options can be customized by editing the application's
+configuration file. The system-wide configuration file is located at
+`/etc/iwgtk.conf`. This file can be copied to `~/.config/iwgtk.conf` if desired,
+in which case the system-wide configuration file will be ignored. For further
+instructions, please see `man 5 iwgtk` and refer to the comments in
 `iwgtk.conf`.
 
 ## Dependencies

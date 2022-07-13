@@ -9,7 +9,7 @@ confdir=/etc
 autostartdir=$(confdir)/xdg/autostart
 datadir=$(PREFIX)/share
 unitdir=$(PREFIX)/lib/systemd/user
-man1dir=$(datadir)/man/man1
+mandir=$(datadir)/man
 desktopdir=$(datadir)/applications
 icondir=$(datadir)/icons/hicolor/scalable/apps
 
@@ -27,10 +27,10 @@ iwgtk : $(objects)
 %.o : $(srcdir)/%.c $(headers)
 	$(CC) -c $(CCINCS) $(CFLAGS) -o $@ $<
 
-iwgtk.1.gz : misc/iwgtk.1.scd
+iwgtk.%.gz : misc/iwgtk.%.scd
 	scdoc < $< | gzip > $@
 
-install : iwgtk iwgtk.1.gz
+install : iwgtk iwgtk.1.gz iwgtk.5.gz
 	install -d $(DESTDIR)$(bindir)
 	install iwgtk $(DESTDIR)$(bindir)
 	install -d $(DESTDIR)$(confdir)
@@ -41,8 +41,10 @@ install : iwgtk iwgtk.1.gz
 	install -m 644 misc/iwgtk-indicator.desktop $(DESTDIR)$(autostartdir)
 	install -d $(DESTDIR)$(unitdir)
 	install -m 644 misc/iwgtk.service $(DESTDIR)$(unitdir)
-	install -d $(DESTDIR)$(man1dir)
-	install -m 644 iwgtk.1.gz $(DESTDIR)$(man1dir)
+	install -d $(DESTDIR)$(mandir)/man1
+	install -m 644 iwgtk.1.gz $(DESTDIR)$(mandir)/man1
+	install -d $(DESTDIR)$(mandir)/man5
+	install -m 644 iwgtk.5.gz $(DESTDIR)$(mandir)/man5
 	install -d $(DESTDIR)$(icondir)
 	install -m 644 misc/iwgtk.svg $(DESTDIR)$(icondir)
 
@@ -52,8 +54,9 @@ uninstall :
 	rm $(DESTDIR)$(desktopdir)/iwgtk.desktop
 	rm $(DESTDIR)$(autostartdir)/iwgtk-indicator.desktop
 	rm $(DESTDIR)$(unitdir)/iwgtk.service
-	rm $(DESTDIR)$(man1dir)/iwgtk.1.gz
+	rm $(DESTDIR)$(mandir)/man1/iwgtk.1.gz
+	rm $(DESTDIR)$(mandir)/man5/iwgtk.5.gz
 	rm $(DESTDIR)$(icondir)/iwgtk.svg
 
 clean :
-	rm -f iwgtk *.o iwgtk.1.gz
+	rm -f iwgtk *.o iwgtk.*.gz

@@ -32,11 +32,11 @@ Supported functionality is similar to that of iwctl.
 
 # CONFIGURATION
 
-Icon colors can be customized by editing the application's config file. The
-system-wide config file is located at */etc/iwgtk.conf*. This file can be copied
-to *~/.config/iwgtk.conf* if desired, in which case the system-wide config file
-will be ignored. For further instructions, please refer to the comments in
-*iwgtk.conf*.
+Icon colors and other options can be customized by editing the application's
+configuration file. The system-wide configuration file is located at
+*/etc/iwgtk.conf*. This file can be copied to *~/.config/iwgtk.conf* if desired,
+in which case the system-wide configuration file will be ignored. For further
+instructions, please see *iwgtk(5)* refer to the comments in *iwgtk.conf*.
 
 # REPORTING BUGS
 
@@ -59,3 +59,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with iwgtk.  If not, see <https://www.gnu.org/licenses/>.
+
+# SEE ALSO
+
+_iwgtk_(5)
