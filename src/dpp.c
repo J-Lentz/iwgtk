@@ -20,6 +20,8 @@
 #include "iwgtk.h"
 #include <qrencode.h>
 
+#define QR_CODE_MARGIN 4
+
 void qrcode_draw(GtkDrawingArea *area, cairo_t *cr, int width, int height, cairo_surface_t *qr_surface) {
     cairo_pattern_t *qr_pattern;
 
@@ -43,7 +45,8 @@ GtkWidget* qrcode_widget_new(const gchar *uri) {
     QRcode *qrcode;
     cairo_surface_t *qr_surface;
     uint32_t *qr_data;
-    gsize width, stride, stride_n;
+    gsize width_data, stride, stride_n;
+    int width_surface;
 
     qrcode = QRcode_encodeString8bit(uri, 0, QR_ECLEVEL_L);
 
@@ -52,8 +55,9 @@ GtkWidget* qrcode_widget_new(const gchar *uri) {
 	return NULL;
     }
 
-    width = qrcode->width;
-    qr_surface = cairo_image_surface_create(CAIRO_FORMAT_A1, width, width);
+    width_data = qrcode->width;
+    width_surface = width_data + 2*QR_CODE_MARGIN;
+    qr_surface = cairo_image_surface_create(CAIRO_FORMAT_A1, width_surface, width_surface);
 
     stride = cairo_image_surface_get_stride(qr_surface);
     g_assert(stride % 4 == 0);
@@ -62,13 +66,16 @@ GtkWidget* qrcode_widget_new(const gchar *uri) {
     qr_data = (uint32_t *) cairo_image_surface_get_data(qr_surface);
     cairo_surface_flush(qr_surface);
 
-    for (int i = 0; i < width; i ++) {
-	for (int j = 0; j < width; j ++) {
-	    if (qrcode->data[i*width + j] & 0x01) {
-		int index, bit;
+    for (int i = 0; i < width_data; i ++) {
+	for (int j = 0; j < width_data; j ++) {
+	    if (qrcode->data[i*width_data + j] & 0x01) {
+		int index, bit, is, js;
 
-		index = i*stride_n + j/32;
-		bit = j % 32;
+		is = i + QR_CODE_MARGIN;
+		js = j + QR_CODE_MARGIN;
+
+		index = is*stride_n + js/32;
+		bit = js % 32;
 
 		qr_data[index] |= (0x00000001 << bit);
 	    }
@@ -80,23 +87,22 @@ GtkWidget* qrcode_widget_new(const gchar *uri) {
 
     {
 	GtkWidget *area;
-	int qr_code_size;
 
 	area = gtk_drawing_area_new();
-	qr_code_size = PROVISION_MENU_WIDTH * width / (width + 8);
 
-	gtk_drawing_area_set_content_width(GTK_DRAWING_AREA(area), qr_code_size);
-	gtk_drawing_area_set_content_height(GTK_DRAWING_AREA(area), qr_code_size);
+	gtk_drawing_area_set_content_width(GTK_DRAWING_AREA(area), PROVISION_MENU_WIDTH);
+	gtk_drawing_area_set_content_height(GTK_DRAWING_AREA(area), PROVISION_MENU_WIDTH);
 
 	{
-	    int margin;
+	    GtkStyleContext *context;
+	    GtkCssProvider *provider;
 
-	    margin = PROVISION_MENU_WIDTH * 4 / (width + 8);
+	    context = gtk_widget_get_style_context(area);
 
-	    gtk_widget_set_margin_start(area, margin);
-	    gtk_widget_set_margin_end(area, margin);
-	    gtk_widget_set_margin_top(area, margin);
-	    gtk_widget_set_margin_bottom(area, margin);
+	    provider = gtk_css_provider_new();
+	    gtk_css_provider_load_from_data(provider, "* {background: white;}", -1);
+	    gtk_style_context_add_provider(context, GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_USER + 1);
+	    g_object_unref(provider);
 	}
 
 	gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(area), (GtkDrawingAreaDrawFunc) qrcode_draw, qr_surface, (GDestroyNotify) cairo_surface_destroy);
