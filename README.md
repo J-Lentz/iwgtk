@@ -1,8 +1,9 @@
 ## About
-iwgtk is a lightweight, graphical wifi management utility for Linux. It controls
-iwd, with supported functionality similar to that of iwctl. It is particularly
-useful in a system where iwd is used as a standalone network management daemon
-(i.e., without NetworkManager).
+iwgtk is a wireless networking GUI for Linux. It is a front-end for iwd, with
+supported functionality similar to that of iwctl. Features include viewing and
+connecting to available networks, managing known networks, provisioning new
+networks via WPS or Wi-Fi Easy Connect, and an indicator (tray) icon displaying
+connection status and signal strength.
 
 ![Screenshot](screenshot/iwgtk-station-mode.png)
 
@@ -48,10 +49,9 @@ To build iwgtk and install it to /usr/local, run:
 ```
 make
 sudo make install
-make clean
 ```
 
-To install to /usr instead of /usr/local use:
+To install to /usr instead of /usr/local, replace `make install` with:
 ```
 sudo make PREFIX=/usr install
 ```

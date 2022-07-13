@@ -36,7 +36,7 @@ Icon colors and other options can be customized by editing the application's
 configuration file. The system-wide configuration file is located at
 */etc/iwgtk.conf*. This file can be copied to *~/.config/iwgtk.conf* if desired,
 in which case the system-wide configuration file will be ignored. For further
-instructions, please see *iwgtk(5)* refer to the comments in *iwgtk.conf*.
+instructions, please see _iwgtk_(5) and refer to the comments in *iwgtk.conf*.
 
 # REPORTING BUGS
 
