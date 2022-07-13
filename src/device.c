@@ -49,7 +49,6 @@ void device_set(Device *device) {
     {
 	GVariant *powered_var;
 	gboolean powered;
-	const gchar *status_line;
 
 	powered_var = g_dbus_proxy_get_cached_property(device->proxy, "Powered");
 	powered = g_variant_get_boolean(powered_var);

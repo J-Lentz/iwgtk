@@ -14,9 +14,7 @@ desktopdir=$(datadir)/applications
 icondir=$(datadir)/icons/hicolor/scalable/apps
 
 srcdir=src
-
 files=sni main window indicator dialog adapter device station dpp wps diagnostic ap adhoc utilities icon switch known_network network hidden agent
-icons=icons/*.svg
 
 headers=$(patsubst %,$(srcdir)/%.h,$(files) iwgtk)
 objects=$(patsubst %,%.o,$(files))

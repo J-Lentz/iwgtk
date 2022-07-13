@@ -161,8 +161,6 @@ void wps_cancel(WPS *wps, GtkWidget *button) {
 }
 
 WPS* wps_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
-    GtkWidget *menu;
-    GtkWidget *cancel_button;
     WPS *wps;
 
     wps = g_malloc(sizeof(WPS));

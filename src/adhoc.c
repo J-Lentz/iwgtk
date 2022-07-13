@@ -217,7 +217,6 @@ void adhoc_set(AdHoc *adhoc) {
 
 AdHoc* adhoc_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     AdHoc *adhoc;
-    GtkWidget *row1;
 
     adhoc = g_malloc(sizeof(AdHoc));
     adhoc->proxy = proxy;
