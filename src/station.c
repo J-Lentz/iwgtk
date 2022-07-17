@@ -209,7 +209,7 @@ void insert_separator(Station *station, gint position) {
 void network_table_clear(GtkWidget *table) {
     GtkWidget *child;
 
-    while (child = gtk_widget_get_first_child(table)) {
+    while ((child = gtk_widget_get_first_child(table))) {
 	gtk_grid_remove(GTK_GRID(table), child);
     }
 }

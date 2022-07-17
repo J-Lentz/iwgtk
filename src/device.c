@@ -45,16 +45,6 @@ void device_set(Device *device) {
 	gtk_combo_box_set_active_id(GTK_COMBO_BOX(device->mode_box), mode);
 	g_variant_unref(mode_var);
     }
-
-    {
-	GVariant *powered_var;
-	gboolean powered;
-
-	powered_var = g_dbus_proxy_get_cached_property(device->proxy, "Powered");
-	powered = g_variant_get_boolean(powered_var);
-
-	g_variant_unref(powered_var);
-    }
 }
 
 void mode_box_changed(GtkComboBox *box, Device *device) {

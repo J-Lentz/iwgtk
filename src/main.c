@@ -84,7 +84,7 @@ static const GOptionEntry command_options[] = {
 	"Print version",
 	NULL
     },
-    NULL
+    {NULL}
 };
 
 void object_manager_callback(GDBusObjectManagerClient *manager, GAsyncResult *res) {

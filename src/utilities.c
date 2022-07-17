@@ -256,7 +256,7 @@ void grid_column_set_alignment(GtkWidget *grid, int col, GtkAlign align) {
     int i;
 
     i = 0;
-    while (cell = gtk_grid_get_child_at(GTK_GRID(grid), col, i)) {
+    while ((cell = gtk_grid_get_child_at(GTK_GRID(grid), col, i))) {
 	gtk_widget_set_halign(cell, align);
 	i ++;
     }
