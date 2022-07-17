@@ -22,6 +22,7 @@
 
 #include <gtk/gtk.h>
 #include <gio/gio.h>
+#include <glib/gi18n.h>
 
 #define APPLICATION_ID "org.twosheds.iwgtk"
 

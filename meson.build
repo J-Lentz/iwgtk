@@ -10,10 +10,13 @@ prefix = get_option('prefix')
 sysconfdir = get_option('sysconfdir')
 datadir = get_option('datadir')
 mandir = get_option('mandir')
+localedir = get_option('localedir')
 
 add_project_arguments(
-    '-D IWGTK_SYSCONF="@0@"'.format(prefix / sysconfdir / 'iwgtk.conf'),
-    '-D IWGTK_VERSION="iwgtk @0@"'.format(meson.project_version()),
+    '-D SYSCONFDIR="@0@"'.format(prefix / sysconfdir),
+    '-D LOCALEDIR="@0@"'.format(prefix / localedir),
+    '-D PACKAGE="@0@"'.format(meson.project_name()),
+    '-D VERSION="@0@"'.format(meson.project_version()),
     language: 'c'
 )
 
@@ -30,6 +33,8 @@ executable(
     dependencies: dependencies,
     install: true
 )
+
+subdir('po')
 
 scdoc = find_program('scdoc', native: true)
 

@@ -17,6 +17,7 @@
  *  along with iwgtk.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <locale.h>
 #include "iwgtk.h"
 
 GlobalData global;
@@ -234,7 +235,7 @@ static void config_load_attempt() {
     key_file = g_key_file_new();
     user_conf = g_strconcat(g_get_user_config_dir(), "/iwgtk.conf", NULL);
 
-    if (config_read_file(user_conf, key_file) || config_read_file(IWGTK_SYSCONF, key_file)) {
+    if (config_read_file(user_conf, key_file) || config_read_file(SYSCONFDIR "/iwgtk.conf", key_file)) {
 	config_set_values(key_file);
     }
 
@@ -266,7 +267,7 @@ void startup(GtkApplication *app) {
 
 gint handle_local_options(GApplication *application, GVariantDict *options) {
     if (g_variant_dict_contains(options, "version")) {
-	puts(IWGTK_VERSION);
+	puts(PACKAGE " " VERSION);
 	return 0;
     }
 
@@ -307,6 +308,11 @@ gint command_line(GApplication *application, GApplicationCommandLine *command_li
 }
 
 int main (int argc, char **argv) {
+    setlocale(LC_ALL, "");
+    bindtextdomain(PACKAGE, LOCALEDIR);
+    bind_textdomain_codeset(PACKAGE, "UTF-8");
+    textdomain(PACKAGE);
+
     global.application = gtk_application_new(APPLICATION_ID, G_APPLICATION_HANDLES_COMMAND_LINE);
 
     g_application_set_option_context_summary(G_APPLICATION(global.application), "iwgtk is a graphical wifi management utility.");
