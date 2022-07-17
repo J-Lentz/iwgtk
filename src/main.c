@@ -230,12 +230,11 @@ static gboolean config_read_file(const gchar *path, GKeyFile *key_file) {
 static void config_load_attempt() {
     GKeyFile *key_file;
     gchar *user_conf;
-    const gchar *system_conf = "/etc/iwgtk.conf";
 
     key_file = g_key_file_new();
     user_conf = g_strconcat(g_get_user_config_dir(), "/iwgtk.conf", NULL);
 
-    if (config_read_file(user_conf, key_file) || config_read_file(system_conf, key_file)) {
+    if (config_read_file(user_conf, key_file) || config_read_file(IWGTK_SYSCONF, key_file)) {
 	config_set_values(key_file);
     }
 
@@ -267,7 +266,7 @@ void startup(GtkApplication *app) {
 
 gint handle_local_options(GApplication *application, GVariantDict *options) {
     if (g_variant_dict_contains(options, "version")) {
-	puts(VERSION_STRING);
+	puts(IWGTK_VERSION);
 	return 0;
     }
 

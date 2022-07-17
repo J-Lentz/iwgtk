@@ -6,9 +6,11 @@ iwgtk - Configuration file
 
 # LOCATION
 
-The system-wide config file is located at */etc/iwgtk.conf*. This file can be
-copied to *~/.config/iwgtk.conf* if user-specific configuration is desired. If a
-user configuration file exists, then the system-wide configuration file will be
+The system-wide configuration file is located at *$(sysconfdir)/iwgtk.conf*.
+*$(sysconfdir)* is usually either */etc* or */usr/local/etc*, depending on your
+build-time *prefix* setting. *iwgtk.conf* can be copied to
+*~/.config/iwgtk.conf* if user-specific configuration is desired. If a user
+configuration file exists, then the system-wide configuration file will be
 ignored.
 
 # SYNTAX

@@ -1,0 +1,22 @@
+src_files = files(
+    'adapter.c',
+    'adhoc.c',
+    'agent.c',
+    'ap.c',
+    'device.c',
+    'diagnostic.c',
+    'dialog.c',
+    'dpp.c',
+    'hidden.c',
+    'icon.c',
+    'indicator.c',
+    'known_network.c',
+    'main.c',
+    'network.c',
+    'sni.c',
+    'station.c',
+    'switch.c',
+    'utilities.c',
+    'window.c',
+    'wps.c'
+)

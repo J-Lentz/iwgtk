@@ -27,33 +27,36 @@ every desktop session by enabling the `iwgtk.service` unit.
 ### Configuration
 Icon colors and other options can be customized by editing the application's
 configuration file. The system-wide configuration file is located at
-`/etc/iwgtk.conf`. This file can be copied to `~/.config/iwgtk.conf` if desired,
-in which case the system-wide configuration file will be ignored. For further
-instructions, please see `man 5 iwgtk` and refer to the comments in
-`iwgtk.conf`.
+`$(sysconfdir)/iwgtk.conf`. `$(sysconfdir)` is usually either `/etc` or
+`/usr/local/etc`, depending on your build-time `prefix` setting. `iwgtk.conf`
+can be copied to `~/.config/iwgtk.conf` if desired, in which case the
+system-wide configuration file will be ignored. For further instructions, please
+see `man 5 iwgtk` and refer to the comments in `iwgtk.conf`.
 
 ## Dependencies
 
 ### Runtime dependencies
-* iwd (>=1.28)
+* iwd (>= 1.28)
 * gtk4 (>= 4.6)
 * libqrencode
 * adwaita-icon-theme (or an equivalent icon package)
 
 ### Build dependencies
+* meson (>= 0.60.0)
 * scdoc
 
 ## Installation
-To build iwgtk and install it to /usr/local, run:
+To build iwgtk and install to `/usr/local`, run:
+```
+meson setup build
+cd build
+meson compile
+sudo meson install
+```
 
+To install to `/usr` instead of `/usr/local`, replace `meson setup build` with:
 ```
-make
-sudo make install
-```
-
-To install to /usr instead of /usr/local, replace `make install` with:
-```
-sudo make PREFIX=/usr install
+meson setup --prefix=/usr build
 ```
 
 ## Troubleshooting
