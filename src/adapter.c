@@ -48,7 +48,6 @@ void adapter_set(Adapter *adapter) {
 	gtk_widget_set_tooltip_text(GTK_WIDGET(adapter->frame), card_full_name);
 	g_free(card_full_name);
     }
-
 }
 
 Adapter* adapter_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
@@ -82,7 +81,7 @@ Adapter* adapter_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     adapter->power_switch = switch_new(proxy, "Powered");
     g_object_ref_sink(adapter->power_switch);
     gtk_box_append(GTK_BOX(row1), adapter->power_switch);
-    gtk_widget_set_tooltip_text(GTK_WIDGET(adapter->power_switch), "RF kill switch");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(adapter->power_switch), _("Enable/disable wireless adapter (RF kill)"));
 
     adapter->handler_update = g_signal_connect_swapped(proxy, "g-properties-changed", G_CALLBACK(adapter_set), adapter);
     adapter_set(adapter);

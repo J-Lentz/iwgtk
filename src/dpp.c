@@ -51,7 +51,7 @@ GtkWidget* qrcode_widget_new(const gchar *uri) {
     qrcode = QRcode_encodeString8bit(uri, 0, QR_ECLEVEL_L);
 
     if (!qrcode) {
-	g_printerr("Error generating QR code\n");
+	g_printerr("Failed to generate QR code\n");
 	return NULL;
     }
 
@@ -134,10 +134,10 @@ void dpp_qrcode_add(GDBusProxy *proxy, GAsyncResult *res, DPP *dpp) {
 	    const gchar *tooltip;
 
 	    if (dpp->mode == DPP_MODE_ENROLLEE) {
-		tooltip = "Get network credentials";
+		tooltip = _("Get network credentials");
 	    }
 	    else {
-		tooltip = "Share network credentials";
+		tooltip = _("Share network credentials");
 	    }
 
 	    gtk_widget_set_tooltip_text(dpp->qrcode, tooltip);
@@ -202,7 +202,7 @@ void dpp_stop(DPP *dpp) {
 	-1,
 	NULL,
 	(GAsyncReadyCallback) method_call_log,
-	"Error canceling DPP enrollment: %s\n");
+	"Failed to cancel DPP enrollment: %s\n");
 }
 
 void dpp_set(DPP *dpp) {
@@ -211,15 +211,15 @@ void dpp_set(DPP *dpp) {
     }
 
     if (dpp->qrcode != NULL) {
-	gtk_button_set_label(GTK_BUTTON(dpp->button), "Stop");
+	gtk_button_set_label(GTK_BUTTON(dpp->button), _("Stop"));
 	dpp->handler = g_signal_connect_swapped(dpp->button, "clicked", G_CALLBACK(dpp_stop), dpp);
     }
     else if (dpp->station->state == STATION_CONNECTED) {
-	gtk_button_set_label(GTK_BUTTON(dpp->button), "Share credentials");
+	gtk_button_set_label(GTK_BUTTON(dpp->button), _("Share credentials"));
 	dpp->handler = g_signal_connect_swapped(dpp->button, "clicked", G_CALLBACK(dpp_start_configurator), dpp);
     }
     else {
-	gtk_button_set_label(GTK_BUTTON(dpp->button), "Get credentials");
+	gtk_button_set_label(GTK_BUTTON(dpp->button), _("Get credentials"));
 	dpp->handler = g_signal_connect_swapped(dpp->button, "clicked", G_CALLBACK(dpp_start_enrollee), dpp);
     }
 }
@@ -232,7 +232,7 @@ DPP* dpp_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     dpp->handler = 0;
     dpp->qrcode = NULL;
 
-    dpp->label = new_label_bold("Easy Connect");
+    dpp->label = new_label_bold(_("Easy Connect"));
     g_object_ref_sink(dpp->label);
     gtk_widget_set_margin_top(dpp->label, 10);
 

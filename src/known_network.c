@@ -30,7 +30,7 @@ void known_network_forget(GDBusProxy *proxy) {
 	-1,
 	NULL,
 	(GAsyncReadyCallback) method_call_log,
-	"Error forgetting network: %s\n");
+	"Failed to forget known network: %s\n");
 }
 
 void known_network_set(KnownNetwork *kn) {
@@ -98,7 +98,7 @@ void known_network_set(KnownNetwork *kn) {
 	    g_variant_unref(last_connected_var);
 	}
 	else {
-	    gtk_label_set_text(GTK_LABEL(kn->last_connection_label), "Never");
+	    gtk_label_set_text(GTK_LABEL(kn->last_connection_label), _("Never"));
 	}
     }
 }
@@ -112,9 +112,9 @@ KnownNetwork* known_network_add(Window *window, GDBusObject *object, GDBusProxy 
 
     kn->name_label = gtk_label_new(NULL);
     g_object_ref_sink(kn->name_label);
-    gtk_widget_set_tooltip_text(kn->name_label, "SSID");
+    gtk_widget_set_tooltip_text(kn->name_label, _("SSID"));
 
-    kn->hidden_label = new_label_gray("(Hidden)");
+    kn->hidden_label = new_label_gray(_("(Hidden)"));
     g_object_ref_sink(kn->hidden_label);
 
     name_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
@@ -123,18 +123,18 @@ KnownNetwork* known_network_add(Window *window, GDBusObject *object, GDBusProxy 
 
     kn->security_label = gtk_label_new(NULL);
     g_object_ref_sink(kn->security_label);
-    gtk_widget_set_tooltip_text(kn->security_label, "Network security");
+    gtk_widget_set_tooltip_text(kn->security_label, _("Network security"));
 
     autoconnect_switch = switch_new(proxy, "AutoConnect");
-    gtk_widget_set_tooltip_text(autoconnect_switch, "Automatically connect to this network");
+    gtk_widget_set_tooltip_text(autoconnect_switch, _("Automatically connect to this network"));
 
-    forget_button = gtk_button_new_with_label("Forget");
+    forget_button = gtk_button_new_with_label(_("Forget"));
     g_signal_connect_swapped(forget_button, "clicked", G_CALLBACK(known_network_forget), proxy);
-    gtk_widget_set_tooltip_text(forget_button, "Forget this network");
+    gtk_widget_set_tooltip_text(forget_button, _("Forget this network"));
 
     kn->last_connection_label = gtk_label_new(NULL);
     g_object_ref_sink(kn->last_connection_label);
-    gtk_widget_set_tooltip_text(kn->last_connection_label, "Last connection to this network");
+    gtk_widget_set_tooltip_text(kn->last_connection_label, _("Most recent connection to this network"));
 
     gtk_widget_set_hexpand(name_box, TRUE);
 

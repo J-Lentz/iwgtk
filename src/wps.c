@@ -20,16 +20,16 @@
 #include "iwgtk.h"
 
 const ErrorMessage detailed_errors_wps[] = {
-    {IWD_ERROR_INVALID_FORMAT,        "Invalid PIN"},
-    {IWD_ERROR_WSC_SESSION_OVERLAP,   "Multiple access points found"},
-    {IWD_ERROR_WSC_TIME_EXPIRED,      "No AP found in PIN mode"},
-    {IWD_ERROR_WSC_WALK_TIME_EXPIRED, "No AP found in push-button mode"},
+    {IWD_ERROR_INVALID_FORMAT,        N_("Invalid PIN")},
+    {IWD_ERROR_WSC_SESSION_OVERLAP,   N_("Multiple APs found")},
+    {IWD_ERROR_WSC_TIME_EXPIRED,      N_("No AP found in PIN mode")},
+    {IWD_ERROR_WSC_WALK_TIME_EXPIRED, N_("No AP found in push-button mode")},
     {0, NULL}
 };
 
 static const CallbackMessages wps_messages = {
-    "WPS connection successful",
-    "WPS connection failed",
+    N_("WPS enrollment succeeded"),
+    N_("WPS enrollment failed"),
     detailed_errors_wps,
     FALSE
 };
@@ -39,7 +39,7 @@ void wps_set_pushbutton(WPS *wps) {
 	g_signal_handler_disconnect(wps->pushbutton, wps->handler_pushbutton);
     }
 
-    gtk_button_set_label(GTK_BUTTON(wps->pushbutton), "Push button");
+    gtk_button_set_label(GTK_BUTTON(wps->pushbutton), _("Push button"));
     wps->handler_pushbutton = g_signal_connect_swapped(wps->pushbutton, "clicked", G_CALLBACK(wps_connect_pushbutton), wps);
 }
 
@@ -48,19 +48,19 @@ void wps_set_pin(WPS *wps) {
 	g_signal_handler_disconnect(wps->pin, wps->handler_pin);
     }
 
-    gtk_button_set_label(GTK_BUTTON(wps->pin), "PIN");
+    gtk_button_set_label(GTK_BUTTON(wps->pin), _("PIN"));
     wps->handler_pin = g_signal_connect_swapped(wps->pin, "clicked", G_CALLBACK(wps_connect_pin_dialog), wps);
 }
 
 void wps_set_pushbutton_cancel(WPS *wps) {
     g_signal_handler_disconnect(wps->pushbutton, wps->handler_pushbutton);
-    gtk_button_set_child(GTK_BUTTON(wps->pushbutton), label_with_spinner("Cancel"));
+    gtk_button_set_child(GTK_BUTTON(wps->pushbutton), label_with_spinner(_("Cancel")));
     wps->handler_pushbutton = g_signal_connect_swapped(wps->pushbutton, "clicked", G_CALLBACK(wps_cancel), wps);
 }
 
 void wps_set_pin_cancel(WPS *wps) {
     g_signal_handler_disconnect(wps->pin, wps->handler_pin);
-    gtk_button_set_child(GTK_BUTTON(wps->pin), label_with_spinner("Cancel"));
+    gtk_button_set_child(GTK_BUTTON(wps->pin), label_with_spinner(_("Cancel")));
     wps->handler_pin = g_signal_connect_swapped(wps->pin, "clicked", G_CALLBACK(wps_cancel), wps);
 }
 
@@ -83,7 +83,7 @@ void wps_connect_pin_dialog(WPS *wps) {
     wps_dialog->wps = wps;
 
     wps_dialog->window = gtk_window_new();
-    gtk_window_set_title(GTK_WINDOW(wps_dialog->window), "Connect via WPS");
+    gtk_window_set_title(GTK_WINDOW(wps_dialog->window), _("Provision network via WPS"));
 
     wps_dialog->pin = gtk_password_entry_new();
     gtk_password_entry_set_show_peek_icon(GTK_PASSWORD_ENTRY(wps_dialog->pin), TRUE);
@@ -93,9 +93,9 @@ void wps_connect_pin_dialog(WPS *wps) {
     table = gtk_grid_new();
     gtk_window_set_child(GTK_WINDOW(wps_dialog->window), table);
 
-    gtk_grid_attach(GTK_GRID(table), gtk_label_new("PIN: "), 0, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(table), wps_dialog->pin,        1, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(table), buttons,                1, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), gtk_label_new(_("PIN: ")), 0, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), wps_dialog->pin,           1, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), buttons,                   1, 1, 1, 1);
 
     grid_column_set_alignment(table, 0, GTK_ALIGN_END);
     grid_column_set_alignment(table, 1, GTK_ALIGN_START);
@@ -150,7 +150,7 @@ void wps_cancel(WPS *wps, GtkWidget *button) {
 	-1,
 	NULL,
 	(GAsyncReadyCallback) method_call_log,
-	"Error canceling WPS connection: %s\n");
+	"Failed to cancel WPS enrollment: %s\n");
 
     if (button == wps->pushbutton) {
 	wps_set_pushbutton(wps);
@@ -168,7 +168,7 @@ WPS* wps_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     wps->handler_pushbutton = 0;
     wps->handler_pin = 0;
 
-    wps->label = new_label_bold("WPS");
+    wps->label = new_label_bold(_("WPS"));
     g_object_ref_sink(wps->label);
     gtk_widget_set_margin_top(wps->label, 10);
 

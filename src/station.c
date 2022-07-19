@@ -98,10 +98,10 @@ Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     g_object_ref_sink(station->scan_button);
     g_signal_connect_swapped(station->scan_button, "clicked", G_CALLBACK(send_scan_request), station);
 
-    station->scan_widget_idle = gtk_label_new("Scan");
+    station->scan_widget_idle = gtk_label_new(_("Scan"));
     g_object_ref_sink(station->scan_widget_idle);
 
-    station->scan_widget_scanning = label_with_spinner("Scanning");
+    station->scan_widget_scanning = label_with_spinner(_("Scanning"));
     g_object_ref_sink(station->scan_widget_scanning);
 
     station->provision_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
@@ -110,8 +110,8 @@ Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     {
 	GtkWidget *hidden_connect;
 
-	hidden_connect = gtk_button_new_with_label("Hidden network");
-	gtk_widget_set_tooltip_text(hidden_connect, "Connect to a hidden network");
+	hidden_connect = gtk_button_new_with_label(_("Hidden network"));
+	gtk_widget_set_tooltip_text(hidden_connect, _("Connect to a hidden network"));
 	gtk_widget_set_size_request(hidden_connect, PROVISION_MENU_WIDTH, -1);
 
 	g_signal_connect_swapped(hidden_connect, "clicked", G_CALLBACK(hidden_ssid_dialog), station);
@@ -124,7 +124,7 @@ Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     gtk_popover_set_has_arrow(GTK_POPOVER(station->provision_menu), FALSE);
     gtk_popover_set_child(GTK_POPOVER(station->provision_menu), station->provision_vbox);
 
-    station->provision_button = gtk_button_new_with_label("Provision");
+    station->provision_button = gtk_button_new_with_label(_("Provision"));
     g_object_ref_sink(station->provision_button);
 
     g_signal_connect_swapped(station->provision_button, "clicked", G_CALLBACK(gtk_widget_show), station->provision_menu);
@@ -196,7 +196,7 @@ void send_scan_request(Station *station) {
 	-1,
 	NULL,
 	(GAsyncReadyCallback) method_call_log,
-	"Error scanning: %s\n");
+	"Scan request failed: %s\n");
 }
 
 void insert_separator(Station *station, gint position) {
@@ -254,7 +254,7 @@ void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *statio
 		station_add_network(station, network_proxy, signal_strength, i ++);
 	    }
 	    else {
-		g_printerr("Error: Network '%s' not found\n", network_path);
+		g_printerr("Failed to find network object '%s'\n", network_path);
 	    }
 
 	    g_free(network_path);
@@ -268,7 +268,7 @@ void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *statio
 	g_variant_unref(ordered_networks);
     }
     else {
-	g_printerr("Error retrieving network list: %s\n", err->message);
+	g_printerr("Failed to retrieve available network list: %s\n", err->message);
 	g_error_free(err);
     }
 
@@ -315,7 +315,7 @@ void get_hidden_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station 
 	g_variant_unref(ordered_networks);
     }
     else {
-	g_printerr("Error retrieving hidden network list: %s\n", err->message);
+	g_printerr("Failed to retrieve hidden network list: %s\n", err->message);
 	g_error_free(err);
     }
 }

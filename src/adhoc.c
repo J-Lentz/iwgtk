@@ -20,15 +20,15 @@
 #include "iwgtk.h"
 
 static const CallbackMessages adhoc_start_messages = {
-    "Ad-hoc node started",
-    "Failed to start ad-hoc node",
+    N_("Ad-hoc node has been started"),
+    N_("Failed to start ad-hoc node"),
     NULL,
     FALSE
 };
 
 static const CallbackMessages adhoc_stop_messages = {
-    "Ad-hoc node stopped",
-    "Failed to stop ad-hoc node",
+    N_("Ad-hoc node has been stopped"),
+    N_("Failed to stop ad-hoc node"),
     NULL,
     FALSE
 };
@@ -48,7 +48,7 @@ void adhoc_dialog_launch(AdHoc *adhoc) {
     adhoc_dialog->adhoc = adhoc;
 
     adhoc_dialog->window = gtk_window_new();
-    gtk_window_set_title(GTK_WINDOW(adhoc_dialog->window), "Start Ad-Hoc Node");
+    gtk_window_set_title(GTK_WINDOW(adhoc_dialog->window), _("Start ad-hoc node"));
 
     adhoc_dialog->ssid = gtk_entry_new();
     adhoc_dialog->psk = gtk_password_entry_new();
@@ -63,12 +63,12 @@ void adhoc_dialog_launch(AdHoc *adhoc) {
     gtk_check_button_set_active(GTK_CHECK_BUTTON(adhoc_dialog->psk_toggle), TRUE);
     g_signal_connect(adhoc_dialog->psk_toggle, "toggled", G_CALLBACK(psk_toggle_changed), adhoc_dialog);
 
-    gtk_grid_attach(GTK_GRID(table), gtk_label_new("SSID: "),     0, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(table), adhoc_dialog->ssid,          2, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(table), gtk_label_new("Password: "), 0, 1, 1, 1);
-    gtk_grid_attach(GTK_GRID(table), adhoc_dialog->psk_toggle,    1, 1, 1, 1);
-    gtk_grid_attach(GTK_GRID(table), adhoc_dialog->psk,           2, 1, 1, 1);
-    gtk_grid_attach(GTK_GRID(table), buttons,                     2, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), gtk_label_new(_("SSID: ")),     0, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), adhoc_dialog->ssid,             2, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), gtk_label_new(_("Password: ")), 0, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), adhoc_dialog->psk_toggle,       1, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), adhoc_dialog->psk,              2, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), buttons,                        2, 2, 1, 1);
 
     grid_column_set_alignment(table, 0, GTK_ALIGN_END);
     grid_column_set_alignment(table, 2, GTK_ALIGN_START);
@@ -185,31 +185,18 @@ void adhoc_set(AdHoc *adhoc) {
 	g_variant_unref(peer_list_var);
 
 	{
-	    gchar *n_peers_text;
+	    gchar *n_peers_str;
 
-	    switch (n) {
-		case 0:
-		    n_peers_text = "No connected peers";
-		    break;
-		case 1:
-		    n_peers_text = "1 connected peer:";
-		    break;
-		default:
-		    n_peers_text = g_strdup_printf("%d connected peers:", n);
-	    }
-
-	    gtk_label_set_text(GTK_LABEL(adhoc->n_peers), n_peers_text);
-
-	    if (n > 1) {
-		g_free(n_peers_text);
-	    }
+	    n_peers_str = g_strdup_printf(ngettext("One connected peer", "%d connected peers", n), n);
+	    gtk_label_set_text(GTK_LABEL(adhoc->n_peers), n_peers_str);
+	    g_free(n_peers_str);
 	}
 
-	gtk_button_set_label(GTK_BUTTON(adhoc->button), "Stop node");
+	gtk_button_set_label(GTK_BUTTON(adhoc->button), _("Stop node"));
     }
     else {
 	gtk_label_set_text(GTK_LABEL(adhoc->n_peers), "");
-	gtk_button_set_label(GTK_BUTTON(adhoc->button), "Start node");
+	gtk_button_set_label(GTK_BUTTON(adhoc->button), _("Start node"));
     }
 
     g_variant_unref(started_var);

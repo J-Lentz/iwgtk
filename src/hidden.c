@@ -20,8 +20,8 @@
 #include "iwgtk.h"
 
 static const CallbackMessages connect_hidden_messages = {
-    "Found hidden network",
-    "Failed to connect to hidden network",
+    N_("Hidden network has been found"),
+    N_("Failed to find hidden network"),
     NULL,
     FALSE
 };
@@ -34,7 +34,7 @@ void hidden_ssid_dialog(Station *station) {
     dialog->station = station;
 
     dialog->window = gtk_window_new();
-    gtk_window_set_title(GTK_WINDOW(dialog->window), "Connect to Hidden Network");
+    gtk_window_set_title(GTK_WINDOW(dialog->window), _("Connect to hidden network"));
 
     dialog->ssid = gtk_entry_new();
 
@@ -43,9 +43,9 @@ void hidden_ssid_dialog(Station *station) {
 
     buttons = dialog_buttons(dialog, (SubmitCallback) hidden_ssid_submit, dialog->window);
 
-    gtk_grid_attach(GTK_GRID(table), gtk_label_new("SSID: "), 0, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(table), dialog->ssid,            1, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(table), buttons,                 1, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), gtk_label_new(_("SSID: ")), 0, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), dialog->ssid,               1, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), buttons,                    1, 1, 1, 1);
 
     grid_column_set_alignment(table, 0, GTK_ALIGN_END);
     grid_column_set_alignment(table, 1, GTK_ALIGN_START);
@@ -81,7 +81,7 @@ void station_add_hidden_network(Station *station, const gchar *address, const gc
     GtkWidget *security_label;
 
     status_icon = gtk_picture_new();
-    gtk_widget_set_tooltip_text(status_icon, "Hidden network");
+    gtk_widget_set_tooltip_text(status_icon, _("Hidden network"));
 
     {
 	const gchar *icon_name;
@@ -93,8 +93,8 @@ void station_add_hidden_network(Station *station, const gchar *address, const gc
     address_label = gtk_label_new(address);
     security_label = gtk_label_new(get_security_type(type));
 
-    gtk_widget_set_tooltip_text(address_label, "MAC address");
-    gtk_widget_set_tooltip_text(security_label, "Network security");
+    gtk_widget_set_tooltip_text(address_label, _("MAC address"));
+    gtk_widget_set_tooltip_text(security_label, _("Network security"));
 
     gtk_grid_attach(GTK_GRID(station->network_table), status_icon,    0, index, 1, 1);
     gtk_grid_attach(GTK_GRID(station->network_table), address_label,  1, index, 1, 1);

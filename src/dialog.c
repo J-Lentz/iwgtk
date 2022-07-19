@@ -38,10 +38,10 @@ GtkWidget* dialog_buttons(gpointer user_data, SubmitCallback submit_callback, Gt
 
     row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
 
-    submit_button = gtk_button_new_with_label("Submit");
+    submit_button = gtk_button_new_with_label(_("Submit"));
     gtk_box_append(GTK_BOX(row), submit_button);
 
-    cancel_button = gtk_button_new_with_label("Cancel");
+    cancel_button = gtk_button_new_with_label(_("Cancel"));
     gtk_box_append(GTK_BOX(row), cancel_button);
 
     g_signal_connect_swapped(submit_button, "clicked", G_CALLBACK(submit_callback), user_data);

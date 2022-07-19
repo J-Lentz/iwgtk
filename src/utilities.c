@@ -25,7 +25,7 @@ const gchar* get_error_detail(GError *err, const ErrorMessage *error_table) {
     if (error_table && err->domain == global.iwd_error_domain) {
 	for (i = 0; error_table[i].code != 0; i ++) {
 	    if (err->code == error_table[i].code) {
-		return error_table[i].message;
+		return gettext(error_table[i].message);
 	    }
 	}
     }
@@ -55,7 +55,7 @@ void method_call_notify(GDBusProxy *proxy, GAsyncResult *res, CallbackMessages *
 	g_variant_unref(ret);
 
 	if (messages->success) {
-	    send_notification(messages->success);
+	    send_notification(messages->free ? messages->success : gettext(messages->success));
 	}
     }
     else {
@@ -64,7 +64,9 @@ void method_call_notify(GDBusProxy *proxy, GAsyncResult *res, CallbackMessages *
 	    gchar *message_detailed;
 
 	    err_detail = get_error_detail(err, messages->error_table);
-	    message_detailed = g_strconcat(messages->failure, ": ", err_detail, NULL);
+	    message_detailed = g_strdup_printf("%s: %s",
+		    (messages->free ? messages->failure : gettext(messages->failure)),
+		    err_detail);
 	    send_notification(message_detailed);
 	    g_free(message_detailed);
 	}
@@ -176,7 +178,7 @@ void set_remote_property_callback(GDBusProxy *proxy, GAsyncResult *res, FailureC
 	g_variant_unref(ret);
     }
     else {
-	g_printerr("Error setting remote property '%s': %s\n", failure->property, err->message);
+	g_printerr("Failed to set remote property '%s': %s\n", failure->property, err->message);
 	g_error_free(err);
 
 	failure->callback(failure->data);
@@ -243,7 +245,7 @@ void send_notification(const gchar *text) {
     if (~global.state & NOTIFICATIONS_DISABLE) {
 	GNotification *notification;
 
-	notification = g_notification_new("iwgtk");
+	notification = g_notification_new(PACKAGE);
 	g_notification_set_body(notification, text);
 	g_notification_set_priority(notification, G_NOTIFICATION_PRIORITY_NORMAL);
 	g_application_send_notification(G_APPLICATION(global.application), NULL, notification);

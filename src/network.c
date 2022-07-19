@@ -20,24 +20,24 @@
 #include "iwgtk.h"
 
 const ErrorMessage detailed_errors_network[] = {
-    {IWD_ERROR_FAILED,         "Incorrect passphrase"},
-    {IWD_ERROR_INVALID_FORMAT, "Invalid passphrase"},
+    {IWD_ERROR_FAILED,         N_("Incorrect passphrase")},
+    {IWD_ERROR_INVALID_FORMAT, N_("Invalid passphrase")},
     {0, NULL}
 };
 
 const gchar* get_security_type(const gchar *type_raw) {
     if (strcmp(type_raw, "open") == 0) {
-	return "Open";
+	return _("Open");
     }
     else if (strcmp(type_raw, "psk") == 0) {
-	return "PSK";
+	return _("PSK");
     }
     else if (strcmp(type_raw, "8021x") == 0) {
-	return "EAP";
+	return _("EAP");
     }
     else if (strcmp(type_raw, "wep") == 0) {
 	// The "wep" type value is undocumented
-	return "WEP";
+	return _("WEP");
     }
     else {
 	return type_raw;
@@ -58,8 +58,8 @@ void connect_button_clicked(GtkButton *button, GDBusProxy *network_proxy) {
 	ssid_var = g_dbus_proxy_get_cached_property(network_proxy, "Name");
 	ssid = g_variant_get_string(ssid_var, NULL);
 
-	messages->success = g_strdup_printf("Connected to %s", ssid);
-	messages->failure = g_strdup_printf("Failed to connect to %s", ssid);
+	messages->success = g_strdup_printf(_("Connected to %s"), ssid);
+	messages->failure = g_strdup_printf(_("Failed to connect to %s"), ssid);
 
 	g_variant_unref(ssid_var);
     }
@@ -89,8 +89,8 @@ void disconnect_button_clicked(GtkButton *button, Network *network) {
 	ssid_var = g_dbus_proxy_get_cached_property(network->proxy, "Name");
 	ssid = g_variant_get_string(ssid_var, NULL);
 
-	messages->success = g_strdup_printf("Disconnected from %s", ssid);
-	messages->failure = g_strdup_printf("Failed to disconnect from %s", ssid);
+	messages->success = g_strdup_printf(_("Disconnected from %s"), ssid);
+	messages->failure = g_strdup_printf(_("Failed to disconnect from %s"), ssid);
 
 	g_variant_unref(ssid_var);
     }
@@ -152,15 +152,15 @@ void network_set(Network *network) {
 
 	    if (network->station->state == STATION_CONNECTED) {
 		network_status = NETWORK_CONNECTED;
-		gtk_widget_set_tooltip_text(network->status_icon, "Connected");
+		gtk_widget_set_tooltip_text(network->status_icon, _("Connected"));
 	    }
 	    else {
 		network_status = NETWORK_CONNECTING;
-		gtk_widget_set_tooltip_text(network->status_icon, "Connecting");
+		gtk_widget_set_tooltip_text(network->status_icon, _("Connecting"));
 	    }
 
-	    gtk_button_set_label(button, "Disconnect");
-	    gtk_widget_set_tooltip_text(network->connect_button, "Disconnect from network");
+	    gtk_button_set_label(button, _("Disconnect"));
+	    gtk_widget_set_tooltip_text(network->connect_button, _("Disconnect from network"));
 	    network->button_handler_id = g_signal_connect(button, "clicked", G_CALLBACK(disconnect_button_clicked), network);
 	}
 	else {
@@ -174,15 +174,15 @@ void network_set(Network *network) {
 	    if (known_network_var) {
 		g_variant_unref(known_network_var);
 		network_status = NETWORK_KNOWN;
-		gtk_widget_set_tooltip_text(network->status_icon, "Known network");
+		gtk_widget_set_tooltip_text(network->status_icon, _("Known network"));
 	    }
 	    else {
 		network_status = NETWORK_UNKNOWN;
-		gtk_widget_set_tooltip_text(network->status_icon, "Unknown network");
+		gtk_widget_set_tooltip_text(network->status_icon, _("Unknown network"));
 	    }
 
-	    gtk_button_set_label(button, "Connect");
-	    gtk_widget_set_tooltip_text(network->connect_button, "Connect to network");
+	    gtk_button_set_label(button, _("Connect"));
+	    gtk_widget_set_tooltip_text(network->connect_button, _("Connect to network"));
 	    network->button_handler_id = g_signal_connect(button, "clicked", G_CALLBACK(connect_button_clicked), network->proxy);
 	}
     }
@@ -210,8 +210,8 @@ void station_add_network(Station *station, GDBusProxy *network_proxy, gint16 sig
     network->security_label = gtk_label_new(NULL);
     network->connect_button = gtk_button_new();
 
-    gtk_widget_set_tooltip_text(network->ssid_label, "SSID");
-    gtk_widget_set_tooltip_text(network->security_label, "Network security");
+    gtk_widget_set_tooltip_text(network->ssid_label, _("SSID"));
+    gtk_widget_set_tooltip_text(network->security_label, _("Network security type"));
 
     g_object_ref_sink(network->status_icon);
     g_object_ref_sink(network->ssid_label);

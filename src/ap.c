@@ -20,15 +20,15 @@
 #include "iwgtk.h"
 
 static const CallbackMessages ap_start_messages = {
-    "AP started",
-    "AP start-up failed",
+    N_("AP has been started"),
+    N_("Failed to start AP"),
     NULL,
     FALSE
 };
 
 static const CallbackMessages ap_stop_messages = {
-    "AP stopped",
-    "Error stopping AP",
+    N_("AP has been stopped"),
+    N_("Failed to stop AP"),
     NULL,
     FALSE
 };
@@ -41,7 +41,7 @@ void ap_dialog_launch(AP *ap) {
     dialog->ap = ap;
 
     dialog->window = gtk_window_new();
-    gtk_window_set_title(GTK_WINDOW(dialog->window), "Create Access Point");
+    gtk_window_set_title(GTK_WINDOW(dialog->window), _("Start wireless access point"));
 
     dialog->ssid = gtk_entry_new();
     dialog->psk = gtk_password_entry_new();
@@ -52,11 +52,11 @@ void ap_dialog_launch(AP *ap) {
     table = gtk_grid_new();
     gtk_window_set_child(GTK_WINDOW(dialog->window), table);
 
-    gtk_grid_attach(GTK_GRID(table), gtk_label_new("SSID: "),     0, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(table), dialog->ssid,                1, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(table), gtk_label_new("Password: "), 0, 1, 1, 1);
-    gtk_grid_attach(GTK_GRID(table), dialog->psk,                 1, 1, 1, 1);
-    gtk_grid_attach(GTK_GRID(table), buttons,                     1, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), gtk_label_new(_("SSID: ")),     0, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), dialog->ssid,                   1, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), gtk_label_new(_("Password: ")), 0, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), dialog->psk,                    1, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), buttons,                        1, 2, 1, 1);
 
     grid_column_set_alignment(table, 0, GTK_ALIGN_END);
     grid_column_set_alignment(table, 1, GTK_ALIGN_START);
@@ -122,11 +122,12 @@ void ap_set(AP *ap) {
 	started = g_variant_get_boolean(started_var);
 
 	if (started) {
-	    gtk_button_set_label(GTK_BUTTON(ap->button), "Stop AP");
+	    gtk_button_set_label(GTK_BUTTON(ap->button), _("Stop AP"));
 	}
 	else {
-	    gtk_button_set_label(GTK_BUTTON(ap->button), "Start AP");
+	    gtk_button_set_label(GTK_BUTTON(ap->button), _("Start AP"));
 	}
+
 	g_variant_unref(started_var);
     }
 
@@ -137,7 +138,7 @@ void ap_set(AP *ap) {
 	if (name_var) {
 	    gchar *ssid_label;
 
-	    ssid_label = g_strconcat("SSID: ", g_variant_get_string(name_var, NULL), NULL);
+	    ssid_label = g_strdup_printf(_("SSID: %s"), g_variant_get_string(name_var, NULL));
 	    g_variant_unref(name_var);
 
 	    gtk_label_set_text(GTK_LABEL(ap->ssid), ssid_label);

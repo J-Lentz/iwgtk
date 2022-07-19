@@ -55,7 +55,7 @@ static const GOptionEntry command_options[] = {
 	G_OPTION_FLAG_NONE,
 	G_OPTION_ARG_NONE,
 	NULL,
-	"Enable indicator (tray) icons and run iwgtk in the background",
+	N_("Start indicator (tray) icon daemon"),
 	NULL
     },
     {
@@ -64,7 +64,7 @@ static const GOptionEntry command_options[] = {
 	G_OPTION_FLAG_NONE,
 	G_OPTION_ARG_NONE,
 	NULL,
-	"Enable desktop notifications (default)",
+	N_("Enable desktop notifications (default)"),
 	NULL
     },
     {
@@ -73,7 +73,7 @@ static const GOptionEntry command_options[] = {
 	G_OPTION_FLAG_NONE,
 	G_OPTION_ARG_NONE,
 	NULL,
-	"Disable desktop notifications",
+	N_("Disable desktop notifications"),
 	NULL
     },
     {
@@ -82,7 +82,7 @@ static const GOptionEntry command_options[] = {
 	G_OPTION_FLAG_NONE,
 	G_OPTION_ARG_NONE,
 	NULL,
-	"Print version",
+	N_("Print version number"),
 	NULL
     },
     {NULL}
@@ -142,11 +142,11 @@ void iwd_up(GDBusConnection *connection) {
 
 void iwd_down(GDBusConnection *connection) {
     global.state |= IWD_DOWN;
-    send_notification("iwd is down");
+    send_notification(_("iwd is down"));
 
     if (global.window != NULL) {
 	gtk_window_destroy(GTK_WINDOW(global.window->window));
-	g_printerr("Destroying iwgtk window: iwd has stopped\n");
+	g_printerr("Destroying iwgtk window: iwd has stopped running\n");
     }
 
     if (global.manager != NULL) {
@@ -157,7 +157,7 @@ void iwd_down(GDBusConnection *connection) {
     if (global.state & WINDOW_LAUNCH_PENDING) {
 	global.state &= ~WINDOW_LAUNCH_PENDING;
 	g_application_release(G_APPLICATION(global.application));
-	g_printerr("Could not launch iwgtk window: iwd is not running\n");
+	g_printerr("Cannot launch iwgtk window: iwd is not running\n");
     }
 }
 
@@ -219,7 +219,7 @@ static gboolean config_read_file(const gchar *path, GKeyFile *key_file) {
 	 */
 
 	if (err->domain == G_KEY_FILE_ERROR) {
-	    g_printerr("Error parsing configuration file '%s': %s\n", path, err->message);
+	    g_printerr("Failed to parse configuration file '%s': %s\n", path, err->message);
 	}
 
 	g_error_free(err);
@@ -289,7 +289,7 @@ gint command_line(GApplication *application, GApplicationCommandLine *command_li
 
     if (g_variant_dict_contains(options, "indicators")) {
 	if (global.state & INDICATOR_DAEMON) {
-	    g_printerr("Cannot start indicator daemon: Indicator daemon is already running\n");
+	    g_printerr("Indicator daemon is already running\n");
 	}
 	else {
 	    global.state |= INDICATOR_DAEMON;
@@ -315,7 +315,7 @@ int main (int argc, char **argv) {
 
     global.application = gtk_application_new(APPLICATION_ID, G_APPLICATION_HANDLES_COMMAND_LINE);
 
-    g_application_set_option_context_summary(G_APPLICATION(global.application), "iwgtk is a graphical wifi management utility.");
+    g_application_set_option_context_summary(G_APPLICATION(global.application), _("iwgtk is a wireless networking GUI."));
     g_application_add_main_option_entries(G_APPLICATION(global.application), command_options);
 
     g_signal_connect(global.application, "startup", G_CALLBACK(startup), NULL);

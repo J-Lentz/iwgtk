@@ -116,6 +116,7 @@ void indicator_station_init_signal_agent(Indicator *indicator, GDBusProxy *stati
     GError *err;
     const gchar *path;
     GVariant *levels;
+    static const gchar *agent_error_msg = "Failed to register signal level agent: %s\n";
 
     path = g_dbus_proxy_get_object_path(station_proxy);
 
@@ -130,7 +131,7 @@ void indicator_station_init_signal_agent(Indicator *indicator, GDBusProxy *stati
 	&err);
 
     if (err != NULL) {
-	g_printerr("Error registering signal level agent: %s\n", err->message);
+	g_printerr(agent_error_msg, err->message);
 	g_error_free(err);
 	return;
     }
@@ -144,7 +145,7 @@ void indicator_station_init_signal_agent(Indicator *indicator, GDBusProxy *stati
 	-1,
 	NULL,
 	(GAsyncReadyCallback) method_call_log,
-	"Failed to register signal level agent: %s\n");
+	(gpointer) agent_error_msg);
 }
 
 void indicator_set_device(Indicator *indicator) {
@@ -156,7 +157,7 @@ void indicator_set_device(Indicator *indicator) {
     g_variant_unref(powered_var);
 
     if (!powered) {
-	sni_title_set(indicator->sni, "Wireless adapter is powered off");
+	sni_title_set(indicator->sni, _("Wireless hardware is disabled"));
 	sni_icon_pixmap_set(indicator->sni,
 		symbolic_icon_get_surface(ICON_ADAPTER_DISABLED, &colors.disabled_adapter));
 	return;
@@ -167,7 +168,7 @@ void indicator_set_device(Indicator *indicator) {
     g_variant_unref(powered_var);
 
     if (!powered) {
-	sni_title_set(indicator->sni, "Wireless device is powered off");
+	sni_title_set(indicator->sni, _("Wireless interface is disabled"));
 	sni_icon_pixmap_set(indicator->sni,
 		symbolic_icon_get_surface(ICON_DEVICE_DISABLED, &colors.disabled_device));
     }
@@ -182,7 +183,7 @@ void indicator_set_station(Indicator *indicator) {
 
     if (!strcmp(state, "connected")) {
 	indicator->status = INDICATOR_STATION_CONNECTED;
-	indicator_set_station_connected_title(indicator, "Connected to %s");
+	indicator_set_station_connected_title(indicator, _("Connected to %s"));
 
 	if (indicator->level <= N_SIGNAL_THRESHOLDS) {
 	    indicator_set_station_connected(indicator);
@@ -190,7 +191,7 @@ void indicator_set_station(Indicator *indicator) {
     }
     else if (!strcmp(state, "connecting")) {
 	indicator->status = INDICATOR_STATION_CONNECTING;
-	indicator_set_station_connected_title(indicator, "Connecting to %s");
+	indicator_set_station_connected_title(indicator, _("Connecting to %s"));
 
 	if (indicator->level <= N_SIGNAL_THRESHOLDS) {
 	    indicator_set_station_connected(indicator);
@@ -198,7 +199,7 @@ void indicator_set_station(Indicator *indicator) {
     }
     else {
 	indicator->status = INDICATOR_STATION_DISCONNECTED;
-	sni_title_set(indicator->sni, "Not connected to any wifi network");
+	sni_title_set(indicator->sni, _("Not connected to any wireless network"));
 	sni_icon_pixmap_set(indicator->sni,
 		symbolic_icon_get_surface(ICON_STATION_OFFLINE, &colors.station_disconnected));
     }
@@ -216,7 +217,7 @@ void indicator_set_station_connected(Indicator *indicator) {
 	color = &colors.station_connecting;
     }
     else {
-	g_printerr("Error: Signal level is set, but the station is neither connected nor connecting\n");
+	g_printerr("Signal level update received, but the station is neither connected nor connecting\n");
 	return;
     }
 
@@ -252,7 +253,7 @@ void indicator_set_station_connected_title(Indicator *indicator, const gchar *ti
 	}
     }
     else {
-	g_printerr("Error: ConnectedNetwork property was expected, but not found\n");
+	g_printerr("ConnectedNetwork property was expected, but not found\n");
     }
 }
 
@@ -288,7 +289,7 @@ void sni_set_title_delayed(GDBusObjectManager *manager, GDBusObject *object, SNI
 	g_object_unref(network_proxy);
     }
     else {
-	g_printerr("Error: Failed to find interface of type " IWD_IFACE_NETWORK " on object %s\n", network_path);
+	g_printerr("Failed to find interface of type " IWD_IFACE_NETWORK " on object %s\n", network_path);
     }
 
     g_signal_handler_disconnect(manager, data->handler);
@@ -302,12 +303,12 @@ void indicator_set_ap(Indicator *indicator) {
     started_var = g_dbus_proxy_get_cached_property(indicator->proxy, "Started");
 
     if (g_variant_get_boolean(started_var)) {
-	sni_title_set(indicator->sni, "AP is up");
+	sni_title_set(indicator->sni, _("Access point is up"));
 	sni_icon_pixmap_set(indicator->sni,
 		symbolic_icon_get_surface(ICON_AP, &colors.ap_up));
     }
     else {
-	sni_title_set(indicator->sni, "AP is down");
+	sni_title_set(indicator->sni, _("Access point is down"));
 	sni_icon_pixmap_set(indicator->sni,
 		symbolic_icon_get_surface(ICON_AP, &colors.ap_down));
     }
@@ -321,12 +322,12 @@ void indicator_set_adhoc(Indicator *indicator) {
     started_var = g_dbus_proxy_get_cached_property(indicator->proxy, "Started");
 
     if (g_variant_get_boolean(started_var)) {
-	sni_title_set(indicator->sni, "Ad-hoc node is up");
+	sni_title_set(indicator->sni, _("Ad-hoc node is up"));
 	sni_icon_pixmap_set(indicator->sni,
 		symbolic_icon_get_surface(ICON_ADHOC, &colors.adhoc_up));
     }
     else {
-	sni_title_set(indicator->sni, "Ad-hoc node is down");
+	sni_title_set(indicator->sni, _("Ad-hoc node is down"));
 	sni_icon_pixmap_set(indicator->sni,
 		symbolic_icon_get_surface(ICON_ADHOC, &colors.adhoc_down));
     }
@@ -368,7 +369,7 @@ void signal_agent_method_call_handler(GDBusConnection *connection, const gchar *
 	    indicator_set_station_connected(indicator);
 	}
 	else {
-	    g_printerr("Error: SignalLevelAgent provided an invalid signal level\n");
+	    g_printerr("Invalid signal level received\n");
 	}
     }
     else if (strcmp(method_name, "Release") == 0) {

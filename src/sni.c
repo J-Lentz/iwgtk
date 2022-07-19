@@ -304,7 +304,7 @@ void sni_bus_acquired(GDBusConnection *connection, const gchar *name, StatusNoti
 	    &err);
 
     if (err != NULL) {
-	g_printerr("Error registering StatusNotifierItem object: %s\n", err->message);
+	g_printerr("Failed to register StatusNotifierItem object: %s\n", err->message);
 	g_error_free(err);
     }
 }
@@ -321,7 +321,7 @@ void sni_bus_name_acquired(GDBusConnection *connection, const gchar *name, Statu
 }
 
 void sni_bus_name_lost(GDBusConnection *connection, const gchar *name, StatusNotifierItem *sni) {
-    g_printerr("Bus name '%s' lost\n", name);
+    g_printerr("Bus name '%s' has been lost\n", name);
 }
 
 void sni_watcher_up(GDBusConnection *connection, const gchar *name, const gchar *name_owner, StatusNotifierItem *sni) {
@@ -482,7 +482,7 @@ void sni_emit_signal(StatusNotifierItem *sni, const gchar *signal_name, GVariant
 	    &err);
 
 	if (err != NULL) {
-	    g_printerr("Error emitting %s signal: %s\n", signal_name, err->message);
+	    g_printerr("Failed to emit %s signal: %s\n", signal_name, err->message);
 	    g_error_free(err);
 	}
     }
@@ -492,7 +492,7 @@ gboolean sni_abstract_icon_pixmap_set(GVariant **sni_icon_pixmap, cairo_surface_
     GVariant *tuple[3];
 
     if (cairo_image_surface_get_format(surface) != CAIRO_FORMAT_ARGB32) {
-	g_printerr("Could not set indicator icon: Invalid Cairo surface format\n");
+	g_printerr("Failed to set indicator icon: Invalid Cairo surface format\n");
 	cairo_surface_destroy(surface);
 	return FALSE;
     }

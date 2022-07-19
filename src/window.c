@@ -51,7 +51,7 @@ void window_launch() {
 
     if (!global.manager) {
 	if (global.state & IWD_DOWN) {
-	    g_printerr("Could not launch iwgtk window: iwd is not running\n");
+	    g_printerr("Cannot launch iwgtk window: iwd is not running\n");
 	}
 	else {
 	    global.state |= WINDOW_LAUNCH_PENDING;
@@ -68,15 +68,15 @@ void window_launch() {
     memset(window->couples, 0, sizeof(void *) * n_couple_types);
 
     window->window = gtk_application_window_new(global.application);
-    gtk_window_set_title(GTK_WINDOW(window->window), "iwgtk");
+    gtk_window_set_title(GTK_WINDOW(window->window), PACKAGE);
     gtk_window_set_default_size(GTK_WINDOW(window->window), 440, 600);
-    gtk_window_set_icon_name(GTK_WINDOW(window->window), "iwgtk");
+    gtk_window_set_icon_name(GTK_WINDOW(window->window), PACKAGE);
 
     window->master = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     g_object_ref_sink(window->master);
     gtk_window_set_child(GTK_WINDOW(window->window), window->master);
 
-    window->known_network_button = gtk_toggle_button_new_with_label("Known Networks");
+    window->known_network_button = gtk_toggle_button_new_with_label(_("Known networks"));
     g_object_ref_sink(window->known_network_button);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(window->known_network_button), TRUE);
     g_signal_connect(window->known_network_button, "toggled", G_CALLBACK(known_network_table_show), window);
@@ -103,7 +103,7 @@ void window_launch() {
 	{
 	    GtkWidget *close_button;
 
-	    close_button = gtk_button_new_with_label("Close");
+	    close_button = gtk_button_new_with_label(_("Close"));
 	    g_signal_connect_swapped(close_button, "clicked", G_CALLBACK(gtk_window_destroy), window->window);
 	    gtk_box_append(GTK_BOX(known_network_button_vbox), close_button);
 	}

@@ -73,13 +73,13 @@ GtkWidget* mode_box_new(GDBusProxy *adapter_proxy) {
 	const gchar *supported_mode_display;
 
 	if (strcmp(supported_mode, "station") == 0) {
-	    supported_mode_display = "Station";
+	    supported_mode_display = _("Station");
 	}
 	else if (strcmp(supported_mode, "ap") == 0) {
-	    supported_mode_display = "AP";
+	    supported_mode_display = _("AP");
 	}
 	else if (strcmp(supported_mode, "ad-hoc") == 0) {
-	    supported_mode_display = "Ad-Hoc";
+	    supported_mode_display = _("Ad-hoc");
 	}
 	else {
 	    supported_mode_display = supported_mode;
@@ -158,16 +158,16 @@ Device* device_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 
     device->mac_label = gtk_label_new(NULL);
     g_object_ref_sink(device->mac_label);
-    gtk_widget_set_tooltip_text(GTK_WIDGET(device->mac_label), "MAC address");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(device->mac_label), _("MAC address"));
 
     {
 	GtkWidget *up_label, *mode_label, *power_switch;
 
 	power_switch = switch_new(proxy, "Powered");
-	gtk_widget_set_tooltip_text(GTK_WIDGET(power_switch), "Enable/disable interface");
+	gtk_widget_set_tooltip_text(GTK_WIDGET(power_switch), _("Enable/disable wireless interface"));
 
-	up_label = gtk_label_new("Power: ");
-	mode_label = gtk_label_new("Mode: ");
+	up_label = gtk_label_new(_("Enabled: "));
+	mode_label = gtk_label_new(_("Mode: "));
 
 	gtk_grid_attach(GTK_GRID(device->table), device->mac_label, 0, 0, 1, 1);
 

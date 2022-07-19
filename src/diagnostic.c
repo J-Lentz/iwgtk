@@ -64,7 +64,7 @@ void diagnostic_callback(GDBusProxy *proxy, GAsyncResult *res, GtkWidget *table)
 	g_variant_unref(data);
     }
     else {
-	g_printerr("Error retrieving station diagnostics: %s\n", err->message);
+	g_printerr("Failed to retrieve station diagnostics: %s\n", err->message);
 	g_error_free(err);
     }
 }
@@ -91,7 +91,7 @@ void diagnostic_show(StationDiagnostic *diagnostic) {
 	device_name_var = g_dbus_proxy_get_cached_property(diagnostic->device_proxy, "Name");
 	device_name = g_variant_get_string(device_name_var, NULL);
 
-	window_title = g_strconcat(device_name, ": Station diagnostics", NULL);
+	window_title = g_strdup_printf(_("%s: Station diagnostics"), device_name);
 	g_variant_unref(device_name_var);
 
 	gtk_window_set_title(GTK_WINDOW(window), window_title);
@@ -121,8 +121,8 @@ void diagnostic_show(StationDiagnostic *diagnostic) {
 	GtkWidget *property;
 	GtkWidget *value;
 
-	property = new_label_bold("Property");
-	value = new_label_bold("Value");
+	property = new_label_bold(_("Property"));
+	value = new_label_bold(_("Value"));
 
 	gtk_widget_set_halign(property, GTK_ALIGN_END);
 	gtk_widget_set_halign(value, GTK_ALIGN_START);
@@ -148,7 +148,7 @@ StationDiagnostic* diagnostic_add(Window *window, GDBusObject *object, GDBusProx
     diagnostic = g_malloc(sizeof(StationDiagnostic));
     diagnostic->proxy = proxy;
 
-    diagnostic->button = gtk_button_new_with_label("Diagnostics");
+    diagnostic->button = gtk_button_new_with_label(_("Diagnostics"));
     g_object_ref_sink(diagnostic->button);
 
     g_signal_connect_swapped(diagnostic->button, "clicked", G_CALLBACK(diagnostic_show), diagnostic);

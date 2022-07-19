@@ -86,6 +86,7 @@ GDBusInterfaceVTable agent_interface_vtable = {
 void agent_register(GDBusProxy *proxy) {
     GError *err;
     Agent *agent;
+    static const gchar *agent_error_msg = "Agent registration has failed: %s\n";
 
     agent = g_malloc(sizeof(Agent));
 
@@ -105,7 +106,7 @@ void agent_register(GDBusProxy *proxy) {
 	    &err);
 
     if (agent->registration_id == 0) {
-	g_printerr("Error registering agent: %s\n", err->message);
+	g_printerr(agent_error_msg, err->message);
 	g_error_free(err);
     }
 
@@ -117,7 +118,7 @@ void agent_register(GDBusProxy *proxy) {
 	-1,
 	NULL,
 	(GAsyncReadyCallback) method_call_log,
-	"Error registering agent: %s\n");
+	(gpointer) agent_error_msg);
 }
 
 void agent_remove(Agent *agent) {
@@ -148,7 +149,7 @@ void agent_method_call_handler(GDBusConnection *connection, const gchar *sender,
 	gchar *message;
 
 	g_variant_get(parameters, "(s)", &reason);
-	message = g_strconcat("Connection attempt canceled: ", reason, NULL);
+	message = g_strdup_printf(_("Connection attempt has been canceled: %s"), reason);
 	send_notification(message);
 	g_free(message);
 	g_dbus_method_invocation_return_value(invocation, NULL);
@@ -166,7 +167,7 @@ void request_dialog(Agent *agent, guint8 request_type) {
 
     parameters = g_dbus_method_invocation_get_parameters(agent->invocation);
     agent->window = gtk_window_new();
-    gtk_window_set_title(GTK_WINDOW(agent->window), "Network Password");
+    gtk_window_set_title(GTK_WINDOW(agent->window), _("Wireless network credentials"));
 
     table = gtk_grid_new();
     gtk_window_set_child(GTK_WINDOW(agent->window), table);
@@ -200,8 +201,8 @@ void request_dialog(Agent *agent, guint8 request_type) {
 	ssid_var = g_dbus_proxy_get_cached_property(proxy, "Name");
 	ssid = g_variant_get_string(ssid_var, NULL);
 
-	gtk_grid_attach(GTK_GRID(table), gtk_label_new("SSID: "), 0, 0, 1, 1);
-	gtk_grid_attach(GTK_GRID(table), gtk_label_new(ssid),     1, 0, 1, 1);
+	gtk_grid_attach(GTK_GRID(table), gtk_label_new(_("SSID: ")), 0, 0, 1, 1);
+	gtk_grid_attach(GTK_GRID(table), gtk_label_new(ssid),        1, 0, 1, 1);
 
 	g_variant_unref(ssid_var);
 	g_object_unref(proxy);
@@ -210,16 +211,16 @@ void request_dialog(Agent *agent, guint8 request_type) {
     i = 1;
 
     if (user_widget) {
-	gtk_grid_attach(GTK_GRID(table), gtk_label_new("Username: "), 0, i, 1, 1);
-	gtk_grid_attach(GTK_GRID(table), user_widget,                 1, i, 1, 1);
+	gtk_grid_attach(GTK_GRID(table), gtk_label_new(_("Username: ")), 0, i, 1, 1);
+	gtk_grid_attach(GTK_GRID(table), user_widget,                    1, i, 1, 1);
 	i ++;
     }
 
     agent->pass_widget = gtk_password_entry_new();
     gtk_password_entry_set_show_peek_icon(GTK_PASSWORD_ENTRY(agent->pass_widget), TRUE);
 
-    gtk_grid_attach(GTK_GRID(table), gtk_label_new("Password: "), 0, i, 1, 1);
-    gtk_grid_attach(GTK_GRID(table), agent->pass_widget,           1, i, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), gtk_label_new(_("Password: ")), 0, i, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), agent->pass_widget,             1, i, 1, 1);
     i ++;
 
     {
