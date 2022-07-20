@@ -36,7 +36,6 @@ const gchar* get_security_type(const gchar *type_raw) {
 	return _("EAP");
     }
     else if (strcmp(type_raw, "wep") == 0) {
-	// The "wep" type value is undocumented
 	return _("WEP");
     }
     else {
