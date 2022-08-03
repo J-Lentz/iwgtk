@@ -34,6 +34,8 @@ struct GlobalData_s {
     GQuark iwd_error_domain;
     Window *window;
     Indicator *indicators;
+    int width;
+    int height;
     guint8 state;
     gchar *last_connection_time_fmt;
 };

@@ -152,9 +152,9 @@ Known network list - last connection date/time - format string
 :[ string
 :[ %x\\n%l:%M %p
 
-## [theme]
+## [window]
 
-Theme - enable dark mode
+Dark mode and window dimensions
 
 [- *Option*
 :- *Type*
@@ -162,6 +162,12 @@ Theme - enable dark mode
 |[ dark
 :[ boolean
 :[ false
+|  width
+:  integer
+:  440
+|  height
+:  integer
+:  600
 
 # SEE ALSO
 

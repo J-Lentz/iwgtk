@@ -69,7 +69,7 @@ void window_launch() {
 
     window->window = gtk_application_window_new(global.application);
     gtk_window_set_title(GTK_WINDOW(window->window), PACKAGE);
-    gtk_window_set_default_size(GTK_WINDOW(window->window), 440, 600);
+    gtk_window_set_default_size(GTK_WINDOW(window->window), global.width, global.height);
     gtk_window_set_icon_name(GTK_WINDOW(window->window), PACKAGE);
 
     window->master = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);

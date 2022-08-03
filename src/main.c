@@ -175,6 +175,13 @@ static void config_set_color(GKeyFile *conf, const gchar *group, const gchar *ke
     }
 }
 
+static gint config_get_int(GKeyFile *conf, const gchar *group, const gchar *key, gint value_default) {
+    gint value;
+
+    value = g_key_file_get_integer(conf, group, key, NULL);
+    return (value ? value : value_default);
+}
+
 static void config_set_values(GKeyFile *conf) {
     config_set_color(conf, "indicator.colors.station", "connected", &colors.station_connected);
     config_set_color(conf, "indicator.colors.station", "connecting", &colors.station_connecting);
@@ -198,11 +205,15 @@ static void config_set_values(GKeyFile *conf) {
     if (global.last_connection_time_fmt) {
 	g_free(global.last_connection_time_fmt);
     }
+
     global.last_connection_time_fmt = g_key_file_get_string(conf, "known-network", "last-connection-time.format", NULL);
 
-    if (g_key_file_get_boolean(conf, "theme", "dark", NULL)) {
+    if (g_key_file_get_boolean(conf, "window", "dark", NULL)) {
 	g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
     }
+
+    global.width = config_get_int(conf, "window", "width", 440);
+    global.height = config_get_int(conf, "window", "height", 600);
 }
 
 static gboolean config_read_file(const gchar *path, GKeyFile *key_file) {
