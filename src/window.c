@@ -74,6 +74,7 @@ void window_launch() {
 
     window->master = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     g_object_ref_sink(window->master);
+    gtk_widget_set_size_request(window->master, 440, 300);
     gtk_window_set_child(GTK_WINDOW(window->window), window->master);
 
     window->known_network_button = gtk_toggle_button_new_with_label(_("Known networks"));
