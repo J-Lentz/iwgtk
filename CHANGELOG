@@ -1,3 +1,14 @@
+## 0.8
+ * New build-time dependency: Meson
+ * New build-time dependency: scdoc
+ * Preliminary i18n support via gettext. No translations are available yet, but
+   contributions are welcome!
+ * Dark theme support via config file option
+ * Customizable time/date format via config file option
+ * Customizable window dimensions via config file options
+ * New iwgtk(5) man page to document the config file
+ * Fix memory leak
+
 ## 0.7
  * New dependency: libqrencode
  * New Provision menu with initial Easy Connect (DPP) support
