@@ -169,7 +169,7 @@ cairo_surface_t* symbolic_icon_get_surface(const gchar *icon_name, const GdkRGBA
 	cr = cairo_create(surface);
 	node = gtk_snapshot_free_to_node(snapshot);
 	gsk_render_node_draw(node, cr);
-	//gsk_render_node_unref(node);
+	gsk_render_node_unref(node);
 	cairo_destroy(cr);
     }
 
