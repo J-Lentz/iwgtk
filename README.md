@@ -1,5 +1,5 @@
 ## About
-iwgtk is a wireless networking GUI for Linux. It is a front-end for iwd, with
+iwgtk is a wireless networking GUI for Linux. It is a front-end for [iNet Wireless Daemon (iwd)](https://iwd.wiki.kernel.org/), with
 supported functionality similar to that of iwctl. Features include viewing and
 connecting to available networks, managing known networks, provisioning new
 networks via WPS or Wi-Fi Easy Connect, and an indicator (tray) icon displaying
