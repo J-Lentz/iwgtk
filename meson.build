@@ -66,7 +66,7 @@ install_data(
 
 install_data(
     'misc/iwgtk.service',
-    install_dir: datadir / 'lib/systemd/user'
+    install_dir: prefix / 'lib/systemd/user'
 )
 
 install_data(
