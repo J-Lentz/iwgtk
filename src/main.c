@@ -89,20 +89,37 @@ static const GOptionEntry command_options[] = {
 };
 
 void object_manager_callback(GDBusObjectManagerClient *manager, GAsyncResult *res) {
+    gboolean launch_window;
+
+    if (global.state & WINDOW_LAUNCH_PENDING) {
+	global.state &= ~WINDOW_LAUNCH_PENDING;
+	g_application_release(G_APPLICATION(global.application));
+	launch_window = TRUE;
+    }
+    else {
+	launch_window = FALSE;
+    }
+
     {
 	GError *err;
 
+	err = NULL;
 	global.manager = g_dbus_object_manager_client_new_finish(res, &err);
-	if (!global.manager) {
-	    g_printerr("Error creating GDBusObjectManager: %s\n", err->message);
+
+	if (err) {
+	    if (err->domain == G_DBUS_ERROR && err->code == G_DBUS_ERROR_ACCESS_DENIED) {
+		g_printerr("Access denied: User must be a member of either the netdev or wheel group to control iwd\n");
+	    }
+	    else {
+		g_printerr("Error creating GDBusObjectManager: %s\n", err->message);
+	    }
+
 	    g_error_free(err);
 	    return;
 	}
     }
 
-    if (global.state & WINDOW_LAUNCH_PENDING) {
-	global.state &= ~WINDOW_LAUNCH_PENDING;
-	g_application_release(G_APPLICATION(global.application));
+    if (launch_window) {
 	window_launch();
     }
 
