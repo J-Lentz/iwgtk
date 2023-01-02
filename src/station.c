@@ -20,11 +20,15 @@
 #include "iwgtk.h"
 
 void station_set(Station *station) {
-    GVariant *scanning_var;
     gboolean scanning;
 
-    scanning_var = g_dbus_proxy_get_cached_property(station->proxy, "Scanning");
-    scanning = g_variant_get_boolean(scanning_var);
+    {
+	GVariant *scanning_var;
+
+	scanning_var = g_dbus_proxy_get_cached_property(station->proxy, "Scanning");
+	scanning = g_variant_get_boolean(scanning_var);
+	g_variant_unref(scanning_var);
+    }
 
     gtk_widget_set_sensitive(station->scan_button, !scanning);
     gtk_button_set_child(GTK_BUTTON(station->scan_button),
@@ -80,8 +84,6 @@ void station_set(Station *station) {
     if (station->dpp) {
 	dpp_set(station->dpp);
     }
-
-    g_variant_unref(scanning_var);
 }
 
 Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
