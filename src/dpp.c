@@ -120,10 +120,12 @@ void dpp_qrcode_add(GDBusProxy *proxy, GAsyncResult *res, DPP *dpp) {
 
     if (ret) {
 	{
-	    const gchar *uri;
+	    gchar *uri;
 
 	    g_variant_get(ret, "(s)", &uri);
 	    dpp->qrcode = qrcode_widget_new(uri);
+	    g_free(uri);
+
 	    g_variant_unref(ret);
 	}
 

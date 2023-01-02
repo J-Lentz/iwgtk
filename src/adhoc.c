@@ -164,7 +164,7 @@ void adhoc_set(AdHoc *adhoc) {
     if (started) {
 	GVariant *peer_list_var;
 	GVariantIter *iter;
-	const gchar *peer_mac;
+	gchar *peer_mac;
 	int n;
 
 	peer_list_var = g_dbus_proxy_get_cached_property(adhoc->proxy, "ConnectedPeers");
@@ -175,6 +175,8 @@ void adhoc_set(AdHoc *adhoc) {
 	    GtkWidget *peer_label;
 
 	    peer_label = gtk_label_new(peer_mac);
+	    g_free(peer_mac);
+
 	    gtk_box_append(GTK_BOX(adhoc->peer_list), peer_label);
 	    gtk_widget_set_halign(peer_label, GTK_ALIGN_START);
 

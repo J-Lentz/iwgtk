@@ -87,6 +87,7 @@ GtkWidget* mode_box_new(GDBusProxy *adapter_proxy) {
 
 	gtk_list_store_append(list_store, &list_store_iter);
 	gtk_list_store_set(list_store, &list_store_iter, 0, supported_mode, 1, supported_mode_display, -1);
+	g_free(supported_mode);
     }
 
     box = gtk_combo_box_new_with_model(GTK_TREE_MODEL(list_store));
