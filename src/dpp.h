@@ -22,16 +22,11 @@
 
 typedef struct DPP_s DPP;
 
-typedef enum {
-    DPP_MODE_ENROLLEE,
-    DPP_MODE_CONFIGURATOR
-} DPPMode;
-
 struct DPP_s {
     GDBusProxy *proxy;
     Station *station;
-    gulong handler;
-    DPPMode mode;
+    const gchar *button_method;
+    gulong handler_update;
 
     GtkWidget *label;
     GtkWidget *button;
@@ -40,11 +35,9 @@ struct DPP_s {
 
 void qrcode_draw(GtkDrawingArea *area, cairo_t *cr, int width, int height, cairo_surface_t *qr_surface);
 GtkWidget* qrcode_widget_new(const gchar *uri);
-void dpp_qrcode_add(GDBusProxy *proxy, GAsyncResult *res, DPP *dpp);
+void dpp_qrcode_add(DPP *dpp);
 
-void dpp_start_enrollee(DPP *dpp);
-void dpp_start_configurator(DPP *dpp);
-void dpp_stop(DPP *dpp);
+void dpp_button_press(DPP *dpp);
 
 void dpp_set(DPP *dpp);
 DPP* dpp_add(Window *window, GDBusObject *object, GDBusProxy *proxy);

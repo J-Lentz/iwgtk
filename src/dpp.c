@@ -111,118 +111,87 @@ GtkWidget* qrcode_widget_new(const gchar *uri) {
     }
 }
 
-void dpp_qrcode_add(GDBusProxy *proxy, GAsyncResult *res, DPP *dpp) {
-    GVariant *ret;
-    GError *err;
+void dpp_qrcode_add(DPP *dpp) {
+    {
+	GVariant *uri_var;
+	const gchar *uri;
 
-    err = NULL;
-    ret = g_dbus_proxy_call_finish(proxy, res, &err);
+	uri_var = g_dbus_proxy_get_cached_property(dpp->proxy, "URI");
+	uri = g_variant_get_string(uri_var, NULL);
+	dpp->qrcode = qrcode_widget_new(uri);
 
-    if (ret) {
-	{
-	    gchar *uri;
+	g_variant_unref(uri_var);
+    }
 
-	    g_variant_get(ret, "(s)", &uri);
-	    dpp->qrcode = qrcode_widget_new(uri);
-	    g_free(uri);
+    gtk_widget_set_hexpand(dpp->qrcode, FALSE);
+    gtk_widget_set_halign(dpp->qrcode, GTK_ALIGN_CENTER);
 
-	    g_variant_unref(ret);
+    {
+	GVariant *role_var;
+	const gchar *role, *tooltip;
+
+	role_var = g_dbus_proxy_get_cached_property(dpp->proxy, "Role");
+	role = g_variant_get_string(role_var, NULL);
+
+	if (strcmp(role, "enrollee") == 0) {
+	    tooltip = _("Get network credentials");
+	}
+	else {
+	    tooltip = _("Share network credentials");
 	}
 
-	gtk_widget_set_hexpand(dpp->qrcode, FALSE);
-	gtk_widget_set_halign(dpp->qrcode, GTK_ALIGN_CENTER);
-
-	{
-	    const gchar *tooltip;
-
-	    if (dpp->mode == DPP_MODE_ENROLLEE) {
-		tooltip = _("Get network credentials");
-	    }
-	    else {
-		tooltip = _("Share network credentials");
-	    }
-
-	    gtk_widget_set_tooltip_text(dpp->qrcode, tooltip);
-	}
-
-	dpp_set(dpp);
-	gtk_box_insert_child_after(GTK_BOX(dpp->station->provision_vbox), dpp->qrcode, dpp->button);
-    }
-    else {
-	g_printerr("DPP enrollment failed: %s\n", err->message);
-	g_error_free(err);
-    }
-}
-
-/*
- * We have no ability to see whether DPP is already started, so issue Stop method calls
- * before starting to avoid InProgress errors.
- */
-
-void dpp_start_enrollee(DPP *dpp) {
-    dpp_stop(dpp);
-    dpp->mode = DPP_MODE_ENROLLEE;
-
-    g_dbus_proxy_call(
-	dpp->proxy,
-	"StartEnrollee",
-	NULL,
-	G_DBUS_CALL_FLAGS_NONE,
-	-1,
-	NULL,
-	(GAsyncReadyCallback) dpp_qrcode_add,
-	dpp);
-}
-
-void dpp_start_configurator(DPP *dpp) {
-    dpp_stop(dpp);
-    dpp->mode = DPP_MODE_CONFIGURATOR;
-
-    g_dbus_proxy_call(
-	dpp->proxy,
-	"StartConfigurator",
-	NULL,
-	G_DBUS_CALL_FLAGS_NONE,
-	-1,
-	NULL,
-	(GAsyncReadyCallback) dpp_qrcode_add,
-	dpp);
-}
-
-void dpp_stop(DPP *dpp) {
-    if (dpp->qrcode) {
-	gtk_box_remove(GTK_BOX(dpp->station->provision_vbox), dpp->qrcode);
-	dpp->qrcode = NULL;
-	dpp_set(dpp);
+	g_variant_unref(role_var);
+	gtk_widget_set_tooltip_text(dpp->qrcode, tooltip);
     }
 
+    gtk_box_insert_child_after(GTK_BOX(dpp->station->provision_vbox), dpp->qrcode, dpp->button);
+}
+
+void dpp_button_press(DPP *dpp) {
     g_dbus_proxy_call(
 	dpp->proxy,
-	"Stop",
+	dpp->button_method,
 	NULL,
 	G_DBUS_CALL_FLAGS_NONE,
 	-1,
 	NULL,
 	(GAsyncReadyCallback) method_call_log,
-	"Failed to cancel DPP enrollment: %s\n");
+	"Failed to start or stop DPP: %s\n");
 }
 
 void dpp_set(DPP *dpp) {
-    if (dpp->handler != 0) {
-	g_signal_handler_disconnect(dpp->button, dpp->handler);
+    gboolean started;
+
+    {
+	GVariant *started_var;
+
+	started_var = g_dbus_proxy_get_cached_property(dpp->proxy, "Started");
+	started = g_variant_get_boolean(started_var);
+	g_variant_unref(started_var);
     }
 
-    if (dpp->qrcode != NULL) {
+    if (started) {
+	if (!dpp->qrcode) {
+	    dpp_qrcode_add(dpp);
+	}
+
 	gtk_button_set_label(GTK_BUTTON(dpp->button), _("Stop"));
-	dpp->handler = g_signal_connect_swapped(dpp->button, "clicked", G_CALLBACK(dpp_stop), dpp);
-    }
-    else if (dpp->station->state == STATION_CONNECTED) {
-	gtk_button_set_label(GTK_BUTTON(dpp->button), _("Share credentials"));
-	dpp->handler = g_signal_connect_swapped(dpp->button, "clicked", G_CALLBACK(dpp_start_configurator), dpp);
+	dpp->button_method = "Stop";
     }
     else {
-	gtk_button_set_label(GTK_BUTTON(dpp->button), _("Get credentials"));
-	dpp->handler = g_signal_connect_swapped(dpp->button, "clicked", G_CALLBACK(dpp_start_enrollee), dpp);
+	if (dpp->qrcode) {
+	    gtk_box_remove(GTK_BOX(dpp->station->provision_vbox), dpp->qrcode);
+	    dpp->qrcode = NULL;
+	}
+
+	if (dpp->station->state == STATION_CONNECTED) {
+	    gtk_button_set_label(GTK_BUTTON(dpp->button), _("Share credentials"));
+	    dpp->button_method = "StartConfigurator";
+	}
+	else {
+	    gtk_button_set_label(GTK_BUTTON(dpp->button), _("Get credentials"));
+	    dpp->button_method = "StartEnrollee";
+	}
     }
 }
 
@@ -231,7 +200,6 @@ DPP* dpp_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 
     dpp = g_malloc(sizeof(DPP));
     dpp->proxy = proxy;
-    dpp->handler = 0;
     dpp->qrcode = NULL;
 
     dpp->label = new_label_bold(_("Easy Connect"));
@@ -240,6 +208,7 @@ DPP* dpp_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 
     dpp->button = gtk_button_new();
     g_object_ref_sink(dpp->button);
+    g_signal_connect_swapped(dpp->button, "clicked", G_CALLBACK(dpp_button_press), dpp);
 
     couple_register(window, STATION_DPP, 1, dpp, object);
     return dpp;
@@ -257,8 +226,6 @@ void bind_station_dpp(Station *station, DPP *dpp) {
     station->dpp = dpp;
     dpp->station = station;
 
-    dpp_set(dpp);
-
     {
 	GtkWidget *hidden;
 
@@ -266,10 +233,14 @@ void bind_station_dpp(Station *station, DPP *dpp) {
 	gtk_box_insert_child_after(GTK_BOX(station->provision_vbox), dpp->button, hidden);
 	gtk_box_insert_child_after(GTK_BOX(station->provision_vbox), dpp->label, hidden);
     }
+
+    dpp->handler_update = g_signal_connect_swapped(dpp->proxy, "g-properties-changed", G_CALLBACK(dpp_set), dpp);
+    dpp_set(dpp);
 }
 
 void unbind_station_dpp(Station *station, DPP *dpp) {
     station->dpp = NULL;
+    g_signal_handler_disconnect(dpp->proxy, dpp->handler_update);
 
     if (dpp->qrcode) {
 	gtk_box_remove(GTK_BOX(station->provision_vbox), dpp->qrcode);
