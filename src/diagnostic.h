@@ -28,9 +28,12 @@ struct StationDiagnostic_s {
     GtkWidget *button;
 };
 
-void diagnostic_callback(GDBusProxy *proxy, GAsyncResult *res, GtkWidget *table);
+void diagnostic_launch(StationDiagnostic *diagnostic);
+void diagnostic_results_cb(GDBusProxy *proxy, GAsyncResult *res, StationDiagnostic *diagnostic);
+void diagnostic_table_insert(GtkWidget *table, GtkWidget *property, GtkWidget *value, int row);
+void diagnostic_window_show(StationDiagnostic *diagnostic, GtkWidget *table);
 gboolean diagnostic_key_press(GtkEventControllerKey *controller, guint keyval, guint keycode, GdkModifierType state, GtkWindow *window);
-void diagnostic_show(StationDiagnostic *diagnostic);
+
 StationDiagnostic* diagnostic_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
 void diagnostic_remove(Window *window, StationDiagnostic *diagnostic);
 void bind_device_diagnostic(Device *device, StationDiagnostic *diagnostic);

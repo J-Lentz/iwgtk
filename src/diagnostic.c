@@ -19,49 +19,73 @@
 
 #include "iwgtk.h"
 
-void diagnostic_callback(GDBusProxy *proxy, GAsyncResult *res, GtkWidget *table) {
-    GVariant *data;
+void diagnostic_launch(StationDiagnostic *diagnostic) {
+    g_dbus_proxy_call(
+	diagnostic->proxy,
+	"GetDiagnostics",
+	NULL,
+	G_DBUS_CALL_FLAGS_NONE,
+	-1,
+	NULL,
+	(GAsyncReadyCallback) diagnostic_results_cb,
+	diagnostic);
+}
+
+void diagnostic_results_cb(GDBusProxy *proxy, GAsyncResult *res, StationDiagnostic *diagnostic) {
+    GVariant *diagnostics_data;
     GError *err;
 
     err = NULL;
-    data = g_dbus_proxy_call_finish(proxy, res, &err);
+    diagnostics_data = g_dbus_proxy_call_finish(proxy, res, &err);
 
-    if (data) {
-	GVariantIter *iter;
-	const gchar *property;
-	GVariant *value;
+    if (diagnostics_data) {
+	GtkWidget *table;
+	GtkWidget *property;
+	GtkWidget *value;
 
-	g_variant_get(data, "(a{sv})", &iter);
-	int i = 0;
+	table = gtk_grid_new();
+	gtk_grid_set_column_spacing(GTK_GRID(table), 10);
 
-	while (g_variant_iter_next(iter, "{&sv}", &property, &value)) {
-	    GtkWidget *property_label;
-	    GtkWidget *value_label;
+	gtk_widget_set_margin_start(table, 5);
+	gtk_widget_set_margin_end(table, 5);
+	gtk_widget_set_margin_top(table, 5);
+	gtk_widget_set_margin_bottom(table, 5);
 
-	    property_label = gtk_label_new(property);
+	property = new_label_bold(_("Property"));
+	value = new_label_bold(_("Value"));
+	diagnostic_table_insert(table, property, value, 0);
 
-	    if (g_variant_is_of_type(value, G_VARIANT_TYPE_STRING)) {
-		value_label = gtk_label_new(g_variant_get_string(value, NULL));
+	{
+	    GVariantIter *iter;
+	    const gchar *property_str;
+	    GVariant *value_var;
+	    int i = 1;
+
+	    g_variant_get(diagnostics_data, "(a{sv})", &iter);
+
+	    while (g_variant_iter_next(iter, "{&sv}", &property_str, &value_var)) {
+		property = gtk_label_new(property_str);
+
+		if (g_variant_is_of_type(value_var, G_VARIANT_TYPE_STRING)) {
+		    value = gtk_label_new(g_variant_get_string(value_var, NULL));
+		}
+		else {
+		    gchar *value_str;
+
+		    value_str = g_variant_print(value_var, FALSE);
+		    value = gtk_label_new(value_str);
+		    g_free(value_str);
+		}
+
+		diagnostic_table_insert(table, property, value, i ++);
+		g_variant_unref(value_var);
 	    }
-	    else {
-		gchar *value_str;
-		value_str = g_variant_print(value, FALSE);
-		value_label = gtk_label_new(value_str);
-		g_free(value_str);
-	    }
 
-	    i ++;
-	    gtk_grid_attach(GTK_GRID(table), property_label, 0, i, 1, 1);
-	    gtk_grid_attach(GTK_GRID(table), value_label,    1, i, 1, 1);
-
-	    gtk_widget_set_halign(property_label, GTK_ALIGN_END);
-	    gtk_widget_set_halign(value_label, GTK_ALIGN_START);
-
-	    g_variant_unref(value);
+	    g_variant_iter_free(iter);
 	}
 
-	g_variant_iter_free(iter);
-	g_variant_unref(data);
+	g_variant_unref(diagnostics_data);
+	diagnostic_window_show(diagnostic, table);
     }
     else {
 	g_printerr("Failed to retrieve station diagnostics: %s\n", err->message);
@@ -69,17 +93,16 @@ void diagnostic_callback(GDBusProxy *proxy, GAsyncResult *res, GtkWidget *table)
     }
 }
 
-gboolean diagnostic_key_press(GtkEventControllerKey *controller, guint keyval, guint keycode, GdkModifierType state, GtkWindow *window) {
-    if (keyval == GDK_KEY_Escape) {
-	gtk_window_destroy(window);
-	return TRUE;
-    }
-    return FALSE;
+void diagnostic_table_insert(GtkWidget *table, GtkWidget *property, GtkWidget *value, int row) {
+    gtk_widget_set_halign(property, GTK_ALIGN_END);
+    gtk_widget_set_halign(value, GTK_ALIGN_START);
+
+    gtk_grid_attach(GTK_GRID(table), property, 0, row, 1, 1);
+    gtk_grid_attach(GTK_GRID(table), value,    1, row, 1, 1);
 }
 
-void diagnostic_show(StationDiagnostic *diagnostic) {
+void diagnostic_window_show(StationDiagnostic *diagnostic, GtkWidget *table) {
     GtkWidget *window;
-    GtkWidget *table;
 
     window = gtk_window_new();
 
@@ -98,39 +121,6 @@ void diagnostic_show(StationDiagnostic *diagnostic) {
 	g_free(window_title);
     }
 
-    table = gtk_grid_new();
-    gtk_window_set_child(GTK_WINDOW(window), table);
-    gtk_grid_set_column_spacing(GTK_GRID(table), 10);
-
-    gtk_widget_set_margin_start(table, 5);
-    gtk_widget_set_margin_end(table, 5);
-    gtk_widget_set_margin_top(table, 5);
-    gtk_widget_set_margin_bottom(table, 5);
-
-    g_dbus_proxy_call(
-	diagnostic->proxy,
-	"GetDiagnostics",
-	NULL,
-	G_DBUS_CALL_FLAGS_NONE,
-	-1,
-	NULL,
-	(GAsyncReadyCallback) diagnostic_callback,
-	table);
-
-    {
-	GtkWidget *property;
-	GtkWidget *value;
-
-	property = new_label_bold(_("Property"));
-	value = new_label_bold(_("Value"));
-
-	gtk_widget_set_halign(property, GTK_ALIGN_END);
-	gtk_widget_set_halign(value, GTK_ALIGN_START);
-
-	gtk_grid_attach(GTK_GRID(table), property, 0, 0, 1, 1);
-	gtk_grid_attach(GTK_GRID(table), value,    1, 0, 1, 1);
-    }
-
     {
 	GtkEventController *controller;
 
@@ -139,7 +129,16 @@ void diagnostic_show(StationDiagnostic *diagnostic) {
 	gtk_widget_add_controller(window, controller);
     }
 
+    gtk_window_set_child(GTK_WINDOW(window), table);
     gtk_widget_show(window);
+}
+
+gboolean diagnostic_key_press(GtkEventControllerKey *controller, guint keyval, guint keycode, GdkModifierType state, GtkWindow *window) {
+    if (keyval == GDK_KEY_Escape) {
+	gtk_window_destroy(window);
+	return TRUE;
+    }
+    return FALSE;
 }
 
 StationDiagnostic* diagnostic_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
@@ -151,7 +150,7 @@ StationDiagnostic* diagnostic_add(Window *window, GDBusObject *object, GDBusProx
     diagnostic->button = gtk_button_new_with_label(_("Diagnostics"));
     g_object_ref_sink(diagnostic->button);
 
-    g_signal_connect_swapped(diagnostic->button, "clicked", G_CALLBACK(diagnostic_show), diagnostic);
+    g_signal_connect_swapped(diagnostic->button, "clicked", G_CALLBACK(diagnostic_launch), diagnostic);
     couple_register(window, DEVICE_DIAGNOSTIC, 1, diagnostic, object);
 
     return diagnostic;
