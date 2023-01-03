@@ -37,17 +37,7 @@ void station_set(Station *station) {
     if (scanning) {
 	station->state = STATION_SCANNING;
 	station->network_connected = NULL;
-
-	network_table_clear(station->network_table);
-
-	if (station->n_networks != 0) {
-	    for (int i = 0; i < station->n_networks; i ++) {
-		network_remove(station->networks + i);
-	    }
-
-	    station->n_networks = 0;
-	    g_free(station->networks);
-	}
+	station_network_table_clear(station);
     }
     else {
 	if (station->state == STATION_SCANNING) {
@@ -172,6 +162,7 @@ void station_remove(Window *window, Station *station) {
     g_object_unref(station->provision_menu);
     g_object_unref(station->provision_vbox);
 
+    station_network_table_clear(station);
     g_object_unref(station->network_table);
 
     g_free(station);
@@ -208,14 +199,6 @@ void insert_separator(Station *station, gint position) {
     gtk_grid_attach(GTK_GRID(station->network_table), separator, 0, position, 5, 1);
 }
 
-void network_table_clear(GtkWidget *table) {
-    GtkWidget *child;
-
-    while ((child = gtk_widget_get_first_child(table))) {
-	gtk_grid_remove(GTK_GRID(table), child);
-    }
-}
-
 void station_network_table_build(Station *station) {
     g_dbus_proxy_call(
 	station->proxy,
@@ -226,6 +209,25 @@ void station_network_table_build(Station *station) {
 	NULL,
 	(GAsyncReadyCallback) get_networks_callback,
 	station);
+}
+
+void station_network_table_clear(Station *station) {
+    {
+	GtkWidget *child;
+
+	while ((child = gtk_widget_get_first_child(station->network_table))) {
+	    gtk_grid_remove(GTK_GRID(station->network_table), child);
+	}
+    }
+
+    if (station->n_networks != 0) {
+	for (int i = 0; i < station->n_networks; i ++) {
+	    network_remove(station->networks + i);
+	}
+
+	station->n_networks = 0;
+	g_free(station->networks);
+    }
 }
 
 void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *station) {

@@ -65,8 +65,8 @@ void unbind_device_station(Device *device, Station *station);
 
 void send_scan_request(Station *station);
 void insert_separator(Station *station, gint position);
-void network_table_clear(GtkWidget *table);
 void station_network_table_build(Station *station);
+void station_network_table_clear(Station *station);
 void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *station);
 void get_hidden_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *station);
 
