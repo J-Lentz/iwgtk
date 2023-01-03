@@ -90,7 +90,7 @@ to running the above `usermod` command:
 ```
 
 ## License
-Copyright 2020-2022 Jesse Lentz <jesse@twosheds.org> and contributors (see below)
+Copyright 2020-2023 Jesse Lentz <jesse@twosheds.org> and contributors (see below)
 
 iwgtk is licensed under the GPL version 3 or later.
 
