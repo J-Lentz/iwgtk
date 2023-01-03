@@ -226,6 +226,7 @@ StatusNotifierItem* sni_new(gpointer user_data) {
 	static int sni_id = 0;
 
 	sni->bus_name = g_strdup_printf("%s-%d-%d", STATUS_NOTIFIER_ITEM_BUS_NAME_PREFIX, getpid(), ++ sni_id);
+
 	sni->owner_id = g_bus_own_name(
 	    G_BUS_TYPE_SESSION,
 	    sni->bus_name,
@@ -247,39 +248,51 @@ void sni_rm(StatusNotifierItem *sni) {
     if (sni->category != NULL) {
 	g_variant_unref(sni->category);
     }
+
     if (sni->id != NULL) {
 	g_variant_unref(sni->id);
     }
+
     if (sni->title != NULL) {
 	g_variant_unref(sni->title);
     }
+
     if (sni->status != NULL) {
 	g_variant_unref(sni->status);
     }
+
     if (sni->icon_name != NULL) {
 	g_variant_unref(sni->icon_name);
     }
+
     if (sni->icon_pixmap != NULL) {
 	g_variant_unref(sni->icon_pixmap);
     }
+
     if (sni->overlay_icon_name != NULL) {
 	g_variant_unref(sni->overlay_icon_name);
     }
+
     if (sni->overlay_icon_pixmap != NULL) {
 	g_variant_unref(sni->overlay_icon_pixmap);
     }
+
     if (sni->attention_icon_name != NULL) {
 	g_variant_unref(sni->attention_icon_name);
     }
+
     if (sni->attention_icon_pixmap != NULL) {
 	g_variant_unref(sni->attention_icon_pixmap);
     }
+
     if (sni->attention_movie_name != NULL) {
 	g_variant_unref(sni->attention_movie_name);
     }
+
     if (sni->tooltip != NULL) {
 	g_variant_unref(sni->tooltip);
     }
+
     if (sni->menu != NULL) {
 	g_variant_unref(sni->menu);
     }
@@ -361,18 +374,21 @@ void sni_method_call(GDBusConnection *connection, const gchar *sender, const gch
 	if (sni->context_menu_handler != NULL) {
 	    sni->context_menu_handler(sni->user_data);
 	}
+
 	g_dbus_method_invocation_return_value(invocation, NULL);
     }
     else if (strcmp(method_name, "Activate") == 0) {
 	if (sni->activate_handler != NULL) {
 	    sni->activate_handler(sni->user_data);
 	}
+
 	g_dbus_method_invocation_return_value(invocation, NULL);
     }
     else if (strcmp(method_name, "SecondaryActivate") == 0) {
 	if (sni->secondary_activate_handler != NULL) {
 	    sni->secondary_activate_handler(sni->user_data);
 	}
+
 	g_dbus_method_invocation_return_value(invocation, NULL);
     }
     else if (strcmp(method_name, "Scroll") == 0) {
@@ -383,6 +399,7 @@ void sni_method_call(GDBusConnection *connection, const gchar *sender, const gch
 	    g_variant_get(parameters, "(is)", &delta, &orientation);
 	    sni->scroll_handler(delta, orientation, sni->user_data);
 	}
+
 	g_dbus_method_invocation_return_value(invocation, NULL);
     }
     else {
@@ -468,23 +485,21 @@ GVariant* sni_get_property(GDBusConnection *connection, const gchar *sender, con
 }
 
 void sni_emit_signal(StatusNotifierItem *sni, const gchar *signal_name, GVariant *parameters) {
-    if (sni->connection != NULL) {
-	GError *err;
+    GError *err;
 
-	err = NULL;
-	g_dbus_connection_emit_signal(
-	    sni->connection,
-	    NULL,
-	    STATUS_NOTIFIER_ITEM_OBJECT_PATH,
-	    STATUS_NOTIFIER_ITEM_INTERFACE,
-	    signal_name,
-	    parameters,
-	    &err);
+    err = NULL;
+    g_dbus_connection_emit_signal(
+	sni->connection,
+	NULL,
+	STATUS_NOTIFIER_ITEM_OBJECT_PATH,
+	STATUS_NOTIFIER_ITEM_INTERFACE,
+	signal_name,
+	parameters,
+	&err);
 
-	if (err != NULL) {
-	    g_printerr("Failed to emit %s signal: %s\n", signal_name, err->message);
-	    g_error_free(err);
-	}
+    if (err != NULL) {
+	g_printerr("Failed to emit %s signal: %s\n", signal_name, err->message);
+	g_error_free(err);
     }
 }
 
@@ -543,6 +558,7 @@ void sni_category_set(StatusNotifierItem *sni, const gchar *category) {
     if (sni->category != NULL) {
 	g_variant_unref(sni->category);
     }
+
     sni->category = g_variant_new_string(category);
     g_variant_ref_sink(sni->category);
 }
@@ -551,6 +567,7 @@ void sni_id_set(StatusNotifierItem *sni, const gchar *id) {
     if (sni->id != NULL) {
 	g_variant_unref(sni->id);
     }
+
     sni->id = g_variant_new_string(id);
     g_variant_ref_sink(sni->id);
 }
@@ -559,35 +576,46 @@ void sni_title_set(StatusNotifierItem *sni, const gchar *title) {
     if (sni->title != NULL) {
 	g_variant_unref(sni->title);
     }
+
     sni->title = g_variant_new_string(title);
     g_variant_ref_sink(sni->title);
 
-    sni_emit_signal(sni, "NewTitle", NULL);
+    if (sni->connection) {
+	sni_emit_signal(sni, "NewTitle", NULL);
+    }
 }
 
 void sni_status_set(StatusNotifierItem *sni, const gchar *status) {
     if (sni->status != NULL) {
 	g_variant_unref(sni->status);
     }
+
     sni->status = g_variant_new_string(status);
     g_variant_ref_sink(sni->status);
 
-    sni_emit_signal(sni, "NewStatus", g_variant_new("(s)", status));
+    if (sni->connection) {
+	sni_emit_signal(sni, "NewStatus", g_variant_new("(s)", status));
+    }
 }
 
 void sni_icon_name_set(StatusNotifierItem *sni, const gchar *icon_name) {
     if (sni->icon_name != NULL) {
 	g_variant_unref(sni->icon_name);
     }
+
     sni->icon_name = g_variant_new_string(icon_name);
     g_variant_ref_sink(sni->icon_name);
 
-    sni_emit_signal(sni, "NewIcon", NULL);
+    if (sni->connection) {
+	sni_emit_signal(sni, "NewIcon", NULL);
+    }
 }
 
 void sni_icon_pixmap_set(StatusNotifierItem *sni, cairo_surface_t *surface) {
     if (sni_abstract_icon_pixmap_set(&sni->icon_pixmap, surface)) {
-	sni_emit_signal(sni, "NewIcon", NULL);
+	if (sni->connection) {
+	    sni_emit_signal(sni, "NewIcon", NULL);
+	}
     }
 }
 
@@ -595,15 +623,20 @@ void sni_overlay_icon_name_set(StatusNotifierItem *sni, const gchar *overlay_ico
     if (sni->overlay_icon_name != NULL) {
 	g_variant_unref(sni->overlay_icon_name);
     }
+
     sni->overlay_icon_name = g_variant_new_string(overlay_icon_name);
     g_variant_ref_sink(sni->overlay_icon_name);
 
-    sni_emit_signal(sni, "NewOverlayIcon", NULL);
+    if (sni->connection) {
+	sni_emit_signal(sni, "NewOverlayIcon", NULL);
+    }
 }
 
 void sni_overlay_icon_pixmap_set(StatusNotifierItem *sni, cairo_surface_t *surface) {
     if (sni_abstract_icon_pixmap_set(&sni->overlay_icon_pixmap, surface)) {
-	sni_emit_signal(sni, "NewOverlayIcon", NULL);
+	if (sni->connection) {
+	    sni_emit_signal(sni, "NewOverlayIcon", NULL);
+	}
     }
 }
 
@@ -611,15 +644,20 @@ void sni_attention_icon_name_set(StatusNotifierItem *sni, const gchar *attention
     if (sni->attention_icon_name != NULL) {
 	g_variant_unref(sni->attention_icon_name);
     }
+
     sni->attention_icon_name = g_variant_new_string(attention_icon_name);
     g_variant_ref_sink(sni->attention_icon_name);
 
-    sni_emit_signal(sni, "NewAttentionIcon", NULL);
+    if (sni->connection) {
+	sni_emit_signal(sni, "NewAttentionIcon", NULL);
+    }
 }
 
 void sni_attention_icon_pixmap_set(StatusNotifierItem *sni, cairo_surface_t *surface) {
     if (sni_abstract_icon_pixmap_set(&sni->attention_icon_pixmap, surface)) {
-	sni_emit_signal(sni, "NewAttentionIcon", NULL);
+	if (sni->connection) {
+	    sni_emit_signal(sni, "NewAttentionIcon", NULL);
+	}
     }
 }
 
@@ -627,6 +665,7 @@ void sni_attention_movie_name_set(StatusNotifierItem *sni, const gchar *attentio
     if (sni->attention_movie_name != NULL) {
 	g_variant_unref(sni->attention_movie_name);
     }
+
     sni->attention_movie_name = g_variant_new_string(attention_movie_name);
     g_variant_ref_sink(sni->attention_movie_name);
 }
