@@ -3,6 +3,7 @@ project(
     'c',
     version: '0.9',
     license: 'GPL-3.0-or-later',
+    default_options: ['buildtype=release'],
     meson_version: '>=0.60.0'
 )
 
