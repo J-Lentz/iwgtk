@@ -1,3 +1,12 @@
+## 0.9
+* Now requires iwd >=1.29
+* Use correct installation path for systemd unit file
+* Gracefully handle "access denied" DBus error
+* Recover DPP state and QR code after window is closed and re-opened
+* Fix various memory leaks
+* Reduce unnecessary string copies
+* Fix rare segmentation fault in Station Diagnostics window
+
 ## 0.8
  * New build-time dependency: Meson
  * New build-time dependency: scdoc
