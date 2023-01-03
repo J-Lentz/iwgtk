@@ -148,10 +148,11 @@ void agent_method_call_handler(GDBusConnection *connection, const gchar *sender,
 	const gchar *reason;
 	gchar *message;
 
-	g_variant_get(parameters, "(s)", &reason);
+	g_variant_get(parameters, "(&s)", &reason);
 	message = g_strdup_printf(_("Connection attempt has been canceled: %s"), reason);
 	send_notification(message);
 	g_free(message);
+
 	g_dbus_method_invocation_return_value(invocation, NULL);
     }
     else {
@@ -173,20 +174,20 @@ void request_dialog(Agent *agent, guint8 request_type) {
     gtk_window_set_child(GTK_WINDOW(agent->window), table);
 
     if (request_type == USERNAME_NONE) {
-	g_variant_get(parameters, "(o)", &network_path);
+	g_variant_get(parameters, "(&o)", &network_path);
 	user_widget = NULL;
 	agent->user_widget = NULL;
     }
     else {
 	if (request_type == USERNAME_ASK) {
-	    g_variant_get(parameters, "(o)", &network_path);
+	    g_variant_get(parameters, "(&o)", &network_path);
 	    user_widget = gtk_entry_new();
 	    agent->user_widget = user_widget;
 	}
 	else if (request_type == USERNAME_TELL) {
 	    const gchar *username;
 
-	    g_variant_get(parameters, "(os)", &network_path, &username);
+	    g_variant_get(parameters, "(&o&s)", &network_path, &username);
 	    user_widget = gtk_label_new(username);
 	    agent->user_widget = NULL;
 	}

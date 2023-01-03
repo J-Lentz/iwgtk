@@ -62,14 +62,13 @@ GtkWidget* mode_box_new(GDBusProxy *adapter_proxy) {
 
     GVariant *supported_modes_var;
     GVariantIter supported_modes_iter;
-    gchar *supported_mode;
+    const gchar *supported_mode;
 
     list_store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
-
     supported_modes_var = g_dbus_proxy_get_cached_property(adapter_proxy, "SupportedModes");
-
     g_variant_iter_init(&supported_modes_iter, supported_modes_var);
-    while (g_variant_iter_next(&supported_modes_iter, "s", &supported_mode)) {
+
+    while (g_variant_iter_next(&supported_modes_iter, "&s", &supported_mode)) {
 	const gchar *supported_mode_display;
 
 	if (strcmp(supported_mode, "station") == 0) {
@@ -87,8 +86,9 @@ GtkWidget* mode_box_new(GDBusProxy *adapter_proxy) {
 
 	gtk_list_store_append(list_store, &list_store_iter);
 	gtk_list_store_set(list_store, &list_store_iter, 0, supported_mode, 1, supported_mode_display, -1);
-	g_free(supported_mode);
     }
+
+    g_variant_unref(supported_modes_var);
 
     box = gtk_combo_box_new_with_model(GTK_TREE_MODEL(list_store));
     g_object_unref(list_store);

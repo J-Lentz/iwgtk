@@ -353,6 +353,7 @@ void indicator_activate(GDBusObject *device_object) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(device->button), TRUE);
 		break;
 	    }
+
 	    list = list->next;
 	}
     }
@@ -360,9 +361,7 @@ void indicator_activate(GDBusObject *device_object) {
 
 void signal_agent_method_call_handler(GDBusConnection *connection, const gchar *sender, const gchar *object_path, const gchar *interface_name, const gchar *method_name, GVariant *parameters, GDBusMethodInvocation *invocation, Indicator *indicator) {
     if (strcmp(method_name, "Changed") == 0) {
-	const gchar *device;
-
-	g_variant_get(parameters, "(oy)", &device, &indicator->level);
+	g_variant_get(parameters, "(oy)", NULL, &indicator->level);
 	g_dbus_method_invocation_return_value(invocation, NULL);
 
 	if (indicator->level <= N_SIGNAL_THRESHOLDS) {

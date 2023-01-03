@@ -224,17 +224,16 @@ void set_remote_property(GDBusProxy *proxy, const gchar *property, GVariant *val
 
 GVariant* lookup_property(GVariant *dictionary, const gchar *property) {
     GVariantIter iter;
-    gchar *key;
+    const gchar *key;
     GVariant *value;
 
     g_variant_iter_init(&iter, dictionary);
-    while (g_variant_iter_next(&iter, "{sv}", &key, &value)) {
+
+    while (g_variant_iter_next(&iter, "{&sv}", &key, &value)) {
 	if (strcmp(property, key) == 0) {
-	    g_free(key);
 	    return value;
 	}
 
-	g_free(key);
 	g_variant_unref(value);
     }
 

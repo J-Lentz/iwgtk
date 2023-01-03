@@ -28,8 +28,14 @@
 #define STATUS_NOTIFIER_WATCHER_INTERFACE    "org.kde.StatusNotifierWatcher"
 #define STATUS_NOTIFIER_WATCHER_BUS_NAME     "org.kde.StatusNotifierWatcher"
 
+typedef enum {
+    SNI_ORIENTATION_NONE,
+    SNI_ORIENTATION_VERTICAL,
+    SNI_ORIENTATION_HORIZONTAL
+} SNIScrollOrientation;
+
 typedef void (*SNIActivateHandler) (gpointer user_data);
-typedef void (*SNIScrollHandler) (int delta, const gchar *orientation, gpointer user_data);
+typedef void (*SNIScrollHandler) (int delta, SNIScrollOrientation orientation, gpointer user_data);
 
 typedef struct StatusNotifierItem_s StatusNotifierItem;
 

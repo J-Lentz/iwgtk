@@ -394,9 +394,21 @@ void sni_method_call(GDBusConnection *connection, const gchar *sender, const gch
     else if (strcmp(method_name, "Scroll") == 0) {
 	if (sni->scroll_handler != NULL) {
 	    int delta;
-	    const gchar *orientation;
+	    const gchar *orientation_str;
+	    SNIScrollOrientation orientation;
 
-	    g_variant_get(parameters, "(is)", &delta, &orientation);
+	    g_variant_get(parameters, "(i&s)", &delta, &orientation_str);
+
+	    if (strcmp(orientation_str, "vertical") == 0) {
+		orientation = SNI_ORIENTATION_VERTICAL;
+	    }
+	    else if (strcmp(orientation_str, "horizontal") == 0) {
+		orientation = SNI_ORIENTATION_HORIZONTAL;
+	    }
+	    else {
+		orientation = SNI_ORIENTATION_NONE;
+	    }
+
 	    sni->scroll_handler(delta, orientation, sni->user_data);
 	}
 

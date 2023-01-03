@@ -28,12 +28,13 @@ void diagnostic_callback(GDBusProxy *proxy, GAsyncResult *res, GtkWidget *table)
 
     if (data) {
 	GVariantIter *iter;
-	gchar *property;
+	const gchar *property;
 	GVariant *value;
 
 	g_variant_get(data, "(a{sv})", &iter);
 	int i = 0;
-	while (g_variant_iter_next(iter, "{sv}", &property, &value)) {
+
+	while (g_variant_iter_next(iter, "{&sv}", &property, &value)) {
 	    GtkWidget *property_label;
 	    GtkWidget *value_label;
 
@@ -56,7 +57,6 @@ void diagnostic_callback(GDBusProxy *proxy, GAsyncResult *res, GtkWidget *table)
 	    gtk_widget_set_halign(property_label, GTK_ALIGN_END);
 	    gtk_widget_set_halign(value_label, GTK_ALIGN_START);
 
-	    g_free(property);
 	    g_variant_unref(value);
 	}
 

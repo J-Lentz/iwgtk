@@ -239,7 +239,7 @@ void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *statio
 
     if (ordered_networks) {
 	GVariantIter *iter;
-	gchar *network_path;
+	const gchar *network_path;
 	gint16 signal_strength;
 	gint i;
 
@@ -247,9 +247,9 @@ void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *statio
 
 	station->n_networks = g_variant_iter_n_children(iter);
 	station->networks = g_malloc(station->n_networks * sizeof(Network));
-
 	i = 0;
-	while (g_variant_iter_next(iter, "(on)", &network_path, &signal_strength)) {
+
+	while (g_variant_iter_next(iter, "(&on)", &network_path, &signal_strength)) {
 	    GDBusProxy *network_proxy;
 
 	    network_proxy = G_DBUS_PROXY(g_dbus_object_manager_get_interface(global.manager, network_path, IWD_IFACE_NETWORK));
@@ -260,8 +260,6 @@ void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *statio
 	    else {
 		g_printerr("Failed to find network object '%s'\n", network_path);
 	    }
-
-	    g_free(network_path);
 	}
 
 	if (station->n_networks > 0) {
@@ -297,18 +295,16 @@ void get_hidden_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station 
     if (ordered_networks) {
 	gint i;
 	GVariantIter *iter;
-	gchar *address;
+	const gchar *address;
 	gint16 signal_strength;
-	gchar *type;
+	const gchar *type;
 
 	i = 0;
 	g_variant_get(ordered_networks, "(a(sns))", &iter);
 
-	while (g_variant_iter_next(iter, "(sns)", &address, &signal_strength, &type)) {
+	while (g_variant_iter_next(iter, "(&sn&s)", &address, &signal_strength, &type)) {
 	    i ++;
 	    station_add_hidden_network(station, address, type, signal_strength, station->n_networks + i);
-	    g_free(address);
-	    g_free(type);
 	}
 
 	if (i > 0) {
