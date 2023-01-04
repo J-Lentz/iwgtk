@@ -41,6 +41,6 @@ void agent_remove(Agent *agent);
 void agent_method_call_handler(GDBusConnection *connection, const gchar *sender, const gchar *object_path, const gchar *interface_name, const gchar *method_name, GVariant *parameters, GDBusMethodInvocation *invocation, Agent *data);
 void request_dialog(Agent *data, guint8 request_type);
 void request_submit(Agent *data);
-void request_cancel(Agent *data);
+void agent_window_destroy(Agent *data);
 
 #endif
