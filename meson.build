@@ -10,6 +10,7 @@ project(
 prefix = get_option('prefix')
 sysconfdir = get_option('sysconfdir')
 datadir = get_option('datadir')
+libdir = get_option('libdir')
 mandir = get_option('mandir')
 localedir = get_option('localedir')
 
@@ -67,7 +68,7 @@ install_data(
 
 install_data(
     'misc/iwgtk.service',
-    install_dir: prefix / 'lib/systemd/user'
+    install_dir: libdir / 'systemd/user'
 )
 
 install_data(
