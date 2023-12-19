@@ -19,7 +19,7 @@
 
 #include "iwgtk.h"
 
-void diagnostic_launch(StationDiagnostic *diagnostic) {
+void diagnostic_launch(Diagnostic *diagnostic) {
     g_dbus_proxy_call(
 	diagnostic->proxy,
 	"GetDiagnostics",
@@ -31,7 +31,7 @@ void diagnostic_launch(StationDiagnostic *diagnostic) {
 	diagnostic);
 }
 
-void diagnostic_results_cb(GDBusProxy *proxy, GAsyncResult *res, StationDiagnostic *diagnostic) {
+void diagnostic_results_cb(GDBusProxy *proxy, GAsyncResult *res, Diagnostic *diagnostic) {
     GVariant *diagnostics_data;
     GError *err;
 
@@ -88,7 +88,7 @@ void diagnostic_results_cb(GDBusProxy *proxy, GAsyncResult *res, StationDiagnost
 	diagnostic_window_show(diagnostic, table);
     }
     else {
-	g_printerr("Failed to retrieve station diagnostics: %s\n", err->message);
+	g_printerr("Failed to retrieve diagnostics: %s\n", err->message);
 	g_error_free(err);
     }
 }
@@ -101,7 +101,7 @@ void diagnostic_table_insert(GtkWidget *table, GtkWidget *property, GtkWidget *v
     gtk_grid_attach(GTK_GRID(table), value,    1, row, 1, 1);
 }
 
-void diagnostic_window_show(StationDiagnostic *diagnostic, GtkWidget *table) {
+void diagnostic_window_show(Diagnostic *diagnostic, GtkWidget *table) {
     GtkWidget *window;
 
     window = gtk_window_new();
@@ -114,7 +114,7 @@ void diagnostic_window_show(StationDiagnostic *diagnostic, GtkWidget *table) {
 	device_name_var = g_dbus_proxy_get_cached_property(diagnostic->device_proxy, "Name");
 	device_name = g_variant_get_string(device_name_var, NULL);
 
-	window_title = g_strdup_printf(_("%s: Station diagnostics"), device_name);
+	window_title = g_strdup_printf(_("%s: Diagnostics"), device_name);
 	g_variant_unref(device_name_var);
 
 	gtk_window_set_title(GTK_WINDOW(window), window_title);
@@ -141,10 +141,10 @@ gboolean diagnostic_key_press(GtkEventControllerKey *controller, guint keyval, g
     return FALSE;
 }
 
-StationDiagnostic* diagnostic_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
-    StationDiagnostic *diagnostic;
+Diagnostic* diagnostic_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
+    Diagnostic *diagnostic;
 
-    diagnostic = g_malloc(sizeof(StationDiagnostic));
+    diagnostic = g_malloc(sizeof(Diagnostic));
     diagnostic->proxy = proxy;
 
     diagnostic->button = gtk_button_new_with_label(_("Diagnostics"));
@@ -156,18 +156,18 @@ StationDiagnostic* diagnostic_add(Window *window, GDBusObject *object, GDBusProx
     return diagnostic;
 }
 
-void diagnostic_remove(Window *window, StationDiagnostic *diagnostic) {
+void diagnostic_remove(Window *window, Diagnostic *diagnostic) {
     couple_unregister(window, DEVICE_DIAGNOSTIC, 1, diagnostic);
     g_object_unref(diagnostic->button);
     g_free(diagnostic);
 }
 
-void bind_device_diagnostic(Device *device, StationDiagnostic *diagnostic) {
+void bind_device_diagnostic(Device *device, Diagnostic *diagnostic) {
     diagnostic->device_proxy = device->proxy;
 
     gtk_grid_attach(GTK_GRID(device->table), diagnostic->button, 0, 1, 1, 1);
 }
 
-void unbind_device_diagnostic(Device *device, StationDiagnostic *diagnostic) {
+void unbind_device_diagnostic(Device *device, Diagnostic *diagnostic) {
     gtk_grid_remove(GTK_GRID(device->table), diagnostic->button);
 }

@@ -20,23 +20,23 @@
 #ifndef _IWGTK_DIAGNOSTIC_H
 #define _IWGTK_DIAGNOSTIC_H
 
-typedef struct StationDiagnostic_s StationDiagnostic;
+typedef struct Diagnostic_s Diagnostic;
 
-struct StationDiagnostic_s {
+struct Diagnostic_s {
     GDBusProxy *proxy;
     GDBusProxy *device_proxy;
     GtkWidget *button;
 };
 
-void diagnostic_launch(StationDiagnostic *diagnostic);
-void diagnostic_results_cb(GDBusProxy *proxy, GAsyncResult *res, StationDiagnostic *diagnostic);
+void diagnostic_launch(Diagnostic *diagnostic);
+void diagnostic_results_cb(GDBusProxy *proxy, GAsyncResult *res, Diagnostic *diagnostic);
 void diagnostic_table_insert(GtkWidget *table, GtkWidget *property, GtkWidget *value, int row);
-void diagnostic_window_show(StationDiagnostic *diagnostic, GtkWidget *table);
+void diagnostic_window_show(Diagnostic *diagnostic, GtkWidget *table);
 gboolean diagnostic_key_press(GtkEventControllerKey *controller, guint keyval, guint keycode, GdkModifierType state, GtkWindow *window);
 
-StationDiagnostic* diagnostic_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
-void diagnostic_remove(Window *window, StationDiagnostic *diagnostic);
-void bind_device_diagnostic(Device *device, StationDiagnostic *diagnostic);
-void unbind_device_diagnostic(Device *device, StationDiagnostic *diagnostic);
+Diagnostic* diagnostic_add(Window *window, GDBusObject *object, GDBusProxy *proxy);
+void diagnostic_remove(Window *window, Diagnostic *diagnostic);
+void bind_device_diagnostic(Device *device, Diagnostic *diagnostic);
+void unbind_device_diagnostic(Device *device, Diagnostic *diagnostic);
 
 #endif

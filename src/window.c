@@ -20,15 +20,15 @@
 #include "iwgtk.h"
 
 ObjectMethods object_methods[] = {
-    {IWD_IFACE_KNOWN_NETWORK, (ConstructorFunction) known_network_add, (DestructorFunction) known_network_remove},
-    {IWD_IFACE_ADAPTER,       (ConstructorFunction) adapter_add,       (DestructorFunction) adapter_remove},
-    {IWD_IFACE_DEVICE,        (ConstructorFunction) device_add,        (DestructorFunction) device_remove},
-    {IWD_IFACE_STATION,       (ConstructorFunction) station_add,       (DestructorFunction) station_remove},
-    {IWD_IFACE_AP,            (ConstructorFunction) ap_add,            (DestructorFunction) ap_remove},
-    {IWD_IFACE_AD_HOC,        (ConstructorFunction) adhoc_add,         (DestructorFunction) adhoc_remove},
-    {IWD_IFACE_DPP,           (ConstructorFunction) dpp_add,           (DestructorFunction) dpp_remove},
-    {IWD_IFACE_WPS,           (ConstructorFunction) wps_add,           (DestructorFunction) wps_remove},
-    {IWD_IFACE_DIAGNOSTIC,    (ConstructorFunction) diagnostic_add,    (DestructorFunction) diagnostic_remove}
+    {IWD_IFACE_KNOWN_NETWORK,      (ConstructorFunction) known_network_add, (DestructorFunction) known_network_remove},
+    {IWD_IFACE_ADAPTER,            (ConstructorFunction) adapter_add,       (DestructorFunction) adapter_remove},
+    {IWD_IFACE_DEVICE,             (ConstructorFunction) device_add,        (DestructorFunction) device_remove},
+    {IWD_IFACE_STATION,            (ConstructorFunction) station_add,       (DestructorFunction) station_remove},
+    {IWD_IFACE_AP,                 (ConstructorFunction) ap_add,            (DestructorFunction) ap_remove},
+    {IWD_IFACE_AD_HOC,             (ConstructorFunction) adhoc_add,         (DestructorFunction) adhoc_remove},
+    {IWD_IFACE_DPP,                (ConstructorFunction) dpp_add,           (DestructorFunction) dpp_remove},
+    {IWD_IFACE_WPS,                (ConstructorFunction) wps_add,           (DestructorFunction) wps_remove},
+    {IWD_IFACE_STATION_DIAGNOSTIC, (ConstructorFunction) diagnostic_add,    (DestructorFunction) diagnostic_remove}
 };
 
 CoupleMethods couple_methods[] = {
