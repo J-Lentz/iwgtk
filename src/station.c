@@ -274,15 +274,17 @@ void get_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *statio
 	g_error_free(err);
     }
 
-    g_dbus_proxy_call(
-	proxy,
-	"GetHiddenAccessPoints",
-	NULL,
-	G_DBUS_CALL_FLAGS_NONE,
-	-1,
-	NULL,
-	(GAsyncReadyCallback) get_hidden_networks_callback,
-	station);
+    if (global.state & SHOW_HIDDEN_NETWORKS) {
+	g_dbus_proxy_call(
+	    proxy,
+	    "GetHiddenAccessPoints",
+	    NULL,
+	    G_DBUS_CALL_FLAGS_NONE,
+	    -1,
+	    NULL,
+	    (GAsyncReadyCallback) get_hidden_networks_callback,
+	    station);
+    }
 }
 
 void get_hidden_networks_callback(GDBusProxy *proxy, GAsyncResult *res, Station *station) {

@@ -23,9 +23,10 @@
 typedef struct GlobalData_s GlobalData;
 
 #define WINDOW_LAUNCH_PENDING (1 << 0)
-#define IWD_DOWN (1 << 1)
-#define INDICATOR_DAEMON (1 << 2)
+#define IWD_DOWN              (1 << 1)
+#define INDICATOR_DAEMON      (1 << 2)
 #define NOTIFICATIONS_DISABLE (1 << 3)
+#define SHOW_HIDDEN_NETWORKS  (1 << 4)
 
 struct GlobalData_s {
     GtkApplication *application;

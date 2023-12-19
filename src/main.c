@@ -194,9 +194,32 @@ static void config_set_color(GKeyFile *conf, const gchar *group, const gchar *ke
 
 static gint config_get_int(GKeyFile *conf, const gchar *group, const gchar *key, gint value_default) {
     gint value;
+    GError *err;
 
-    value = g_key_file_get_integer(conf, group, key, NULL);
-    return (value ? value : value_default);
+    err = NULL;
+    value = g_key_file_get_integer(conf, group, key, &err);
+
+    if (err) {
+	g_error_free(err);
+	return value_default;
+    }
+
+    return value;
+}
+
+static gint config_get_bool(GKeyFile *conf, const gchar *group, const gchar *key, gboolean value_default) {
+    gboolean value;
+    GError *err;
+
+    err = NULL;
+    value = g_key_file_get_boolean(conf, group, key, &err);
+
+    if (err) {
+	g_error_free(err);
+	return value_default;
+    }
+
+    return value;
 }
 
 static void config_set_values(GKeyFile *conf) {
@@ -225,12 +248,16 @@ static void config_set_values(GKeyFile *conf) {
 
     global.last_connection_time_fmt = g_key_file_get_string(conf, "known-network", "last-connection-time.format", NULL);
 
-    if (g_key_file_get_boolean(conf, "window", "dark", NULL)) {
+    global.width = config_get_int(conf, "window", "width", 440);
+    global.height = config_get_int(conf, "window", "height", 600);
+
+    if (config_get_bool(conf, "window", "dark", FALSE)) {
 	g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
     }
 
-    global.width = config_get_int(conf, "window", "width", 440);
-    global.height = config_get_int(conf, "window", "height", 600);
+    if (config_get_bool(conf, "window", "show-hidden-networks", FALSE)) {
+	global.state |= SHOW_HIDDEN_NETWORKS;
+    }
 }
 
 static gboolean config_read_file(const gchar *path, GKeyFile *key_file) {

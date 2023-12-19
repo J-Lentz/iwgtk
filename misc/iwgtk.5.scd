@@ -154,20 +154,23 @@ Known network list - last connection date/time - format string
 
 ## [window]
 
-Dark mode and window dimensions
+Window dimensions, dark mode, and whether to display hidden networks
 
 [- *Option*
 :- *Type*
 :- *Default value*
-|[ dark
-:[ boolean
-:[ false
 |  width
 :  integer
 :  440
 |  height
 :  integer
 :  600
+|[ dark
+:[ boolean
+:[ false
+|[ show-hidden-networks
+:[ boolean
+:[ false
 
 # SEE ALSO
 
