@@ -72,7 +72,7 @@ install_data(
 )
 
 install_data(
-    'misc/iwgtk.desktop',
+    'misc/org.twosheds.iwgtk.desktop',
     install_dir: datadir / 'applications'
 )
 
