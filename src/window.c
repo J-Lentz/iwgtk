@@ -132,7 +132,7 @@ void window_launch() {
 
     add_all_dbus_objects(window);
     g_signal_connect_swapped(window->window, "destroy", G_CALLBACK(window_rm), window);
-    gtk_widget_show(window->window);
+    gtk_widget_set_visible(window->window, true);
 }
 
 void window_rm(Window *window) {

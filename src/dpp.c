@@ -100,7 +100,7 @@ GtkWidget* qrcode_widget_new(const gchar *uri) {
 	    context = gtk_widget_get_style_context(area);
 
 	    provider = gtk_css_provider_new();
-	    gtk_css_provider_load_from_data(provider, "* {background: white;}", -1);
+	    gtk_css_provider_load_from_string(provider, "* {background: white;}");
 	    gtk_style_context_add_provider(context, GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_USER + 1);
 	    g_object_unref(provider);
 	}

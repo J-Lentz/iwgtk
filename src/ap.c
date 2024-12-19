@@ -62,7 +62,7 @@ void ap_dialog_launch(AP *ap) {
     grid_column_set_alignment(table, 1, GTK_ALIGN_START);
 
     g_signal_connect_swapped(dialog->window, "destroy", G_CALLBACK(g_free), dialog);
-    gtk_widget_show(dialog->window);
+    gtk_widget_set_visible(dialog->window, true);
 }
 
 void ap_dialog_submit(APDialog *dialog) {
@@ -144,10 +144,10 @@ void ap_set(AP *ap) {
 	    gtk_label_set_text(GTK_LABEL(ap->ssid), ssid_label);
 	    g_free(ssid_label);
 
-	    gtk_widget_show(ap->ssid);
+	    gtk_widget_set_visible(ap->ssid, true);
 	}
 	else {
-	    gtk_widget_hide(ap->ssid);
+	    gtk_widget_set_visible(ap->ssid, false);
 	}
     }
 }
@@ -164,7 +164,7 @@ AP* ap_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
 
     ap->ssid = gtk_label_new(NULL);
     g_object_ref_sink(ap->ssid);
-    gtk_widget_hide(ap->ssid);
+    gtk_widget_set_visible(ap->ssid, false);
     gtk_widget_set_halign(ap->ssid, GTK_ALIGN_START);
 
     couple_register(window, DEVICE_AP, 1, ap, object);

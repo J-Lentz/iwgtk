@@ -51,7 +51,7 @@ void hidden_ssid_dialog(Station *station) {
     grid_column_set_alignment(table, 1, GTK_ALIGN_START);
 
     g_signal_connect_swapped(dialog->window, "destroy", G_CALLBACK(g_free), dialog);
-    gtk_widget_show(dialog->window);
+    gtk_widget_set_visible(dialog->window, true);
 }
 
 void hidden_ssid_submit(HiddenNetworkDialog *dialog) {

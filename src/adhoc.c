@@ -74,7 +74,7 @@ void adhoc_dialog_launch(AdHoc *adhoc) {
     grid_column_set_alignment(table, 2, GTK_ALIGN_START);
 
     g_signal_connect_swapped(adhoc_dialog->window, "destroy", G_CALLBACK(g_free), adhoc_dialog);
-    gtk_widget_show(adhoc_dialog->window);
+    gtk_widget_set_visible(adhoc_dialog->window, true);
 }
 
 void adhoc_dialog_submit(AdHocDialog *adhoc_dialog) {

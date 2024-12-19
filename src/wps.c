@@ -101,7 +101,7 @@ void wps_connect_pin_dialog(WPS *wps) {
     grid_column_set_alignment(table, 1, GTK_ALIGN_START);
 
     g_signal_connect_swapped(wps_dialog->window, "destroy", G_CALLBACK(g_free), wps_dialog);
-    gtk_widget_show(wps_dialog->window);
+    gtk_widget_set_visible(wps_dialog->window, true);
 }
 
 void wps_pin_dialog_submit(WPSDialog *wps_dialog) {

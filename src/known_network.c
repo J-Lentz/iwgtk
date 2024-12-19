@@ -61,13 +61,7 @@ void known_network_set(KnownNetwork *kn) {
 	hidden_var = g_dbus_proxy_get_cached_property(kn->proxy, "Hidden");
 	hidden = g_variant_get_boolean(hidden_var);
 
-	if (hidden) {
-	    gtk_widget_show(kn->hidden_label);
-	}
-	else {
-	    gtk_widget_hide(kn->hidden_label);
-	}
-
+	gtk_widget_set_visible(kn->hidden_label, hidden);
 	g_variant_unref(hidden_var);
     }
 

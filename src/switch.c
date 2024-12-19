@@ -68,6 +68,6 @@ GtkWidget* switch_new(GDBusProxy *proxy, const gchar *property) {
     gtk_widget_set_halign(switch_data->widget, GTK_ALIGN_CENTER);
     gtk_widget_set_valign(switch_data->widget, GTK_ALIGN_CENTER);
 
-    gtk_widget_show(switch_data->widget);
+    gtk_widget_set_visible(switch_data->widget, true);
     return switch_data->widget;
 }
