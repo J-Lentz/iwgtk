@@ -119,7 +119,7 @@ Station* station_add(Window *window, GDBusObject *object, GDBusProxy *proxy) {
     station->provision_button = gtk_button_new_with_label(_("Provision"));
     g_object_ref_sink(station->provision_button);
 
-    g_signal_connect_swapped(station->provision_button, "clicked", G_CALLBACK(gtk_widget_show), station->provision_menu);
+    g_signal_connect_swapped(station->provision_button, "clicked", G_CALLBACK(gtk_popover_popup), station->provision_menu);
     gtk_widget_set_parent(station->provision_menu, station->provision_button);
 
     station->network_table = gtk_grid_new();

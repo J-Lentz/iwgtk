@@ -130,7 +130,7 @@ void diagnostic_window_show(Diagnostic *diagnostic, GtkWidget *table) {
     }
 
     gtk_window_set_child(GTK_WINDOW(window), table);
-    gtk_widget_show(window);
+    gtk_widget_set_visible(window, true);
 }
 
 gboolean diagnostic_key_press(GtkEventControllerKey *controller, guint keyval, guint keycode, GdkModifierType state, GtkWindow *window) {

@@ -245,7 +245,7 @@ void request_dialog(Agent *agent, guint8 request_type) {
     grid_column_set_alignment(table, 1, GTK_ALIGN_START);
 
     g_signal_connect_swapped(agent->window, "destroy", G_CALLBACK(agent_window_destroy), agent);
-    gtk_widget_show(agent->window);
+    gtk_widget_set_visible(agent->window, true);
 }
 
 void request_submit(Agent *agent) {
