@@ -109,3 +109,4 @@ license](https://creativecommons.org/licenses/by/3.0/us/legalcode).
 * Andrew Benson
 * Alex Piechowski (grepsedawk)
 * Luigi Baldoni
+* Integral-Tech

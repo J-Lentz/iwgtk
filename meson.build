@@ -25,7 +25,7 @@ add_project_arguments(
 subdir('src')
 
 dependencies = [
-    dependency('gtk4', version: '>=4.6'),
+    dependency('gtk4', version: '>=4.12'),
     dependency('libqrencode')
 ]
 
