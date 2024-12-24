@@ -38,7 +38,7 @@ see `man 5 iwgtk` and refer to the comments in `iwgtk.conf`.
 
 ### Runtime dependencies
 * iwd (>= 1.29)
-* gtk4 (>= 4.6)
+* gtk4 (>= 4.12)
 * libqrencode
 * adwaita-icon-theme (or an equivalent icon package)
 
