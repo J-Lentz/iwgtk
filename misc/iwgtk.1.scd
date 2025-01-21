@@ -45,7 +45,7 @@ Report bugs using the issue tracker on Github
 
 # COPYRIGHT
 
-Copyright 2020-2023 Jesse Lentz <jesse@twosheds.org> and contributors
+Copyright 2020-2025 Jesse Lentz <jesse@twosheds.org> and contributors
 
 iwgtk is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

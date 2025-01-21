@@ -1,5 +1,5 @@
 /*
- *  Copyright 2020-2023 Jesse Lentz and contributors
+ *  Copyright 2020-2025 Jesse Lentz and contributors
  *
  *  This file is part of iwgtk.
  *
