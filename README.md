@@ -46,6 +46,11 @@ see `man 5 iwgtk` and refer to the comments in `iwgtk.conf`.
 * meson (>= 0.60.0)
 * scdoc
 
+example: Fedora 41
+```
+meson gtk4-devel clang llvm iwd scdoc qrencode-devel pkgconfig
+```
+
 ## Installation
 To build iwgtk and install to `/usr/local`, run:
 ```
