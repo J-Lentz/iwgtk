@@ -107,6 +107,7 @@ void window_launch() {
 	    close_button = gtk_button_new_with_label(_("Close"));
 	    g_signal_connect_swapped(close_button, "clicked", G_CALLBACK(gtk_window_destroy), window->window);
 	    gtk_box_append(GTK_BOX(known_network_button_vbox), close_button);
+	    gtk_widget_set_margin_bottom(close_button, 3);
 	}
 
 	gtk_box_append(GTK_BOX(known_network_button_vbox), window->known_network_button);
