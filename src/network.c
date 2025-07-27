@@ -209,6 +209,9 @@ void station_add_network(Station *station, GDBusProxy *network_proxy, gint16 sig
     network->security_label = gtk_label_new(NULL);
     network->connect_button = gtk_button_new();
 
+    gtk_label_set_wrap(GTK_LABEL(network->ssid_label), TRUE);
+    gtk_label_set_wrap_mode(GTK_LABEL(network->ssid_label), PANGO_WRAP_WORD_CHAR);
+
     gtk_widget_set_tooltip_text(network->ssid_label, _("SSID"));
     gtk_widget_set_tooltip_text(network->security_label, _("Network security type"));
 
