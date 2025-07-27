@@ -116,6 +116,7 @@ void window_launch() {
 
     window->main = gtk_scrolled_window_new();
     g_object_ref_sink(window->main);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(window->main), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
     gtk_scrolled_window_set_propagate_natural_height(GTK_SCROLLED_WINDOW(window->main), TRUE);
     gtk_box_append(GTK_BOX(window->master), window->main);
 

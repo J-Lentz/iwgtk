@@ -32,6 +32,7 @@ struct Device_s {
     // Widgets
     GtkWidget *master;
     GtkWidget *table;
+    GtkWidget *networks_box;
     GtkWidget *mac_label;
     GtkWidget *mode_box;
 
