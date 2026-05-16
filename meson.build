@@ -67,8 +67,13 @@ install_data(
 )
 
 install_data(
-    'misc/iwgtk.service',
+    'misc/systemd/org.twosheds.iwgtk.service',
     install_dir: libdir / 'systemd/user'
+)
+
+install_data(
+    'misc/dbus/org.twosheds.iwgtk.service',
+    install_dir: datadir / 'dbus-1/services'
 )
 
 install_data(

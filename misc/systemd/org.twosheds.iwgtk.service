@@ -1,13 +1,15 @@
 [Unit]
-Description=iwgtk
+Description=Lightweight wireless networking GUI (front-end for iwd)
 Documentation=man:iwgtk(1)
-Wants=iwd.service
 PartOf=graphical-session.target
 After=graphical-session.target
 
 [Service]
-ExecStart=iwgtk -i
+Type=dbus
+Busname=org.twosheds.iwgtk
+ExecStart=iwgtk --indicators
 Restart=on-failure
 
 [Install]
 WantedBy=graphical-session.target
+Alias=iwgtk.service
