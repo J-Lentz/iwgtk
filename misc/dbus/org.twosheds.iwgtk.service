@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=org.twosheds.iwgtk
+Exec=/usr/bin/iwgtk --indicators --gapplication-service
+SystemdService=org.twosheds.iwgtk.service
